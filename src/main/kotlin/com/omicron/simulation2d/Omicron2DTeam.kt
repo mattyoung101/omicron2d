@@ -5,6 +5,7 @@ import com.github.robocup_atan.atan.model.ControllerCoach
 import com.github.robocup_atan.atan.model.ControllerPlayer
 import com.omicron.simulation2d.Values.SERVER_IP
 import com.omicron.simulation2d.Values.SERVER_PORT
+import com.omicron.simulation2d.agents.GeneralAgent
 
 class Omicron2DTeam : AbstractTeam("Omicron2D", SERVER_PORT, SERVER_IP, false) {
     override fun getNewControllerCoach(): ControllerCoach? {

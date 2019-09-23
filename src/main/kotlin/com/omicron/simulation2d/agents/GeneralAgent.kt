@@ -1,14 +1,28 @@
-package com.omicron.simulation2d
+package com.omicron.simulation2d.agents
 
+import com.esotericsoftware.kryo.Kryo
+import com.esotericsoftware.kryo.io.ByteBufferOutput
 import com.github.robocup_atan.atan.model.ActionsPlayer
 import com.github.robocup_atan.atan.model.ControllerPlayer
 import com.github.robocup_atan.atan.model.enums.*
+import com.omicron.simulation2d.Message
+import com.omicron.simulation2d.Messages
+import com.omicron.simulation2d.ai.MessageEncoder
 import org.pmw.tinylog.Logger
 import java.util.HashMap
 
 class GeneralAgent : ControllerPlayer {
     private var actionsPlayer: ActionsPlayer? = null
     private var type_ = "GeneralAgent"
+    private val encoder = MessageEncoder()
+
+    override fun preInfo() {
+        // not implemented
+    }
+
+    override fun postInfo() {
+        // TODO parse and process inputs here
+    }
 
     override fun infoPlayerParam(allowMultDefaultType: Double, dashPowerRateDeltaMax: Double, dashPowerRateDeltaMin: Double,
                                  effortMaxDeltaFactor: Double, effortMinDeltaFactor: Double, extraStaminaDeltaMax: Double,
@@ -20,7 +34,8 @@ class GeneralAgent : ControllerPlayer {
         // not implemented
     }
 
-    override fun infoHearPlayMode(playMode: PlayMode?) {// not implemented
+    override fun infoHearPlayMode(playMode: PlayMode) {
+        Logger.info("Received play mode: $playMode")
     }
 
     override fun infoSeeBall(distance: Double, direction: Double, distChange: Double, dirChange: Double,
@@ -133,14 +148,6 @@ class GeneralAgent : ControllerPlayer {
 
     override fun infoHearPlayer(direction: Double, message: String?) {
         // TODO decode message here (Kryo deserialisation)
-    }
-
-    override fun preInfo() {
-        // not implemented
-    }
-
-    override fun postInfo() {
-        // TODO parse and process inputs here
     }
 
     override fun infoSeeFlagGoalOwn(flag: Flag?, distance: Double, direction: Double, distChange: Double, dirChange: Double,

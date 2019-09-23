@@ -8,19 +8,26 @@ version '1.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
 
+// 1.9.10
+// gdx ai 1.8.0
+
 repositories {
+    mavenLocal()
     mavenCentral()
+    jcenter()
+    google()
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+    maven { url "https://oss.sonatype.org/content/repositories/releases/" }
 }
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     compile group: 'org.tinylog', name: 'tinylog', version: '1.3.6'
-//    compile 'no.tornado:tornadofx:1.7.17'
-//    implementation 'org.kodein.di:kodein-di-generic-jvm:6.3.3'
     compile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: '1.3.21'
     compile group: 'com.esotericsoftware', name: 'kryo', version: '5.0.0-RC4'
     compile group: 'com.github.robocup-atan', name: 'atan', version: '0.4.4'
-    compile group: 'log4j', name: 'log4j', version: '1.2.17' // just for interacting with the Atan logger
+    implementation 'com.github.ajalt:clikt:2.1.0'
+    compile group: 'com.badlogicgames.gdx', name: 'gdx-ai', version: '1.8.2'
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
