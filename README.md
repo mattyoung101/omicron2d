@@ -3,8 +3,9 @@
 Omicron2D aims to be a team competing in RoboCup Soccer 2D Simulation. 
 This repo contains the Kotlin code, running on the JVM, powering our rcssserver agent.
 
-This team is a side project of Team Omicron, an official team competing in RoboCup Jr Open Soccer.
-However, unlike that team, Omicron2D currently an independent project consisting of only one member (me, Matt Young, from Team Omicron).
+Omicron2D is related to Team Omicron, an official team competing in RoboCup Jr Open Soccer.
+We are currently an independent side-project consisting of only one member: me, Matt Young, software engineer
+on Team Omicron. In the future, we may expand out to more members if any are interested.
 
 Contact Matt Young (matt.young.1@outlook.com) for any questions, queries, qualms or concerns.
 
