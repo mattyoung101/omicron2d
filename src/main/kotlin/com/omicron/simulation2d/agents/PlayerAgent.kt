@@ -1,19 +1,15 @@
 package com.omicron.simulation2d.agents
 
-import com.esotericsoftware.kryo.Kryo
-import com.esotericsoftware.kryo.io.ByteBufferOutput
 import com.github.robocup_atan.atan.model.ActionsPlayer
 import com.github.robocup_atan.atan.model.ControllerPlayer
 import com.github.robocup_atan.atan.model.enums.*
-import com.omicron.simulation2d.Message
-import com.omicron.simulation2d.Messages
 import com.omicron.simulation2d.ai.MessageEncoder
 import org.pmw.tinylog.Logger
 import java.util.HashMap
 
-class GeneralAgent : ControllerPlayer {
-    private var actionsPlayer: ActionsPlayer? = null
-    private var type_ = "GeneralAgent"
+class PlayerAgent : ControllerPlayer {
+    private var actions: ActionsPlayer? = null
+    private var agentType = "GeneralAgent"
     private val encoder = MessageEncoder()
 
     override fun preInfo() {
@@ -36,6 +32,10 @@ class GeneralAgent : ControllerPlayer {
 
     override fun infoHearPlayMode(playMode: PlayMode) {
         Logger.info("Received play mode: $playMode")
+        if (playMode == PlayMode.BEFORE_KICK_OFF){
+            Logger.info("Positioning agent: team direction=${if (actions?.isTeamEast!!) "east" else "west"}" +
+                    ", id=${actions?.number!!}")
+        }
     }
 
     override fun infoSeeBall(distance: Double, direction: Double, distChange: Double, dirChange: Double,
@@ -120,11 +120,11 @@ class GeneralAgent : ControllerPlayer {
     }
 
     override fun getType(): String {
-        return type_
+        return agentType
     }
 
     override fun setType(newType: String) {
-        type_ = newType
+        agentType = newType
     }
 
     override fun infoSeePlayerOther(number: Int, goalie: Boolean, distance: Double, direction: Double, distChange: Double,
@@ -167,10 +167,10 @@ class GeneralAgent : ControllerPlayer {
     }
 
     override fun getPlayer(): ActionsPlayer? {
-        return actionsPlayer
+        return actions
     }
 
     override fun setPlayer(c: ActionsPlayer?) {
-        actionsPlayer = c
+        actions = c
     }
 }

@@ -20,8 +20,9 @@ import kotlin.system.exitProcess
 class Omicron2DApp : CliktCommand(){
     private val numberClients by option(help="Number of clients to connect").int().default(11)
     private val startServer by option(help="Start an instance of rcssserver").flag()
-    private val startMonitor by option(help="Start an instance of soccerwindow2").flag()
+    private val startMonitor by option(help="Start an instance of rcssmonitor").flag()
     private val startOpposition by option(help="Starts a team of simple clients to play against").flag()
+    private val muteTools by option(help="Mute the output of rcssserver and rcssmonitor").flag()
 
     override fun run() {
         var server: Process? = null
@@ -31,11 +32,13 @@ class Omicron2DApp : CliktCommand(){
         // start server if requested
         if (startServer){
             Logger.info("Starting rcssserver...")
-            server = ProcessBuilder()
-                .directory(File("../../../logs/"))
-                .command("rcssserver")
-                .inheritIO()
-                .start()
+            server = ProcessBuilder().apply {
+                directory(File("../../../logs/"))
+                command("rcssserver")
+                if (!muteTools) inheritIO()
+                start()
+            }.start()
+
             Thread.sleep(1500) // wait for it to start
         }
 
@@ -55,9 +58,13 @@ class Omicron2DApp : CliktCommand(){
         if (startMonitor){
             Logger.info("Starting monitor...")
             // currently we use rcssmonitor instead of soccerwindow2 because it's faster to start up
-            monitor = ProcessBuilder().command("rcssmonitor").inheritIO().start()
+            monitor = ProcessBuilder().apply {
+                command("rcssmonitor")
+                if (!muteTools) inheritIO()
+            }.start()
+
+            // if the user closes the monitor, quit the app as well
             monitor?.onExit()?.thenAccept {
-                // if the user closes the monitor, quit the app as well
                 Logger.info("Monitor has terminated! Shutting down...")
                 exitProcess(0)
             }
@@ -77,6 +84,7 @@ class Omicron2DApp : CliktCommand(){
 object Main {
     @JvmStatic
     fun main(args: Array<String>){
+        // TODO convert to tinylog2 which doesn't support Configurator only config files
         Configurator.currentConfig().removeAllWriters()
             .locale(Locale.ENGLISH)
             .level(Level.TRACE)
