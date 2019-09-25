@@ -15,6 +15,9 @@ feel they need to in order to score a point.
 
 We will probably need entire sub-subsystems to plan out extremely complex behaviours like passing and maybe kickoffs.
 
+When we receive an update from the ref like free_kick or something, the behaviour tree evaluator will load up the
+free kick behaviour tree. How do we decide which agent goes and fetches the ball?
+
 ### Thoughts on planning algorithms
 Probably going to go with behaviour trees. While they are basic I don't currently have the skills to implement
 neural online planners like WrightEagle are using. I don't feel like GOAP would be real-time enough but I may be wrong.
@@ -29,6 +32,8 @@ we want to go given that there's many optimal solutions to a question such as "h
 
 In addition to this, we have to solve an optimisation problem to determine for example how much power we put into
 our kicks and dashes. This is another complex problem which I'm not sure what algorithm could be used to solve.
+
+Note that the movement planner will also handle not only directional moving but also kicking and grabbing and everything.
 
 # Execution process
 1. First we will load the initial team positioning (4-3-3 or the like) from the config file created with FormationEditor
