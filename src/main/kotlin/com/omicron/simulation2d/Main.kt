@@ -36,7 +36,6 @@ class Omicron2DApp : CliktCommand(){
                 directory(File("../../../logs/"))
                 command("rcssserver")
                 if (!muteTools) inheritIO()
-                start()
             }.start()
 
             Thread.sleep(1500) // wait for it to start
@@ -57,7 +56,6 @@ class Omicron2DApp : CliktCommand(){
 
         if (startMonitor){
             Logger.info("Starting monitor...")
-            // currently we use rcssmonitor instead of soccerwindow2 because it's faster to start up
             monitor = ProcessBuilder().apply {
                 command("rcssmonitor")
                 if (!muteTools) inheritIO()
@@ -74,6 +72,7 @@ class Omicron2DApp : CliktCommand(){
         if (server != null || monitor != null || opposition != null) {
             Runtime.getRuntime().addShutdownHook(thread(start = false) {
                 println("Shutting down sub-processes...")
+                opposition?.destroy() // damn right
                 server?.destroy()
                 monitor?.destroy()
             })
@@ -99,6 +98,7 @@ object Main {
             .addWriter(ConsoleWriter())
             .activate()
         System.setProperty("log4j.configuration", "log4j.properties")
+        System.setProperty("kryo.unsafe", "false")
 
         Logger.info("Omicron2D client: Copyright (c) 2019 Matt Young. Available under the BSD 3-Clause license.")
         Omicron2DApp().main(args)

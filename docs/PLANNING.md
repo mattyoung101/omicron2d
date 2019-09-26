@@ -23,6 +23,10 @@ Probably going to go with behaviour trees. While they are basic I don't currentl
 neural online planners like WrightEagle are using. I don't feel like GOAP would be real-time enough but I may be wrong.
 A hierarchical finite state machine is also another option but I feel it's the weakest and would lead to ugly code.
 
+Change this, we're totally going to use GOAP or a related planning algorithm such as SHOP, STRIPS or hierarchical task
+networks. The reason being is that we may be able to feed the future plan into the movement algorithm for smarter
+long term moves and it may help us in teammate collaboration.
+
 ## Movement planner
 Once the behaviour planner has decided the course of action, it will then calculate how to move on the field with
 the movement planner. This will be quite complex and I'm not sure how to do it yet, some sort of path planning

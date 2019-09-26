@@ -20,6 +20,7 @@ repositories {
     google()
     maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
     maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+    maven { url "https://dl.bintray.com/kyonifer/maven" }
 }
 
 dependencies {
@@ -29,7 +30,9 @@ dependencies {
     compile group: 'com.esotericsoftware', name: 'kryo', version: '5.0.0-RC4'
     compile group: 'com.github.robocup-atan', name: 'atan', version: '0.4.4'
     implementation 'com.github.ajalt:clikt:2.1.0'
-    compile group: 'com.badlogicgames.gdx', name: 'gdx-ai', version: '1.8.2'
+//    compile group: 'com.badlogicgames.gdx', name: 'gdx-ai', version: '1.8.2'
+    // this is LGPL, we could use Commons Math or la4j instead
+    compile group: 'net.mikera', name: 'vectorz', version: '0.66.0'
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
