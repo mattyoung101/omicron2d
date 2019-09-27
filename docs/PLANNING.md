@@ -39,6 +39,10 @@ our kicks and dashes. This is another complex problem which I'm not sure what al
 
 Note that the movement planner will also handle not only directional moving but also kicking and grabbing and everything.
 
+# Localisation
+We should localise using a particle filter, it's well suited for this task and a team called Brainstormers have used
+it in the past.
+
 # Execution process
 1. First we will load the initial team positioning (4-3-3 or the like) from the config file created with FormationEditor
 2. 
