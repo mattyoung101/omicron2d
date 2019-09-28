@@ -1,16 +1,25 @@
 package com.omicron.simulation2d.agents
 
+import com.esotericsoftware.kryo.Kryo
 import com.github.robocup_atan.atan.model.ActionsPlayer
 import com.github.robocup_atan.atan.model.ControllerPlayer
 import com.github.robocup_atan.atan.model.enums.*
+import com.omicron.simulation2d.Message
+import com.omicron.simulation2d.Messages
 import com.omicron.simulation2d.ai.MessageEncoder
-import org.pmw.tinylog.Logger
+import mikera.vectorz.Vector2
+import org.tinylog.kotlin.Logger
 import java.util.HashMap
 
 class PlayerAgent : ControllerPlayer {
     private var actions: ActionsPlayer? = null
     private var agentType = "GeneralAgent"
-    private val encoder = MessageEncoder()
+    private val kryo = Kryo().apply {
+        register(Array<Vector2>::class.java)
+        register(Message::class.java)
+        register(Messages::class.java)
+    }
+    private val encoder = MessageEncoder(kryo)
 
     override fun preInfo() {
         // not implemented
@@ -31,9 +40,8 @@ class PlayerAgent : ControllerPlayer {
     }
 
     override fun infoHearPlayMode(playMode: PlayMode) {
-        Logger.info("Received play mode: $playMode")
         if (playMode == PlayMode.BEFORE_KICK_OFF){
-            Logger.info("Positioning agent: team direction=${if (actions?.isTeamEast!!) "east" else "west"}" +
+            Logger.trace("[BEFORE_KICK_OFF] Positioning agent: team direction=${if (actions?.isTeamEast!!) "east" else "west"}" +
                     ", id=${actions?.number!!}")
         }
     }

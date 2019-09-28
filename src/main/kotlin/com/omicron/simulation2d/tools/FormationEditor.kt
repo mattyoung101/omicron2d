@@ -106,7 +106,7 @@ class FormationEditor : Application() {
             accelerator = KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN)
         }
         openFormation.setOnAction {
-            // FIXME add open functionality (will reqcquire deserialising and fixing positions)
+            // FIXME add open functionality (will recquire deserialising and fixing positions)
 //            fileChooser.title = "Open formation file"
 //            val selectedFile = fileChooser.showOpenDialog(stage)
 

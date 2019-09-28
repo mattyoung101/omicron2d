@@ -9,11 +9,7 @@ import java.util.*
 /**
  * The MessageEncoder will encode a class into a
  */
-class MessageEncoder {
-    private val kryo = Kryo().apply {
-        register(Message::class.java)
-        register(Messages::class.java)
-    }
+class MessageEncoder(private val kryo: Kryo) {
     private val output = Output(64).apply {
         variableLengthEncoding = true
     }

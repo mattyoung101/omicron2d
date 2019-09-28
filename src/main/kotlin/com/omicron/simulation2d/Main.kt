@@ -5,13 +5,7 @@ import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
-import org.pmw.tinylog.Configurator
-import org.pmw.tinylog.Level
-import org.pmw.tinylog.Logger
-import org.pmw.tinylog.labelers.CountLabeler
-import org.pmw.tinylog.policies.StartupPolicy
-import org.pmw.tinylog.writers.ConsoleWriter
-import org.pmw.tinylog.writers.RollingFileWriter
+import org.tinylog.kotlin.Logger
 import java.io.File
 import java.util.*
 import kotlin.concurrent.thread
@@ -83,21 +77,8 @@ class Omicron2DApp : CliktCommand(){
 object Main {
     @JvmStatic
     fun main(args: Array<String>){
-        // TODO convert to tinylog2 which doesn't support Configurator only config files
-        Configurator.currentConfig().removeAllWriters()
-            .locale(Locale.ENGLISH)
-            .level(Level.TRACE)
-            .formatPattern("{date} {level} [{class_name}:{line}] {message}")
-            .writer(
-                RollingFileWriter(
-                System.getProperty("user.home") + "/Documents/TeamOmicron/Omicron2D/omicron2d.log",
-                4, CountLabeler(), StartupPolicy()
-                )
-            )
-            .writingThread(false)
-            .addWriter(ConsoleWriter())
-            .activate()
         System.setProperty("log4j.configuration", "log4j.properties")
+        System.setProperty("tinylog.configuration", "tinylog.properties")
         System.setProperty("kryo.unsafe", "false")
 
         Logger.info("Omicron2D client: Copyright (c) 2019 Matt Young. Available under the BSD 3-Clause license.")
