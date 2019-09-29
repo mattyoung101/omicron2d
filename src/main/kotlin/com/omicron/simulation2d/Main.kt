@@ -23,6 +23,14 @@ class Omicron2DApp : CliktCommand(){
         var monitor: Process? = null
         val opposition: Process? = null
 
+        // we register the shutdown hook up in here in case of any exceptions that would cause it not to be created
+        Runtime.getRuntime().addShutdownHook(thread(start = false) {
+            println("Shutting down sub-processes...")
+            opposition?.destroy() // damn right
+            server?.destroy()
+            monitor?.destroy()
+        })
+
         // start server if requested
         if (startServer){
             Logger.info("Starting rcssserver...")
@@ -46,7 +54,8 @@ class Omicron2DApp : CliktCommand(){
                 team.connect(i)
             }
         }
-        // TODO start 11 agent2d's (or another team's binary) here
+
+        // TODO start 11 agent2d's (or another team's binary) here with support for running either left side or right side
 
         if (startMonitor){
             Logger.info("Starting monitor...")
@@ -60,16 +69,6 @@ class Omicron2DApp : CliktCommand(){
                 Logger.info("Monitor has terminated! Shutting down...")
                 exitProcess(0)
             }
-        }
-
-        // clean up any sub-processes we may have created
-        if (server != null || monitor != null || opposition != null) {
-            Runtime.getRuntime().addShutdownHook(thread(start = false) {
-                println("Shutting down sub-processes...")
-                opposition?.destroy() // damn right
-                server?.destroy()
-                monitor?.destroy()
-            })
         }
     }
 }

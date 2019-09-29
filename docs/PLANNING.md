@@ -39,6 +39,21 @@ our kicks and dashes. This is another complex problem which I'm not sure what al
 
 Note that the movement planner will also handle not only directional moving but also kicking and grabbing and everything.
 
+## Blackboards and inter-agent communication
+Commonly used in AI, basically sharing information between agents. Now in our case, it's really interesting because
+the blackboard will have to be distributed and synchronised very infrequently using only 10 bytes of data per 
+transmission. Perhaps we could use the coach who can send 512 bytes of data every 30s, if we can communicate with the 
+coach each agent can upload its own variables and download all the others. Otherwise, we'll have to develop some
+distributed (dare I say almost _blockchain_ like system) of sharing knowledge, where a robot can put in a specific
+request for another element of the robot's blackboard. Our blackboards should also probably be namespaced either just
+in the name (as you would in C) or with sub HashMaps (we will represent the blackboard as a HashMap). Instead of sending
+strings as requests, we could send hash codes of strings.
+
+Another problem is that the connection protocol of rcssserver's say command is non-existent in fact it's even worse than
+UDP because we can get a response from anyone, even other teams' players. Each transaction will need to have a unique 
+ID associated with it, and the agents will have to store each request in a buffer so that they can keep track of the 
+response to the request they sent out earlier.
+
 # Localisation
 We should localise using a particle filter, it's well suited for this task and a team called Brainstormers have used
 it in the past.
