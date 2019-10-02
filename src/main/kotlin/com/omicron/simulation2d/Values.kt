@@ -2,7 +2,7 @@ package com.omicron.simulation2d
 
 import mikera.vectorz.Vector2
 
-// Contains values and data classes
+// Contains various values and data classes
 
 object Values {
     /** whether or not debug mode is enabled **/
@@ -11,18 +11,23 @@ object Values {
     const val SERVER_IP = "localhost"
     const val FIELD_WIDTH = 105
     const val FIELD_HEIGHT = 68
-    val FIELD_CENTRE = Vector2.of(FIELD_WIDTH / 2.0, FIELD_HEIGHT / 2.0)
+    val FIELD_CENTRE = Vector2.of(FIELD_WIDTH / 2.0, FIELD_HEIGHT / 2.0)!!
 }
 
-/** A connection to another agent established with the say() command **/
+/** A connection to another agent, transmitted via the say() command **/
 data class Connection(val id: Int){
-    val previousMessages = mutableListOf<Message>()
+    val sent = mutableListOf<Message>()
+    val received = mutableListOf<Message>()
 }
 
 /** A message that has been sent/received from another agent **/
-data class Message(val id: Messages, val content: Any)
+data class Message(val type: Messages = Messages.NONE, val content: Any? = null, var remoteId: Int = -1){
+    
+}
 
 enum class Messages {
+    NONE,
+
     /** I am ready to engage in the previous request you sent **/
     ACCEPTED,
     /** I am, at this present moment, not willing to engage in the previous request you sent **/
@@ -47,21 +52,21 @@ enum class Messages {
  **/
 enum class PlayerRoles {
     // Goal keeper
-    KEEPER,
+    KEEPER, // 0
 
     // Defence
-    CENTRE_BACK_LEFT,
-    CENTRE_BACK_RIGHT,
-    FULL_BACK_LEFT,
-    FULL_BACK_RIGHT,
+    CENTRE_BACK_LEFT, // 1
+    CENTRE_BACK_RIGHT, // 2
+    FULL_BACK_LEFT, // 3
+    FULL_BACK_RIGHT, // 4
 
     // Centre
-    CENTRE_MID_LEFT,
-    CENTRE_MID_RIGHT,
-    CENTRE_MID_CENTRE,
+    CENTRE_MID_LEFT, // 5
+    CENTRE_MID_RIGHT, // 6
+    CENTRE_MID_CENTRE, // 7
 
     // Attack
-    STRIKER, // aka centre forward
-    LEFT_WING,
-    RIGHT_WING,
+    STRIKER, // 8, aka centre forward
+    LEFT_WING, // 9
+    RIGHT_WING, // 10
 }

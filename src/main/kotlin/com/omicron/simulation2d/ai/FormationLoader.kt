@@ -19,7 +19,7 @@ class FormationLoader(name: String, kryo: Kryo) {
         val input = Input(FileInputStream(file))
         positions = kryo.readObject(input, Array<Vector2>::class.java)
         input.close()
-        Logger.debug("Loaded formation: $file")
+//        Logger.debug("Loaded formation: $file")
     }
 
     /**

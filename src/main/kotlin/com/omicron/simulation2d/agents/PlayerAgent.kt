@@ -9,18 +9,18 @@ import com.omicron.simulation2d.Messages
 import com.omicron.simulation2d.PlayerRoles
 import com.omicron.simulation2d.ai.ConnectionManager
 import com.omicron.simulation2d.ai.FormationLoader
-import com.omicron.simulation2d.ai.MessageEncoder
 import mikera.vectorz.Vector2
 import org.tinylog.kotlin.Logger
 import java.util.HashMap
 import kotlin.math.roundToInt
 
 /**
- * @param id the ID of the agent, 0-10
+ * @param agentId the ID of the agent, 0-10
  */
 class PlayerAgent(private val agentId: Int) : ControllerPlayer {
     private var actions: ActionsPlayer? = null
     private var agentType = "PlayerAgent"
+    // as no write access is done to Kryo we can keep one instance per agent thread as it's quite expensive
     private val kryo = Kryo().apply {
         register(Array<Vector2>::class.java)
         register(Vector2::class.java)
@@ -28,18 +28,21 @@ class PlayerAgent(private val agentId: Int) : ControllerPlayer {
         register(Messages::class.java)
     }
     private val role = PlayerRoles.values()[agentId]
-    private val encoder = MessageEncoder(kryo)
-    private val connectionManager = ConnectionManager()
-    private val startFormation = FormationLoader("test.formation", kryo)
+    private val connectionManager = ConnectionManager(kryo)
+    // TODO load this only once in the whole application
+    private val startingFormation = FormationLoader("starting433.formation", kryo)
+    /** last heard play mode from ref **/
+    private var playMode = PlayMode.BEFORE_KICK_OFF
+    private val con = connectionManager.newConnection()
 
     ////////////////// GAMEPLAY RESPONSES //////////////////
 
     override fun preInfo() {
-        // not implemented
+
     }
 
     override fun postInfo() {
-        // TODO parse and process inputs here
+
     }
 
     override fun infoPlayerParam(allowMultDefaultType: Double, dashPowerRateDeltaMax: Double, dashPowerRateDeltaMin: Double,
@@ -58,22 +61,30 @@ class PlayerAgent(private val agentId: Int) : ControllerPlayer {
                 Logger.trace("BEFORE_KICK_OFF Positioning agent: " +
                         "team direction=${if (actions?.isTeamEast!!) "right" else "left"}, id=${actions?.number!!}, " +
                         "role=$role")
-                val pos = startFormation.getPosition(agentId)
+                val pos = startingFormation.getPosition(agentId)
                 actions?.move(pos.x.roundToInt(), pos.y.roundToInt())
+                // need to prime localiser on start position here!
+
+//                val msg = Message(Messages.SEND_PASS_REQUEST)
+//                connectionManager.send(msg, con, actions)
+//                actions?.say("bruh")
+            }
+            PlayMode.KICK_OFF_OWN -> {
+                // we won't use GOAP for this, maybe something simpler like a really basic FSM to move into position
+                // and then kick, only if we're one of the striker players near the ball
+                // also we gotta decide where to pick to
+                // if we're one of the other striker guys we need to move into position ready to take the ball from
+                // a pass
+                // actually we could use GOAP and have it decide to plan to kick off?? and that could help pass
+                this.playMode = PlayMode.KICK_OFF_OWN
+            }
+            PlayMode.PLAY_ON -> {
+                // load up main planner here
             }
             else -> {
                 Logger.warn("Unregistered play mode detected: $playMode")
             }
         }
-    }
-
-    override fun infoHearReferee(refereeMessage: RefereeMessage) {
-        Logger.info("Received ref message: $refereeMessage")
-    }
-
-    override fun infoHearPlayer(direction: Double, message: String?) {
-        // in this step, we'll decode message here (Kryo deserialisation)
-        // if an error occurs in deserialisation, ignore it because it was a malformed message from another team
     }
 
     override fun infoSeeBall(distance: Double, direction: Double, distChange: Double, dirChange: Double,
@@ -83,13 +94,27 @@ class PlayerAgent(private val agentId: Int) : ControllerPlayer {
 
     ////////////////// HEARING //////////////////
 
+    override fun infoHearReferee(refereeMessage: RefereeMessage) {
+        Logger.info("Received ref message: $refereeMessage")
+    }
+
+    override fun infoHearPlayer(direction: Double, message: String) {
+//        Logger.trace("Received player message: $message")
+//        val conn = connectionManager.receive(message)
+//        if (conn != null){
+//            val msg = conn.received.last()
+//            Logger.trace("Received valid message: $msg")
+//        }
+        println("Heard message: $message in direction $direction")
+    }
+
     override fun infoHearWarning(warning: Warning) {
         Logger.info("Received warning: $warning")
         // in this call we've done something wrong internally, seems to be mostly coach related so we should be right
     }
 
     override fun infoHearError(error: Errors) {
-        Logger.error("Received error: $error")
+        Logger.info("Received error: $error")
     }
 
     override fun infoHearOk(ok: Ok) {

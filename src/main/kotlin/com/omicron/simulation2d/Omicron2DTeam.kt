@@ -14,6 +14,7 @@ class Omicron2DTeam : AbstractTeam("Omicron2D", SERVER_PORT, SERVER_IP, false) {
     }
 
     override fun getNewControllerPlayer(i: Int): ControllerPlayer {
+        // TODO: use goalie agent!!
         return PlayerAgent(i)
     }
 }

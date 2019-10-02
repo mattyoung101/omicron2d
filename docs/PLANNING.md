@@ -58,6 +58,14 @@ response to the request they sent out earlier.
 We should localise using a particle filter, it's well suited for this task and a team called Brainstormers have used
 it in the past.
 
+# Layout tree
+Behaviour planner (plan on what to do) 
+--> Movement planner (plan on where to go/look) 
+--> Movement executor (turn it into server commands)
+--> Atan (Java library for rcssserver)
+--> rcsserver commands (text)
+--> rcsserver  (sent via UDP)
+
 # Execution process
 1. First we will load the initial team positioning (4-3-3 or the like) from the config file created with FormationEditor
 2. 

@@ -17,6 +17,7 @@ class Omicron2DApp : CliktCommand(){
     private val startMonitor by option(help="Start an instance of rcssmonitor").flag()
     private val startOpposition by option(help="Starts a team of simple clients to play against").flag()
     private val muteTools by option(help="Mute the output of rcssserver and rcssmonitor").flag()
+    private val debug by option(help="Enable debug mode (start debugger application and verbose logging)").flag()
 
     override fun run() {
         var server: Process? = null
@@ -31,6 +32,13 @@ class Omicron2DApp : CliktCommand(){
             monitor?.destroy()
         })
 
+        if (muteTools){
+            Logger.info("Tools (rcssserver and rcssmonitor) are being muted.")
+        }
+        if (debug){
+            Logger.info("Debug mode has been enabled. The debug tool will be started shortly.")
+        }
+
         // start server if requested
         if (startServer){
             Logger.info("Starting rcssserver...")
@@ -41,6 +49,20 @@ class Omicron2DApp : CliktCommand(){
             }.start()
 
             Thread.sleep(1500) // wait for it to start
+        }
+
+        if (startMonitor){
+            Logger.info("Starting monitor...")
+            monitor = ProcessBuilder().apply {
+                command("rcssmonitor")
+                if (!muteTools) inheritIO()
+            }.start()
+
+            // if the user closes the monitor, quit the app as well
+            monitor?.onExit()?.thenAccept {
+                Logger.info("Monitor has terminated! Shutting down...")
+                exitProcess(0)
+            }
         }
 
         // run our team
@@ -56,20 +78,6 @@ class Omicron2DApp : CliktCommand(){
         }
 
         // TODO start 11 agent2d's (or another team's binary) here with support for running either left side or right side
-
-        if (startMonitor){
-            Logger.info("Starting monitor...")
-            monitor = ProcessBuilder().apply {
-                command("rcssmonitor")
-                if (!muteTools) inheritIO()
-            }.start()
-
-            // if the user closes the monitor, quit the app as well
-            monitor?.onExit()?.thenAccept {
-                Logger.info("Monitor has terminated! Shutting down...")
-                exitProcess(0)
-            }
-        }
     }
 }
 
