@@ -3,7 +3,6 @@ package com.omicron.simulation2d.ai
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.io.Output
 import com.omicron.simulation2d.Message
-import com.omicron.simulation2d.Messages
 import java.util.*
 
 /**

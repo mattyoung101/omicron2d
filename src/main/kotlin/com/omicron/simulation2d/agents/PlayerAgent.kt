@@ -7,23 +7,30 @@ import com.github.robocup_atan.atan.model.enums.*
 import com.omicron.simulation2d.Message
 import com.omicron.simulation2d.Messages
 import com.omicron.simulation2d.PlayerRoles
+import com.omicron.simulation2d.ai.ConnectionManager
+import com.omicron.simulation2d.ai.FormationLoader
+import com.omicron.simulation2d.ai.MessageEncoder
 import mikera.vectorz.Vector2
 import org.tinylog.kotlin.Logger
 import java.util.HashMap
+import kotlin.math.roundToInt
 
 /**
  * @param id the ID of the agent, 0-10
  */
-class PlayerAgent(id: Int) : ControllerPlayer {
+class PlayerAgent(private val agentId: Int) : ControllerPlayer {
     private var actions: ActionsPlayer? = null
-    private var agentType = "GeneralAgent"
+    private var agentType = "PlayerAgent"
     private val kryo = Kryo().apply {
         register(Array<Vector2>::class.java)
+        register(Vector2::class.java)
         register(Message::class.java)
         register(Messages::class.java)
     }
-    private val role = PlayerRoles.values()[id]
-//    private val encoder = MessageEncoder(kryo)
+    private val role = PlayerRoles.values()[agentId]
+    private val encoder = MessageEncoder(kryo)
+    private val connectionManager = ConnectionManager()
+    private val startFormation = FormationLoader("test.formation", kryo)
 
     ////////////////// GAMEPLAY RESPONSES //////////////////
 
@@ -51,7 +58,8 @@ class PlayerAgent(id: Int) : ControllerPlayer {
                 Logger.trace("BEFORE_KICK_OFF Positioning agent: " +
                         "team direction=${if (actions?.isTeamEast!!) "right" else "left"}, id=${actions?.number!!}, " +
                         "role=$role")
-                // load starting formation and position agents, also select role based on ID
+                val pos = startFormation.getPosition(agentId)
+                actions?.move(pos.x.roundToInt(), pos.y.roundToInt())
             }
             else -> {
                 Logger.warn("Unregistered play mode detected: $playMode")

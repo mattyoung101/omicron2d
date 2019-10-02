@@ -9,12 +9,13 @@ import java.nio.file.Paths
 
 /**
  * Loads a formation file created with the Formation Editor (FormationEditor.kt)
+ * @param name the name of the file to load in the form of "FILE.formation"
  */
 class FormationLoader(name: String, kryo: Kryo) {
     private val positions: Array<Vector2>
 
     init {
-        val file = Paths.get("$name.formation").toFile()
+        val file = Paths.get(name).toAbsolutePath().toFile()
         val input = Input(FileInputStream(file))
         positions = kryo.readObject(input, Array<Vector2>::class.java)
         input.close()

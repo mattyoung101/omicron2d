@@ -2,6 +2,8 @@ package com.omicron.simulation2d
 
 import mikera.vectorz.Vector2
 
+// Contains values and data classes
+
 object Values {
     /** whether or not debug mode is enabled **/
     const val DEBUG = true
@@ -11,6 +13,14 @@ object Values {
     const val FIELD_HEIGHT = 68
     val FIELD_CENTRE = Vector2.of(FIELD_WIDTH / 2.0, FIELD_HEIGHT / 2.0)
 }
+
+/** A connection to another agent established with the say() command **/
+data class Connection(val id: Int){
+    val previousMessages = mutableListOf<Message>()
+}
+
+/** A message that has been sent/received from another agent **/
+data class Message(val id: Messages, val content: Any)
 
 enum class Messages {
     /** I am ready to engage in the previous request you sent **/

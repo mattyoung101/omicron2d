@@ -2,6 +2,7 @@ package com.omicron.simulation2d.tools
 
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.io.Output
+import com.omicron.simulation2d.Values.FIELD_CENTRE
 import com.omicron.simulation2d.Values.FIELD_WIDTH
 import com.omicron.simulation2d.Values.FIELD_HEIGHT
 import javafx.application.Application
@@ -34,7 +35,7 @@ import java.nio.file.Paths
  * Note that because the image is a screencap from rcssmonitor (not an actual render), positions aren't 100% accurate.
  */
 
-private const val VERSION = "0.1a"
+private const val VERSION = "1.0"
 
 class FormationEditor : Application() {
     private val kryo = Kryo().apply {
@@ -106,27 +107,23 @@ class FormationEditor : Application() {
             accelerator = KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN)
         }
         openFormation.setOnAction {
-            // FIXME add open functionality (will recquire deserialising and fixing positions)
-//            fileChooser.title = "Open formation file"
-//            val selectedFile = fileChooser.showOpenDialog(stage)
+            // TODO add open functionality (will require deserialising and fixing positions)
 
-//            if (selectedFile != null){
-                val alert = Alert(Alert.AlertType.ERROR, "This will be added in the future.",
-                    ButtonType.OK).apply {
-                    headerText = "Open functionality has not yet been implemented."
+            val alert = Alert(Alert.AlertType.ERROR, "This will be added in the future.",
+                ButtonType.OK).apply {
+                headerText = "Open functionality has not yet been implemented."
 
-                    // I can't believe how fucking broken these alert boxes are.
-                    // Fix from: https://github.com/javafxports/openjdk-jfx/issues/222#issuecomment-458690238
-                    isResizable = true
-                    setOnShown {
-                        Platform.runLater {
-                            isResizable = false
-                            dialogPane.scene.window.sizeToScene()
-                        }
+                // I can't believe how fucking broken these alert boxes are.
+                // Fix from: https://github.com/javafxports/openjdk-jfx/issues/222#issuecomment-458690238
+                isResizable = true
+                setOnShown {
+                    Platform.runLater {
+                        isResizable = false
+                        dialogPane.scene.window.sizeToScene()
                     }
                 }
-                alert.show()
-//            }
+            }
+            alert.show()
         }
 
         val saveFormation = MenuItem("Save formation").apply {
@@ -143,16 +140,18 @@ class FormationEditor : Application() {
 
                 // collect positions
                 val positions = players.map {
-                    val pos = Vector2.of(it.layoutX, it.layoutY).apply { divide(fieldScale) }
+                    val pos = Vector2.of(it.layoutX, it.layoutY).apply {
+                        divide(fieldScale)
+                        sub(FIELD_CENTRE)
+                    }
                     println("Position: (${it.layoutX}, ${it.layoutY}), scaled: (${pos.x}, ${pos.y})")
-                    // TODO then I think we need to subtract the centre?
                     pos
                 }.toTypedArray()
 
                 // serialise to disk
                 kryo.writeObject(output, positions)
                 output.close()
-                println("Operation completed.")
+                println("Written to disk successfully.")
             }
         }
 
@@ -198,6 +197,19 @@ class FormationEditor : Application() {
         // height is calculated manually due to the fact that you can't just add the height of the fucking MenuBar
         val scene = Scene(vbox, 1254.0, 847.0)
         stage.scene = scene
+
+        // print position of goalie to console for debugging unit conversions
+        scene.setOnKeyPressed {
+            if (it.code == KeyCode.SPACE){
+                val goalie = players[0]
+                val pos = Vector2.of(goalie.layoutX, goalie.layoutY).apply {
+                    divide(fieldScale)
+                    sub(FIELD_CENTRE)
+                }
+                println("Goalie pos: (${pos.x}, ${pos.y})")
+            }
+        }
+
         stage.show()
     }
 }
