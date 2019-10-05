@@ -39,6 +39,16 @@ our kicks and dashes. This is another complex problem which I'm not sure what al
 
 Note that the movement planner will also handle not only directional moving but also kicking and grabbing and everything.
 
+### Skills or actions
+I think what we should do is have various skills or actions that the movement planner can execute, which are slightly
+higher level than what the rcssserver offers. Intelligent behaviour will be made by combining these skills and executing
+them (this is what the executor does). So the behaviour planner decides what to do, movement planner decides how to do it
+(i.e. positions to move to) and the movement executor will do actually do it.
+
+Example skills include MoveAbsolute (quickly but carefully manoeuvres to an absolute position on the field, gdx-ai's
+Arrive behaviour), DashRelative (dashes in a direction relative to the player quickly like our real life robots do).
+
+
 ## Blackboards and inter-agent communication
 Commonly used in AI, basically sharing information between agents. Now in our case, it's really interesting because
 the blackboard will have to be distributed and synchronised very infrequently using only 10 bytes of data per 

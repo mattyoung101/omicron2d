@@ -12,6 +12,8 @@ sourceCompatibility = 1.8
 
 // 1.9.10
 // gdx ai 1.8.0
+// TODO either use libgdx vectors or ask dev to change license, see: https://opensource.stackexchange.com/a/6701
+// problem with gdx is it includes a bunch of useless bloat via graphics dependencies which we don't need
 
 repositories {
     mavenLocal()
