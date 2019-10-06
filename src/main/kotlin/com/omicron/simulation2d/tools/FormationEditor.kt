@@ -26,22 +26,22 @@ import javafx.scene.text.Text
 import java.io.FileOutputStream
 import java.nio.file.Paths
 
-/*
+
+private const val VERSION = "1.0"
+
+/**
  * Formation Editor application by Matt Young (BSD 3-Clause license).
  * Not the cleanest code ever, pretty much just hacked together to be usable in a few days.
  * You can use this app to position the field into a formation and save it to a Kryo serialised file.
  * For normal use, only use the left hand side of the field because the agent will automatically mirror the formation
  * if it starts on the west side.
- * Note that because the image is a screencap from rcssmonitor (not an actual render), positions aren't 100% accurate.'
+ * Note that because the image is a screencap from rcssmonitor (not an actual render), positions aren't 100% accurate.
  *
  * TODO:
  *  - add support for opening formations
  *  - add undo key
  *  - prompt on exit if unsaved changes
  */
-
-private const val VERSION = "1.0"
-
 class FormationEditor : Application() {
     private val kryo = Kryo().apply {
         register(Array<Vector2>::class.java)

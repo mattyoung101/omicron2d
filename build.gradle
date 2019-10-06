@@ -37,6 +37,7 @@ dependencies {
     compile group: 'net.mikera', name: 'vectorz', version: '0.66.0'
     compile group: 'org.apache.commons', name: 'commons-rng-core', version: '1.2'
     compile group: 'org.apache.commons', name: 'commons-rng-simple', version: '1.2'
+    compile 'com.google.guava:guava:28.1-jre'
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }

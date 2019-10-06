@@ -5,19 +5,19 @@ import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
+import com.omicron.simulation2d.tools.Debugger
+import javafx.application.Application
 import org.tinylog.kotlin.Logger
 import java.io.File
-import java.util.*
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 
 class Omicron2DApp : CliktCommand(){
-    private val numberClients by option(help="Number of clients to connect").int().default(11)
     private val startServer by option(help="Start an instance of rcssserver").flag()
     private val startMonitor by option(help="Start an instance of rcssmonitor").flag()
-    private val startOpposition by option(help="Starts a team of simple clients to play against").flag()
+    private val startOpposition by option(help="Starts a team of sample clients to play against").flag()
     private val muteTools by option(help="Mute the output of rcssserver and rcssmonitor").flag()
-    private val debug by option(help="Enable debug mode (start debugger application and verbose logging)").flag()
+    private val debugger by option(help="Start the Omicron2D debugging application").flag()
 
     override fun run() {
         var server: Process? = null
@@ -35,9 +35,6 @@ class Omicron2DApp : CliktCommand(){
         if (muteTools){
             Logger.info("Tools (rcssserver and rcssmonitor) are being muted.")
         }
-        if (debug){
-            Logger.info("Debug mode has been enabled. The debug tool will be started shortly.")
-        }
 
         // start server if requested
         if (startServer){
@@ -47,7 +44,6 @@ class Omicron2DApp : CliktCommand(){
                 command("rcssserver")
                 if (!muteTools) inheritIO()
             }.start()
-
             Thread.sleep(1500) // wait for it to start
         }
 
@@ -65,17 +61,20 @@ class Omicron2DApp : CliktCommand(){
             }
         }
 
-        // run our team
-        val team = Omicron2DTeam()
-        if (numberClients == 11){
-            Logger.trace("Running default team of 11 players")
-            team.connectAll()
-        } else {
-            Logger.trace("Running shortened team of $numberClients players")
-            for (i in 0 until numberClients){
-                team.connect(i)
+        // run the debugger
+        if (debugger){
+            Logger.info("Starting Omicron2D Visual Debugger...")
+            thread {
+                Application.launch(Debugger::class.java, "")
+                Logger.debug("Visual Debugger has been closed, shutting down!")
+                exitProcess(0)
             }
         }
+
+        // TODO only quit if both debugger and monitor are closed
+
+        // run our team
+        Omicron2DTeam().connectAll()
 
         // TODO start 11 agent2d's (or another team's binary) here with support for running either left side or right side
     }
