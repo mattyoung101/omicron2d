@@ -8,6 +8,8 @@ import com.google.common.base.CaseFormat
 import com.omicron.simulation2d.Message
 import com.omicron.simulation2d.Messages
 import com.omicron.simulation2d.PlayerRoles
+import com.omicron.simulation2d.Values.localBlackboards
+import com.omicron.simulation2d.ai.Blackboard
 import com.omicron.simulation2d.ai.ConnectionManager
 import com.omicron.simulation2d.ai.FormationLoader
 import com.omicron.simulation2d.ai.ParticleFilterLocaliser
@@ -37,8 +39,8 @@ class PlayerAgent(private val agentId: Int) : ControllerPlayer {
     private val startingFormation = FormationLoader("starting433.formation", kryo)
     /** last heard play mode from ref **/
     private var playMode = PlayMode.BEFORE_KICK_OFF
-    private val con = connectionManager.newConnection()
     private val localiser = ParticleFilterLocaliser()
+    private val blackboard = localBlackboards.get()
 
     ////////////////// GAMEPLAY RESPONSES //////////////////
 
@@ -48,6 +50,7 @@ class PlayerAgent(private val agentId: Int) : ControllerPlayer {
 
     override fun postInfo() {
         val newPos = localiser.updateLocalisation()
+        blackboard.agentPos.set(newPos)
     }
 
     override fun infoPlayerParam(allowMultDefaultType: Double, dashPowerRateDeltaMax: Double, dashPowerRateDeltaMin: Double,
@@ -63,7 +66,7 @@ class PlayerAgent(private val agentId: Int) : ControllerPlayer {
     override fun infoHearPlayMode(playMode: PlayMode) {
         when (playMode) {
             PlayMode.BEFORE_KICK_OFF -> {
-                Logger.debug("BEFORE_KICK_OFF Positioning agent: " +
+                Logger.trace("($agentId) BEFORE_KICK_OFF Positioning agent: " +
                         "team direction=${if (actions?.isTeamEast!!) "right" else "left"}, id=${actions?.number!!}, " +
                         "role=$role")
                 val pos = startingFormation.getPosition(agentId)
@@ -78,12 +81,20 @@ class PlayerAgent(private val agentId: Int) : ControllerPlayer {
                 // if we're one of the other striker guys we need to move into position ready to take the ball from
                 // a pass
                 // actually we could use GOAP and have it decide to plan to kick off?? and that could help pass
-                Logger.debug("KICK_OFF_OWN")
+                Logger.trace("($agentId) KICK_OFF_OWN")
                 this.playMode = PlayMode.KICK_OFF_OWN
+
+                if (role == PlayerRoles.CENTRE_MID_CENTRE){
+                    Logger.debug("Role is $role, navigating to ball")
+                } else if (role in listOf(PlayerRoles.STRIKER, PlayerRoles.CENTRE_MID_LEFT, PlayerRoles.CENTRE_MID_RIGHT)){
+                    Logger.debug("Role is $role, preparing to accept pass")
+                }
             }
+
             PlayMode.PLAY_ON -> {
                 // load up main planner here
             }
+
             else -> {
                 Logger.warn("Unregistered play mode detected: $playMode")
             }
@@ -108,7 +119,8 @@ class PlayerAgent(private val agentId: Int) : ControllerPlayer {
 //            val msg = conn.received.last()
 //            Logger.trace("Received valid message: $msg")
 //        }
-        println("Heard message: $message in direction $direction")
+        // FIXME Atan's hear parser is bugged, we should fix this in our own version of it (atan2)
+//        println("Heard message: $message in direction $direction")
     }
 
     override fun infoHearWarning(warning: Warning) {
@@ -194,7 +206,9 @@ class PlayerAgent(private val agentId: Int) : ControllerPlayer {
 
     override fun infoSeePlayerOther(number: Int, goalie: Boolean, distance: Double, direction: Double, distChange: Double,
                                     dirChange: Double, bodyFacingDirection: Double, headFacingDirection: Double) {
-        // need to localise it to field coords
+        // should store this in a list somewhere, we do need a blackboard
+        val seenPlayerPos = localiser.localiseObject(blackboard.agentPos, direction, distance)
+        if (number != agentId) blackboard.teamPositions[number].set(seenPlayerPos)
     }
 
     override fun infoSeeFlagPenaltyOther(flag: Flag, distance: Double, direction: Double,distChange: Double, dirChange: Double,

@@ -1,4 +1,4 @@
-package com.omicron.simulation2d.ai.skills
+package com.omicron.simulation2d.ai.executor.skills
 
 /**
  * This is the central class for the movement executor subsystem that manages skills (steering behaviours).

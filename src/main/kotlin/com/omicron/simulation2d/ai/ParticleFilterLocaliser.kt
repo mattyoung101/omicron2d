@@ -5,6 +5,8 @@ import org.apache.commons.rng.simple.RandomSource
 import org.tinylog.kotlin.Logger
 import kotlin.math.abs
 import mikera.vectorz.Vector2
+import kotlin.math.cos
+import kotlin.math.sin
 
 
 private data class Particle(val position: Vector2 = Vector2.of(0.0, 0.0), var weight: Double = 1.0)
@@ -17,26 +19,8 @@ private data class Landmark(val position: Vector2 = Vector2.of(0.0, 0.0), var di
 
 /**
  * Localises the robot on the field based on a particle filter.
- * Based on: https://www.cs.utexas.edu/~teammco/misc/particle_filter/, which is MIT licensed:
- * Copyright (c) 2013 Richard Teammco
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * Based on: https://www.cs.utexas.edu/~teammco/misc/particle_filter/, which is MIT licensed.
+ * This is a essentially ported and slightly rewritten version of that.
  */
 class ParticleFilterLocaliser {
     private val rng = RandomSource.create(RandomSource.XOR_SHIFT_1024_S)
@@ -44,8 +28,10 @@ class ParticleFilterLocaliser {
     private val landmarks = hashMapOf<String, Landmark>()
     /** the known orientation of the agent, angle should be counter-clockwise from the positive X axis **/
     var orientation = 0.0
-    // source: https://github.com/rcsoccersim/rcssmonitor/blob/c4ece69c7022c8d4077afbf448010d68e7cf2b45/src/field_painter.cpp#L335
-    private val landmarkRealPositions = mapOf<String, Vector2>()
+    // source: object_table.cpp from librcsc by Hidehisa Akiyama (thanks for writing them all out!)
+    private val landmarkRealPositions = mapOf<String, Vector2>(
+        // we can use the infix function "to" here e.g. "This" to Vector2.of(0, 0)
+    )
 
     /** Spawns all the particles around a single point (with some noise) **/
     fun setInitialEstimateLocation(pos: Vector2){
@@ -81,39 +67,64 @@ class ParticleFilterLocaliser {
     fun updateLocalisation(): Vector2 {
         Logger.trace("Have ${landmarks.size} landmarks: ${landmarks.keys.joinToString(", ")}")
 
-        // TODO this all needs to be in a loop for number of steps
-
-        // 0. approximate position using current particles
-        val positionSum = Vector2()
-        val posWeightSum = Vector2()
-        var weightSum = 0.0
-        for (particle in particles) {
-            particle.apply {
-                positionSum.add(position)
-                posWeightSum.add(weight * position.x, weight * position.y)
-                weightSum += weight
+        for (i in 0..NUMBER_STEPS) {
+            // 0. approximate position using current particles
+            val positionSum = Vector2()
+            val posWeightSum = Vector2()
+            var weightSum = 0.0
+            for (particle in particles) {
+                particle.apply {
+                    positionSum.add(position)
+                    posWeightSum.add(position.multiplyCopy(weight))
+                    weightSum += weight
+                }
             }
+            // weighted average from particles
+            val estimatedWeightedPos = posWeightSum.divideCopy(weightSum)
+
+            // 1. if the agent moved, translate the particles by the movement
+            // TODO how on earth are we supposed to figure this one out?
+
+            // 2. do a random walk if on random walk step
+            if (i % RANDOM_WALK_FREQ == 0){
+                Logger.trace("Doing random walk (step: $i)")
+                for (particle in particles) {
+                    val walk = Vector2(
+                        (rng.nextDouble() * (RANDOM_WALK_DISTANCE + 1)) - RANDOM_WALK_DISTANCE / 2,
+                        (rng.nextDouble() * (RANDOM_WALK_DISTANCE + 1)) - RANDOM_WALK_DISTANCE / 2
+                    )
+                    particle.position.add(walk)
+                }
+            }
+
+            // 3. estimate weights of every particle
+
+            // 4. normalise weights
+
+            // 5. resample particles (pick based on probability)
         }
-        // weighted estimate from particles
-        val estimatedWeightedPos = posWeightSum.divideCopy(weightSum)
-
-        // 1. if the agent moved, translate the particles by the movement
-        // how on earth are we supposed to figure this one out?
-
-        // 2. do a random walk if on random walk step
-
-        // 3. estimate weights of every particle
-
-        // 4. normalise weights
-
-        // 5. resample particles (pick based on probability)
 
         return Vector2.of(0.0 ,0.0)
     }
 
+    /**
+     * Given the position of the agent in field coords, returns the absolute position given the relative position of
+     * an object.
+     * @param myPos position of agent in absolute field coords
+     * @param objAngle angle towards object relative to agent
+     * @param objDistance distance to object relative to agent
+     * @return absolute position of object in field coords
+     */
+    fun localiseObject(myPos: Vector2, objAngle: Double, objDistance: Double): Vector2 {
+        val cartesian = Vector2(objDistance * cos(objAngle), objDistance * sin(objAngle))
+        cartesian.add(myPos)
+        return cartesian
+    }
+
     companion object {
         private const val NUMBER_PARTICLES = 512
-        private const val RAND_WALK_FREQ = 5 // randomly walk every N ticks
+        private const val RANDOM_WALK_FREQ = 8 // randomly walk every N ticks
         private const val RANDOM_WALK_DISTANCE = 128
+        private const val NUMBER_STEPS = 256
     }
 }

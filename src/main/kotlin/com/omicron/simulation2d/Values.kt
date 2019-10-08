@@ -1,5 +1,6 @@
 package com.omicron.simulation2d
 
+import com.omicron.simulation2d.ai.Blackboard
 import mikera.vectorz.Vector2
 
 // Contains various values and data classes
@@ -13,6 +14,7 @@ object Values {
     const val FIELD_HEIGHT = 68
     const val FIELD_DIAGONAL = 125.1
     val FIELD_CENTRE = Vector2.of(FIELD_WIDTH / 2.0, FIELD_HEIGHT / 2.0)!!
+    val localBlackboards = ThreadLocal<Blackboard>()
 }
 
 /** A connection to another agent, transmitted via the say() command **/
