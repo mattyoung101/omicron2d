@@ -12,5 +12,11 @@ class Blackboard {
     /** localised position of ball **/
     val ballPos = Vector2()
     /** localised positions of all other teammates visible, including self **/
-    val teamPositions = Array<Vector2>(11) { Vector2() }
+    val teammatePositions = Array(11) { Vector2() }
+    /** localised positions of all opponents **/
+    val opponentPositions = Array(11) { Vector2() }
+
+    companion object {
+        val localBlackboards: ThreadLocal<Blackboard> = ThreadLocal.withInitial { Blackboard() }
+    }
 }

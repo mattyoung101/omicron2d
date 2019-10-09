@@ -1,6 +1,6 @@
-package com.omicron.simulation2d.ai.executor.skills
+package com.omicron.simulation2d.ai.movement.skills
 
-import com.omicron.simulation2d.ai.executor.Skill
+import com.omicron.simulation2d.ai.movement.Skill
 
 /**
  * Runs quickly in a direction, with no particular destination.

@@ -8,7 +8,6 @@ import com.google.common.base.CaseFormat
 import com.omicron.simulation2d.Message
 import com.omicron.simulation2d.Messages
 import com.omicron.simulation2d.PlayerRoles
-import com.omicron.simulation2d.Values.localBlackboards
 import com.omicron.simulation2d.ai.Blackboard
 import com.omicron.simulation2d.ai.ConnectionManager
 import com.omicron.simulation2d.ai.FormationLoader
@@ -40,13 +39,10 @@ class PlayerAgent(private val agentId: Int) : ControllerPlayer {
     /** last heard play mode from ref **/
     private var playMode = PlayMode.BEFORE_KICK_OFF
     private val localiser = ParticleFilterLocaliser()
-    private val blackboard = localBlackboards.get()
+    private val blackboard = Blackboard.localBlackboards.get()
 
     ////////////////// GAMEPLAY RESPONSES //////////////////
-
-    override fun preInfo() {
-
-    }
+    override fun preInfo() {}
 
     override fun postInfo() {
         val newPos = localiser.updateLocalisation()
@@ -101,13 +97,7 @@ class PlayerAgent(private val agentId: Int) : ControllerPlayer {
         }
     }
 
-    override fun infoSeeBall(distance: Double, direction: Double, distChange: Double, dirChange: Double,
-                             bodyFacingDirection: Double, headFacingDirection: Double) {
-        // in this step, we will use our previous localisation data to calculate the absolute position of the ball
-    }
-
     ////////////////// HEARING //////////////////
-
     override fun infoHearReferee(refereeMessage: RefereeMessage) {
         Logger.info("Received ref message: $refereeMessage")
     }
@@ -124,31 +114,50 @@ class PlayerAgent(private val agentId: Int) : ControllerPlayer {
     }
 
     override fun infoHearWarning(warning: Warning) {
-        Logger.info("Received warning: $warning")
+        Logger.warn("Received warning: $warning")
         // in this call we've done something wrong internally, seems to be mostly coach related so we should be right
     }
 
     override fun infoHearError(error: Errors) {
-        Logger.info("Received error: $error")
+        Logger.error("Received error: $error")
+        // same as above mostly, not much we can do except save this for debugging
     }
 
     override fun infoHearOk(ok: Ok) {
-        // looks like the thing we tried to ask for earlier has been approved
+        // looks like the thing we tried to ask for earlier has been approved - we don't ask for anything rn so no need
     }
 
 
     ////////////////// SEEING (FOR LOCALISATION) //////////////////
+    // TODO for all of these, depending on the order they are called, we might an outdated player pos?
+    // because player localisation is done in postInfo(), so we almost need a localisation queue which is done afterwards
+    // idk see how inaccurate it is then decide if it's worth implementing the queue (not too hard just lazy)
 
-    override fun infoSeeFlagCenter(flag: Flag, distance: Double, direction: Double, distChange: Double, dirChange: Double,
-                                   bodyFacingDirection: Double, headFacingDirection: Double) {
-        val name = "Centre" + CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, flag.name)
-        localiser.updateLandmark(name, distance)
+    override fun infoSeeBall(distance: Double, direction: Double, distChange: Double, dirChange: Double,
+                             bodyFacingDirection: Double, headFacingDirection: Double) {
+        val seenBallPos = localiser.localiseObject(blackboard.agentPos, direction, distance)
+        blackboard.ballPos.set(seenBallPos)
     }
 
     override fun infoSeePlayerOwn(number: Int, goalie: Boolean, distance: Double, direction: Double, distChange: Double,
                                   dirChange: Double, bodyFacingDirection: Double, headFacingDirection: Double) {
         // we see one of our teammates I assume, maybe useful for localisation?
         // definitely useful for movement planning, especially passing!! we should ask them for their orientation
+        // TODO in this and infoSeePlayerOther() what does bodyFacingDirection and headFacingDirection do? can we use it?
+        val seenPlayerPos = localiser.localiseObject(blackboard.agentPos, direction, distance)
+        blackboard.teammatePositions[number].set(seenPlayerPos)
+    }
+
+    override fun infoSeePlayerOther(number: Int, goalie: Boolean, distance: Double, direction: Double, distChange: Double,
+                                    dirChange: Double, bodyFacingDirection: Double, headFacingDirection: Double) {
+        val seenPlayerPos = localiser.localiseObject(blackboard.agentPos, direction, distance)
+        blackboard.opponentPositions[number].set(seenPlayerPos)
+    }
+
+    override fun infoSeeFlagCenter(flag: Flag, distance: Double, direction: Double, distChange: Double, dirChange: Double,
+                                   bodyFacingDirection: Double, headFacingDirection: Double) {
+        val name = "Centre" + CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, flag.name)
+        localiser.updateLandmark(name, distance)
     }
 
     override fun infoSeeFlagCornerOwn(flag: Flag, distance: Double, direction: Double, distChange: Double, dirChange: Double,
@@ -202,13 +211,6 @@ class PlayerAgent(private val agentId: Int) : ControllerPlayer {
     override fun infoSeeLine(line: Line, distance: Double, direction: Double, distChange: Double, dirChange: Double,
                              bodyFacingDirection: Double, headFacingDirection: Double){
         // should we give this to localisation?
-    }
-
-    override fun infoSeePlayerOther(number: Int, goalie: Boolean, distance: Double, direction: Double, distChange: Double,
-                                    dirChange: Double, bodyFacingDirection: Double, headFacingDirection: Double) {
-        // should store this in a list somewhere, we do need a blackboard
-        val seenPlayerPos = localiser.localiseObject(blackboard.agentPos, direction, distance)
-        if (number != agentId) blackboard.teamPositions[number].set(seenPlayerPos)
     }
 
     override fun infoSeeFlagPenaltyOther(flag: Flag, distance: Double, direction: Double,distChange: Double, dirChange: Double,

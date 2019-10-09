@@ -1,6 +1,10 @@
 package com.omicron.simulation2d.ai
 
 import com.omicron.simulation2d.Values.FIELD_DIAGONAL
+import com.omicron.simulation2d.Values.FIELD_HEIGHT
+import com.omicron.simulation2d.Values.FIELD_WIDTH
+import com.omicron.simulation2d.Values.GOAL_WIDTH
+import com.omicron.simulation2d.Values.PENALTY_AREA_WIDTH
 import org.apache.commons.rng.simple.RandomSource
 import org.tinylog.kotlin.Logger
 import kotlin.math.abs
@@ -29,8 +33,9 @@ class ParticleFilterLocaliser {
     /** the known orientation of the agent, angle should be counter-clockwise from the positive X axis **/
     var orientation = 0.0
     // source: object_table.cpp from librcsc by Hidehisa Akiyama (thanks for writing them all out!)
-    private val landmarkRealPositions = mapOf<String, Vector2>(
-        // we can use the infix function "to" here e.g. "This" to Vector2.of(0, 0)
+    private val landmarkRealPositions = mapOf(
+        "GoalLeft" to Vector2(-PITCH_HALF_W, 0.0),
+        "GoalRight" to Vector2(+PITCH_HALF_L, 0.0)
     )
 
     /** Spawns all the particles around a single point (with some noise) **/
@@ -126,5 +131,12 @@ class ParticleFilterLocaliser {
         private const val RANDOM_WALK_FREQ = 8 // randomly walk every N ticks
         private const val RANDOM_WALK_DISTANCE = 128
         private const val NUMBER_STEPS = 256
+
+        // values for code from librcsc
+        private const val PITCH_HALF_W = 68.0 / 2
+        private const val PITCH_HALF_L = 105.0 / 2
+        private const val PENALTY_L = 16.5
+        private const val PENALTY_HALF_L = 16.5 / 2
+        private const val GOAL_HALF_W = GOAL_WIDTH / 2
     }
 }

@@ -1,43 +1,42 @@
-# Systems
+# Main AI
 
-Our agent will consist of two main sub-systems: the movement planner and the behaviour planner. The behaviour planner
-provides movement instructions to the movement planner.
+Our agent will consist of two main sub-systems: the movement planner and movement executor. The planner will use GOAP
+to decide which actions to perform to score perform the agent's field role, and the executor implements the skills
+to do it.
 
-## Behaviour planner
-The way the behaviour planner works is either a behaviour tree or some online planning algorithm like GOAP.
-The BP's goal is to determine the most optimal course of action for each agent to perform. To make this decision,
-it will need to calculate the absolute position of itself, the ball and other agents. For complex behaviours like
-passing, it will also need to communicate with other agents on the field and perhaps with the coach.
+## Movement planner
+The movement planner looks at the world and lays out a list of skills and their parameters it will execute to have
+the agent perform a certain goal, such as the goalie blocking or the striker scoring.
 
-The behaviour planner will be different depending on what position the agent took, for example goal keeper, defender,
-mid, striker, etc. Agents should be able to switch up their positions on request or go out of bounds of them if they
+The movement planner will be different depending on what position the agent took, for example goal keeper, defender,
+mid, striker, etc. Agents could be able to switch up their positions on request or go out of bounds of them if they
 feel they need to in order to score a point.
 
 We will probably need entire sub-subsystems to plan out extremely complex behaviours like passing and maybe kickoffs.
 
-When we receive an update from the ref like free_kick or something, the behaviour tree evaluator will load up the
-free kick behaviour tree. How do we decide which agent goes and fetches the ball?
-
-### Thoughts on planning algorithms
-Probably going to go with behaviour trees. While they are basic I don't currently have the skills to implement
-neural online planners like WrightEagle are using. I don't feel like GOAP would be real-time enough but I may be wrong.
-A hierarchical finite state machine is also another option but I feel it's the weakest and would lead to ugly code.
-
-Change this, we're totally going to use GOAP or a related planning algorithm such as SHOP, STRIPS or hierarchical task
-networks. The reason being is that we may be able to feed the future plan into the movement algorithm for smarter
-long term moves and it may help us in teammate collaboration.
-
-## Movement planner
-Once the behaviour planner has decided the course of action, it will then calculate how to move on the field with
-the movement planner. This will be quite complex and I'm not sure how to do it yet, some sort of path planning
-algorithm will be required, I've seen lots of teams using Voronoi diagrams or rapidly exploring random trees. I was
-personally thinking of implementing path planning with Bezier curves but the question still remains as *where* exactly
-we want to go given that there's many optimal solutions to a question such as "how do I get this ball into the goal".
+When we receive an update from the ref like free_kick or something, the planner will load up the free kick plan. 
+How do we decide which agent goes and fetches the ball?
 
 In addition to this, we have to solve an optimisation problem to determine for example how much power we put into
 our kicks and dashes. This is another complex problem which I'm not sure what algorithm could be used to solve.
 
 Note that the movement planner will also handle not only directional moving but also kicking and grabbing and everything.
+It's more like an action planner actually.
+
+### Path planning
+I've seen lots of teams using Voronoi diagrams or rapidly exploring random trees. I was
+personally thinking of implementing path planning with Bezier curves but the question still remains as *where* exactly
+we want to go given that there's many optimal solutions to a question such as "how do I get this ball into the goal".
+
+How do we integrate paths into GOAP? We may need a "NavigateTo" skill which will navigate to the position and avoid
+other objects. Because we're 2d sim we have some flexibility like clipping through objects or bumping into other agents.
+
+### Thoughts on planning algorithms
+Change this, we're totally going to use GOAP or a related planning algorithm such as SHOP, STRIPS or hierarchical task
+networks. The reason being is that we may be able to feed the future plan into the movement algorithm for smarter
+long term moves and it may help us in teammate collaboration.
+
+If this fails, behaviour trees are the way to go.
 
 ### Skills or actions
 I think what we should do is have various skills or actions that the movement planner can execute, which are slightly
@@ -48,8 +47,15 @@ them (this is what the executor does). So the behaviour planner decides what to 
 Example skills include MoveAbsolute (quickly but carefully manoeuvres to an absolute position on the field, gdx-ai's
 Arrive behaviour), DashRelative (dashes in a direction relative to the player quickly like our real life robots do).
 
+## Note about "behaviour planner"
+There used to be a behaviour planner subsytem whose job was to decide "what to do". Looking more at GOAP, it would seem
+that the behaviour planner step is useless and can just be integrated into movement. After all, we're only really deciding
+where to move with a bit of extra planning for communication.
 
-## Blackboards and inter-agent communication
+## Local blackboards
+Used for communication between systems. Just a class of variables
+
+# Team communication
 Commonly used in AI, basically sharing information between agents. Now in our case, it's really interesting because
 the blackboard will have to be distributed and synchronised very infrequently using only 10 bytes of data per 
 transmission. Perhaps we could use the coach who can send 512 bytes of data every 30s, if we can communicate with the 
@@ -69,13 +75,8 @@ We should localise using a particle filter, it's well suited for this task and a
 it in the past.
 
 # Layout tree
-Behaviour planner (plan on what to do) 
---> Movement planner (plan on where to go/look) 
+Main planners (assemble skills, path plan, communicate, etc) 
 --> Movement executor (turn it into server commands)
 --> Atan (Java library for rcssserver)
---> rcsserver commands (text)
---> rcsserver  (sent via UDP)
-
-# Execution process
-1. First we will load the initial team positioning (4-3-3 or the like) from the config file created with FormationEditor
-2. 
+--> rcssserver commands (text)
+--> rcssserver  (sent via UDP)

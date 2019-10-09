@@ -6,15 +6,21 @@ import mikera.vectorz.Vector2
 // Contains various values and data classes
 
 object Values {
-    /** whether or not debug mode is enabled **/
-    const val DEBUG = true
     const val SERVER_PORT = 6000
     const val SERVER_IP = "localhost"
-    const val FIELD_WIDTH = 105
-    const val FIELD_HEIGHT = 68
+
+    // Source: https://github.com/rcsoccersim/rcssserver/blob/master/src/serverparam.cpp
+    // in our translation, length = width and width = height (effectively instead of length x width it's width x height)
+    const val FIELD_WIDTH = 105.0
+    const val FIELD_HEIGHT = 68.0
     const val FIELD_DIAGONAL = 125.1
+    const val PENALTY_AREA_WIDTH = 16.5
+    const val PENALTY_AREA_HEIGHT = 40.32
+    const val GOAL_AREA_WIDTH = 5.5
+    const val GOAL_AREA_HEIGHT = 18.32
+    const val GOAL_WIDTH = 14.02
+
     val FIELD_CENTRE = Vector2.of(FIELD_WIDTH / 2.0, FIELD_HEIGHT / 2.0)!!
-    val localBlackboards = ThreadLocal<Blackboard>()
 }
 
 /** A connection to another agent, transmitted via the say() command **/

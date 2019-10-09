@@ -1,4 +1,4 @@
-package com.omicron.simulation2d.ai.executor
+package com.omicron.simulation2d.ai.movement
 
 /**
  * A Skill is essentially a steering behaviour, something that our agents can do to navigate their environment.
