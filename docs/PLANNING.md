@@ -23,6 +23,10 @@ our kicks and dashes. This is another complex problem which I'm not sure what al
 Note that the movement planner will also handle not only directional moving but also kicking and grabbing and everything.
 It's more like an action planner actually.
 
+### Example on how this applies to other gameplay situations
+Suppose we have a corner kick. In a BTree, we'd load up the corner kick tree. In GOAP, we just set the action to
+"perform corner kick for $FIELD_POSITION" and it will do it.
+
 ### Path planning
 I've seen lots of teams using Voronoi diagrams or rapidly exploring random trees. I was
 personally thinking of implementing path planning with Bezier curves but the question still remains as *where* exactly
@@ -41,13 +45,14 @@ If this fails, behaviour trees are the way to go.
 ### Skills or actions
 I think what we should do is have various skills or actions that the movement planner can execute, which are slightly
 higher level than what the rcssserver offers. Intelligent behaviour will be made by combining these skills and executing
-them (this is what the executor does). So the behaviour planner decides what to do, movement planner decides how to do it
-(i.e. positions to move to) and the movement executor will do actually do it.
+them (this is what the executor does).
 
 Example skills include MoveAbsolute (quickly but carefully manoeuvres to an absolute position on the field, gdx-ai's
 Arrive behaviour), DashRelative (dashes in a direction relative to the player quickly like our real life robots do).
 
-## Note about "behaviour planner"
+The full planning for this lives in SKILLS PLANNING.md.
+
+### Note about "behaviour planner"
 There used to be a behaviour planner subsytem whose job was to decide "what to do". Looking more at GOAP, it would seem
 that the behaviour planner step is useless and can just be integrated into movement. After all, we're only really deciding
 where to move with a bit of extra planning for communication.
@@ -55,15 +60,25 @@ where to move with a bit of extra planning for communication.
 ## Local blackboards
 Used for communication between systems. Just a class of variables
 
+## Actions queue
+If we can only send one or two actions per tick, but certain skills require more than one action (e.g. turn
+then move), we will need to have a actions queue. Each action should be assigned a priority and be put into a queue.
+The queue will be sorted by priority at the start of each tick. We may need to also add action groups or change
+scoring so that if we have multiple skills running (would we??) they are executed in a logical order and don't conflict.
+
+For this we'd probably use a TreeSet to implement SortedSet. If it's too hard to sort then we could just use
+a Queue via LinkedList. The danger is we may miss a goal in the goalie by rotating before kicking but the timeframe
+is so short it shouldn't matter _too_ much.
+
 # Team communication
 Commonly used in AI, basically sharing information between agents. Now in our case, it's really interesting because
 the blackboard will have to be distributed and synchronised very infrequently using only 10 bytes of data per 
 transmission. Perhaps we could use the coach who can send 512 bytes of data every 30s, if we can communicate with the 
 coach each agent can upload its own variables and download all the others. Otherwise, we'll have to develop some
-distributed (dare I say almost _blockchain_ like system) of sharing knowledge, where a robot can put in a specific
-request for another element of the robot's blackboard. Our blackboards should also probably be namespaced either just
-in the name (as you would in C) or with sub HashMaps (we will represent the blackboard as a HashMap). Instead of sending
-strings as requests, we could send hash codes of strings.
+distributed mechanism of sharing knowledge, where a robot can put in a specific request for another element of the
+robot's blackboard. Our blackboards should also probably be namespaced either just in the name (as you would in C) or
+with sub HashMaps (we will represent the blackboard as a HashMap). Instead of sending strings as requests, we could 
+send hash codes of strings.
 
 Another problem is that the connection protocol of rcssserver's say command is non-existent in fact it's even worse than
 UDP because we can get a response from anyone, even other teams' players. Each transaction will need to have a unique 
