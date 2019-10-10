@@ -30,15 +30,21 @@ class ParticleFilterLocaliser {
     private val rng = RandomSource.create(RandomSource.XOR_SHIFT_1024_S)
     private val particles = Array(NUMBER_PARTICLES){ Particle() }
     private val landmarks = hashMapOf<String, Landmark>()
-    /** the known orientation of the agent, angle should be counter-clockwise from the positive X axis **/
-    var orientation = 0.0
+    private val blackboard = Blackboard.localBlackboards.get()
+
     // source: object_table.cpp from librcsc by Hidehisa Akiyama (thanks for writing them all out!)
+    // TODO it'd be a hell of a lot easier if we could just get the raw names of the flags
     private val landmarkRealPositions = mapOf(
-        "GoalLeft" to Vector2(-PITCH_HALF_W, 0.0),
-        "GoalRight" to Vector2(+PITCH_HALF_L, 0.0)
+        "GoalLeft" to Vector2(-PITCH_HALF_W, 0.0), // Goal_L
+        "GoalRight" to Vector2(+PITCH_HALF_L, 0.0), // Goal_R
+        "CentreCenter" to Vector2(0.0, 0.0), // Flag_C
+        "CentreLeft" to Vector2(0.0, -PITCH_HALF_W), // Flag_CT (assuming Atan uses left as top)
+        "CentreRight" to Vector2(0.0, +PITCH_HALF_W), // Flag_CB
+
+        "CornerLeftLeft" to Vector2(-PITCH_HALF_L, -PITCH_HALF_W) // Flag_LT
     )
 
-    /** Spawns all the particles around a single point (with some noise) **/
+    /** Spawns all the particles around a single point (with some random variation) **/
     fun setInitialEstimateLocation(pos: Vector2){
         Logger.trace("Spawning particles at $pos")
         for (particle in particles){

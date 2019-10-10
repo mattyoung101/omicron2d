@@ -23,6 +23,13 @@ our kicks and dashes. This is another complex problem which I'm not sure what al
 Note that the movement planner will also handle not only directional moving but also kicking and grabbing and everything.
 It's more like an action planner actually.
 
+### How much stamina to use?
+A simple planning algorithm based on priorities (LOW, NORMAL, HIGH, CRITICAL) where low is not much power usage and
+high is 100% power.
+
+The movement planner should predict how much stamina would be required to reach the point and calculate, based on the
+point priority, accordingly.
+
 ### Example on how this applies to other gameplay situations
 Suppose we have a corner kick. In a BTree, we'd load up the corner kick tree. In GOAP, we just set the action to
 "perform corner kick for $FIELD_POSITION" and it will do it.

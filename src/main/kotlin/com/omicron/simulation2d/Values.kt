@@ -79,3 +79,17 @@ enum class PlayerRoles {
     LEFT_WING, // 9
     RIGHT_WING, // 10
 }
+
+/**
+ * This enum is used by the movement executor to decide how much stamina to use when moving somewhere
+ */
+enum class NavigationUrgency {
+    /** reaching this point is desirable within a very long timeframe, so don't use much stamina **/
+    LOW,
+    /** reaching this point is desirable within the next few ticks **/
+    NORMAL,
+    /** not reaching this point could miss a potential scoring opportunity **/
+    HIGH,
+    /** not reaching this point could concede a goal **/
+    CRITICAL
+}

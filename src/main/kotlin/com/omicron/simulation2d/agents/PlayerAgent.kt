@@ -162,7 +162,8 @@ class PlayerAgent(private val agentId: Int) : ControllerPlayer {
 
     override fun infoSeeFlagCornerOwn(flag: Flag, distance: Double, direction: Double, distChange: Double, dirChange: Double,
                                       bodyFacingDirection: Double, headFacingDirection: Double) {
-        val name = "CornerOwn" + CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, flag.name)
+        val facingDir = if (actions!!.isTeamEast) "Left" else "Right"
+        val name = "Corner$facingDir" + CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, flag.name)
         localiser.updateLandmark(name, distance)
     }
 
@@ -198,7 +199,8 @@ class PlayerAgent(private val agentId: Int) : ControllerPlayer {
 
     override fun infoSeeFlagCornerOther(flag: Flag, distance: Double, direction: Double, distChange: Double, dirChange: Double,
                                         bodyFacingDirection: Double, headFacingDirection: Double) {
-        val name = "CornerOther" + CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, flag.name)
+        val facingDir = if (actions!!.isTeamEast) "Right" else "Left" // invert since it's the other
+        val name = "Corner$facingDir" + CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, flag.name)
         localiser.updateLandmark(name, distance)
     }
 
