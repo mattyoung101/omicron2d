@@ -25,9 +25,7 @@ TBA: basically clone the project, open in IntelliJ and run Main.kt
 TBA: more complicated, talk about command line parameters, etc.
 
 ## License
-This repo is licensed under the BSD 3-Clause license, see LICENSE.txt.
-
-Some elements (i.e. advanced skills if developed) may remain proprietary - this is as of yet undecided.
+This repo is licenced under the Mozilla Public License v2.0, see LICENSE.txt.
 
 ## Libraries and licenses
 See ATTRIBUTION.txt

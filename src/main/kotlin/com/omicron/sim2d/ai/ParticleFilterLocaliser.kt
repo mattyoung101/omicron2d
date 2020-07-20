@@ -1,10 +1,7 @@
-package com.omicron.simulation2d.ai
+package com.omicron.sim2d.ai
 
-import com.omicron.simulation2d.Values.FIELD_DIAGONAL
-import com.omicron.simulation2d.Values.FIELD_HEIGHT
-import com.omicron.simulation2d.Values.FIELD_WIDTH
-import com.omicron.simulation2d.Values.GOAL_WIDTH
-import com.omicron.simulation2d.Values.PENALTY_AREA_WIDTH
+import com.omicron.sim2d.Values.FIELD_DIAGONAL
+import com.omicron.sim2d.Values.GOAL_WIDTH
 import org.apache.commons.rng.simple.RandomSource
 import org.tinylog.kotlin.Logger
 import kotlin.math.abs
@@ -26,6 +23,7 @@ private data class Landmark(val position: Vector2 = Vector2.of(0.0, 0.0), var di
  * Based on: https://www.cs.utexas.edu/~teammco/misc/particle_filter/, which is MIT licensed.
  * This is a essentially ported and slightly rewritten version of that.
  */
+@Deprecated("Going to be replaced by ICP")
 class ParticleFilterLocaliser {
     private val rng = RandomSource.create(RandomSource.XOR_SHIFT_1024_S)
     private val particles = Array(NUMBER_PARTICLES){ Particle() }

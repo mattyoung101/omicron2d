@@ -1,6 +1,6 @@
-package com.omicron.simulation2d.tools
+package com.omicron.sim2d.tools
 
-import com.omicron.simulation2d.Values
+import com.omicron.sim2d.Values
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.scene.Scene
@@ -19,10 +19,11 @@ import kotlin.system.exitProcess
 private const val VERSION = "0.1"
 
 /**
- * Visual Debugger application by Matt Young (BSD 3-Clause license).
+ * Visual Debugger application by Matt Young.
  * This app is used to get an idea of what agents are doing on the field. Eventually, it will support moving them
  * around by way of an offline coach.
  */
+@Deprecated("Replaced by soccerwindow2 and its debug commands (most likely)")
 class Debugger : Application() {
     override fun start(stage: Stage) {
         stage.title = "Omicron2D Visual Debugger"

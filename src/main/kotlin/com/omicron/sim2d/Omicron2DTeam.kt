@@ -1,11 +1,11 @@
-package com.omicron.simulation2d
+package com.omicron.sim2d
 
 import com.github.robocup_atan.atan.model.AbstractTeam
 import com.github.robocup_atan.atan.model.ControllerCoach
 import com.github.robocup_atan.atan.model.ControllerPlayer
-import com.omicron.simulation2d.Values.SERVER_IP
-import com.omicron.simulation2d.Values.SERVER_PORT
-import com.omicron.simulation2d.agents.PlayerAgent
+import com.omicron.sim2d.Values.SERVER_IP
+import com.omicron.sim2d.Values.SERVER_PORT
+import com.omicron.sim2d.agents.PlayerAgent
 
 class Omicron2DTeam : AbstractTeam("Omicron2D", SERVER_PORT, SERVER_IP, false) {
     override fun getNewControllerCoach(): ControllerCoach? {

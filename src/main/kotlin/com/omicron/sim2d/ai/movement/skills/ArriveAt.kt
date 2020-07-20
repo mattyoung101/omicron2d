@@ -1,6 +1,6 @@
-package com.omicron.simulation2d.ai.movement.skills
+package com.omicron.sim2d.ai.movement.skills
 
-import com.omicron.simulation2d.ai.movement.Skill
+import com.omicron.sim2d.ai.movement.Skill
 
 /**
  * Basically an "Arrive" steering behaviour, that will move to a coordinate on the field.

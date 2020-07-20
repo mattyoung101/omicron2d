@@ -1,9 +1,8 @@
-package com.omicron.simulation2d.ai
+package com.omicron.sim2d.ai
 
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.io.Input
 import mikera.vectorz.Vector2
-import org.tinylog.kotlin.Logger
 import java.io.FileInputStream
 import java.nio.file.Paths
 

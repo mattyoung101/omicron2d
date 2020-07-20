@@ -1,17 +1,17 @@
-package com.omicron.simulation2d.agents
+package com.omicron.sim2d.agents
 
 import com.esotericsoftware.kryo.Kryo
 import com.github.robocup_atan.atan.model.ActionsPlayer
 import com.github.robocup_atan.atan.model.ControllerPlayer
 import com.github.robocup_atan.atan.model.enums.*
 import com.google.common.base.CaseFormat
-import com.omicron.simulation2d.Message
-import com.omicron.simulation2d.Messages
-import com.omicron.simulation2d.PlayerRoles
-import com.omicron.simulation2d.ai.Blackboard
-import com.omicron.simulation2d.ai.ConnectionManager
-import com.omicron.simulation2d.ai.FormationLoader
-import com.omicron.simulation2d.ai.ParticleFilterLocaliser
+import com.omicron.sim2d.AgentMessage
+import com.omicron.sim2d.AgentMessages
+import com.omicron.sim2d.PlayerRoles
+import com.omicron.sim2d.ai.Blackboard
+import com.omicron.sim2d.ai.ConnectionManager
+import com.omicron.sim2d.ai.FormationLoader
+import com.omicron.sim2d.ai.ParticleFilterLocaliser
 import mikera.vectorz.Vector2
 import org.tinylog.kotlin.Logger
 import java.util.HashMap
@@ -29,13 +29,13 @@ class PlayerAgent(private val agentId: Int) : ControllerPlayer {
     private val kryo = Kryo().apply {
         register(Array<Vector2>::class.java)
         register(Vector2::class.java)
-        register(Message::class.java)
-        register(Messages::class.java)
+        register(AgentMessage::class.java)
+        register(AgentMessages::class.java)
     }
     private val role = PlayerRoles.values()[agentId]
     private val connectionManager = ConnectionManager(kryo)
     // TODO load this only once in the whole application
-    private val startingFormation = FormationLoader("starting433.formation", kryo)
+    private val startingFormation = FormationLoader("formations/starting433.formation", kryo)
     /** last heard play mode from ref **/
     private var playMode = PlayMode.BEFORE_KICK_OFF
     private val localiser = ParticleFilterLocaliser()
@@ -144,8 +144,8 @@ class PlayerAgent(private val agentId: Int) : ControllerPlayer {
         // we see one of our teammates I assume, maybe useful for localisation?
         // definitely useful for movement planning, especially passing!! we should ask them for their orientation
         // TODO in this and infoSeePlayerOther() what does bodyFacingDirection and headFacingDirection do? can we use it?
-        val seenPlayerPos = localiser.localiseObject(blackboard.agentPos, direction, distance)
-        blackboard.teammatePositions[number].set(seenPlayerPos)
+//        val seenPlayerPos = localiser.localiseObject(blackboard.agentPos, direction, distance)
+//        blackboard.teammatePositions[number].set(seenPlayerPos)
     }
 
     override fun infoSeePlayerOther(number: Int, goalie: Boolean, distance: Double, direction: Double, distChange: Double,

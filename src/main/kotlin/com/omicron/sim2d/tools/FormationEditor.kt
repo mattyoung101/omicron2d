@@ -1,10 +1,10 @@
-package com.omicron.simulation2d.tools
+package com.omicron.sim2d.tools
 
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.io.Output
-import com.omicron.simulation2d.Values.FIELD_CENTRE
-import com.omicron.simulation2d.Values.FIELD_WIDTH
-import com.omicron.simulation2d.Values.FIELD_HEIGHT
+import com.omicron.sim2d.Values.FIELD_CENTRE
+import com.omicron.sim2d.Values.FIELD_WIDTH
+import com.omicron.sim2d.Values.FIELD_HEIGHT
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.scene.Scene
@@ -30,7 +30,7 @@ import java.nio.file.Paths
 private const val VERSION = "1.0"
 
 /**
- * Formation Editor application by Matt Young (BSD 3-Clause license).
+ * Formation Editor applicatio.
  * Not the cleanest code ever, pretty much just hacked together to be usable in a few days.
  * You can use this app to position the field into a formation and save it to a Kryo serialised file.
  * For normal use, only use the left hand side of the field because the agent will automatically mirror the formation
@@ -174,7 +174,7 @@ class FormationEditor : Application() {
             accelerator = KeyCodeCombination(KeyCode.H, KeyCombination.CONTROL_DOWN)
         }
         about.setOnAction {
-            val alert = Alert(Alert.AlertType.INFORMATION, "Copyright (c) 2019 Matt Young. BSD 3-Clause license.",
+            val alert = Alert(Alert.AlertType.INFORMATION, "Copyright (c) 2019-2020 Matt Young. MPL 2.0 licence.",
                 ButtonType.OK).apply {
                 headerText = "Omicron2D Formation Editor v$VERSION"
                 title = "About"

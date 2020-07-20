@@ -1,4 +1,4 @@
-package com.omicron.simulation2d.ai
+package com.omicron.sim2d.ai
 
 import mikera.vectorz.Vector2
 

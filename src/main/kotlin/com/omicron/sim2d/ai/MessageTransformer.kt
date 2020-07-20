@@ -1,9 +1,9 @@
-package com.omicron.simulation2d.ai
+package com.omicron.sim2d.ai
 
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.io.Input
 import com.esotericsoftware.kryo.io.Output
-import com.omicron.simulation2d.Message
+import com.omicron.sim2d.AgentMessage
 import org.tinylog.kotlin.Logger
 import java.util.*
 
@@ -17,7 +17,7 @@ class MessageTransformer(private val kryo: Kryo) {
     private val b64Decoder = Base64.getDecoder()
 
     /** Serialises a message to a byte array and then converts it to a string with base64 **/
-    fun encode(msg: Message): String {
+    fun encode(msg: AgentMessage): String {
         output.reset()
         kryo.writeObject(output, msg)
         val bytes = output.buffer.take(output.total().toInt()).toByteArray()
@@ -25,7 +25,7 @@ class MessageTransformer(private val kryo: Kryo) {
     }
 
     /** Turns a base64 string into a byte array then deserialises it into a Message object **/
-    fun decode(msg: String): Message? {
+    fun decode(msg: String): AgentMessage? {
         return try {
             val bytes = b64Decoder.decode(msg)
             input.reset()
@@ -33,7 +33,7 @@ class MessageTransformer(private val kryo: Kryo) {
             for ((i, byte) in bytes.withIndex()){
                 input.buffer[i] = byte
             }
-            kryo.readObject(input, Message::class.java)
+            kryo.readObject(input, AgentMessage::class.java)
         } catch (e: Exception){
             Logger.warn("Malformed say input: $msg  ($e)")
             null

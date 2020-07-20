@@ -1,6 +1,5 @@
-package com.omicron.simulation2d
+package com.omicron.sim2d
 
-import com.omicron.simulation2d.ai.Blackboard
 import mikera.vectorz.Vector2
 
 // Contains various values and data classes
@@ -25,16 +24,14 @@ object Values {
 
 /** A connection to another agent, transmitted via the say() command **/
 data class Connection(val id: Int){
-    val sent = mutableListOf<Message>()
-    val received = mutableListOf<Message>()
+    val sent = mutableListOf<AgentMessage>()
+    val received = mutableListOf<AgentMessage>()
 }
 
 /** A message that has been sent/received from another agent **/
-data class Message(val type: Messages = Messages.NONE, val content: Any? = null, var remoteId: Int = -1){
-    
-}
+data class AgentMessage(val type: AgentMessages = AgentMessages.NONE, val content: Any? = null, var remoteId: Int = -1)
 
-enum class Messages {
+enum class AgentMessages {
     NONE,
 
     /** I am ready to engage in the previous request you sent **/

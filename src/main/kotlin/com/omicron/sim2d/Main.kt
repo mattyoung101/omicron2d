@@ -1,14 +1,15 @@
-package com.omicron.simulation2d
+package com.omicron.sim2d
 
 import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
-import com.github.ajalt.clikt.parameters.types.int
-import com.omicron.simulation2d.tools.Debugger
+import com.omicron.sim2d.tools.Debugger
+import de.tudresden.inf.lat.jsexp.SexpFactory
 import javafx.application.Application
 import org.tinylog.kotlin.Logger
 import java.io.File
+import java.io.FileInputStream
+import java.util.*
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 
@@ -50,7 +51,7 @@ class Omicron2DApp : CliktCommand(){
         if (startMonitor){
             Logger.info("Starting monitor...")
             monitor = ProcessBuilder().apply {
-                command("rcssmonitor")
+                command("soccerwindow2")
                 if (!muteTools) inheritIO()
             }.start()
 
@@ -87,7 +88,22 @@ object Main {
         System.setProperty("tinylog.configuration", "tinylog.properties")
         System.setProperty("kryo.unsafe", "false")
 
-        Logger.info("Omicron2D client: Copyright (c) 2019 Matt Young. Available under the BSD 3-Clause license.")
-        Omicron2DApp().main(args)
+        Logger.info("Omicron2D v${VERSION}: Copyright (c) 2019-2020 Matt Young. Available under the MPL 2.0.")
+        // Omicron2DApp().main(args)
+
+        val config = Properties()
+        config.load(FileInputStream("general.properties"))
+
+        // TODO just a parsing test
+        val sexString = "(sense_body 0 (view_mode high normal) (stamina 8000.12345 1 130600) (speed 0 0) (head_angle 0) " +
+                "(kick 0) (dash 0) (turn 0) (say 0) (turn_neck 0) (catch 0) (move 0) (change_view 0) (arm (movable 0) (expires 0) " +
+                "(target 0 0) (count 0)) (focus (target none) (count 0)) (tackle (expires 0) (count 0)) (collision none) (test \"()))\"))"
+        val sexString2 = "(see 0 ((f c t) 21.1 8 0 0) ((f r t) 73.7 2) ((f r b) 102.5 44) ((f g r b) 85.6 31) ((g r) 82.3 27) " +
+                "((f g r t) 79 22) ((f p r c) 68 33) ((f p r t) 59.1 16) ((f t 0) 21.1 -5 0 0) ((f t r 10) 31.2 -4) ((f t r 20) 40.9 -3) " +
+                "((f t r 30) 50.9 -2) ((f t r 40) 60.9 -2) ((f t r 50) 70.8 -2) ((f t l 10) 11.1 -10 0 0) ((F) 2.2 -63) ((f r 0) 86.5 25) " +
+                "((f r t 10) 83.1 19) ((f r t 20) 80.6 12) ((f r t 30) 79 5) ((f r b 10) 91.8 31) ((f r b 20) 96.5 36) ((f r b 30) 103.5 40))"
+        val sex2 = "(begin \"string()\" 0.12345 1.0 1)"
+        val parsed = SexpFactory.parse(sex2)
+
     }
 }
