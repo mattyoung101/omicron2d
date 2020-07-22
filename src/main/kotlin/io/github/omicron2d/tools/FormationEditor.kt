@@ -3,8 +3,8 @@ package io.github.omicron2d.tools
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.io.Output
 import io.github.omicron2d.Values.FIELD_CENTRE
-import io.github.omicron2d.Values.FIELD_WIDTH
-import io.github.omicron2d.Values.FIELD_HEIGHT
+import io.github.omicron2d.FIELD_WIDTH
+import io.github.omicron2d.FIELD_HEIGHT
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.scene.Scene

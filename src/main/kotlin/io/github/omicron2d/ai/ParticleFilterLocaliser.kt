@@ -1,7 +1,7 @@
 package io.github.omicron2d.ai
 
-import io.github.omicron2d.Values.FIELD_DIAGONAL
-import io.github.omicron2d.Values.GOAL_WIDTH
+import io.github.omicron2d.FIELD_DIAGONAL
+import io.github.omicron2d.GOAL_WIDTH
 import org.apache.commons.rng.simple.RandomSource
 import org.tinylog.kotlin.Logger
 import kotlin.math.abs

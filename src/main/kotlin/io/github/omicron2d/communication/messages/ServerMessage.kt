@@ -23,7 +23,7 @@ interface OutgoingServerMessage : ServerMessage {
 interface IncomingServerMessage : ServerMessage {
     /**
      * Deserialises the given S-expression to the _current_ instance of this Message.
-     * @param root the root node of the full parsed S-expression.
+     * @param input the S-expression, as pretty much received directly from the server
      */
-    fun deserialise(root: Sexp)
+    fun deserialise(input: String)
 }

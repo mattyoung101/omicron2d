@@ -51,7 +51,7 @@ javafx {
     modules = [ 'javafx.controls', 'javafx.fxml' ]
 }
 
-mainClassName = "com.omicron.simulation2d.Main"
+mainClassName = "io.github.omicron2d.Main"
 
 compileKotlin {
     kotlinOptions.jvmTarget = "1.8"

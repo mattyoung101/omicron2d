@@ -5,6 +5,7 @@ import de.tudresden.inf.lat.jsexp.Sexp
 import de.tudresden.inf.lat.jsexp.SexpFactory
 import de.tudresden.inf.lat.jsexp.SexpList
 import org.parboiled.BaseParser
+import org.parboiled.annotations.BuildParseTree
 
 // Source for all protocol information: https://rcsoccersim.github.io/manual/soccerserver.html#protocols
 // Should support around about protocol version 15
@@ -16,9 +17,5 @@ data class OutgoingInitMessage(var teamName: String = "", var version: String = 
                          var isGoalie: Boolean = false) : OutgoingServerMessage {
     override fun serialise(): String {
         return "(init $teamName (version $version)${if (isGoalie) " (goalie)" else ""})"
-    }
-
-    private open class Parser : BaseParser<Any>() {
-
     }
 }

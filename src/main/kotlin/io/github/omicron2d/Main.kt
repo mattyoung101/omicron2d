@@ -3,22 +3,29 @@ package io.github.omicron2d
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
-import io.github.omicron2d.tools.Debugger
 import de.tudresden.inf.lat.jsexp.SexpFactory
-import javafx.application.Application
+import io.github.omicron2d.communication.messages.IncomingInitMessage
 import org.tinylog.kotlin.Logger
 import java.io.File
 import java.io.FileInputStream
 import java.util.*
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
+import kotlin.system.measureTimeMillis
+
+/*
+ * Notes:
+ * I think the best way to arrange the Main is to have it do what it's supposed to, start a single agent.
+ * Then make a file called like TestRunner.kt which runs the agents and tools and everything separately.
+ * We would also have to write a shell script to launch the agent using an embedded JVM for at the venue.
+ * Maybe use java packager with the jvm for that to reduce build size. We can worry about that if we get to it.
+ */
 
 class Omicron2DApp : CliktCommand(){
     private val startServer by option(help="Start an instance of rcssserver").flag()
     private val startMonitor by option(help="Start an instance of rcssmonitor").flag()
     private val startOpposition by option(help="Starts a team of sample clients to play against").flag()
     private val muteTools by option(help="Mute the output of rcssserver and rcssmonitor").flag()
-    private val debugger by option(help="Start the Omicron2D debugging application").flag()
 
     override fun run() {
         var server: Process? = null
@@ -62,20 +69,9 @@ class Omicron2DApp : CliktCommand(){
             }
         }
 
-        // run the debugger
-        if (debugger){
-            Logger.info("Starting Omicron2D Visual Debugger...")
-            thread {
-                Application.launch(Debugger::class.java, "")
-                Logger.debug("Visual Debugger has been closed, shutting down!")
-                exitProcess(0)
-            }
-        }
-
         // TODO only quit if both debugger and monitor are closed
 
-        // run our team
-        Omicron2DTeam().connectAll()
+        // TODO start agent here with new framework
 
         // TODO start 11 agent2d's (or another team's binary) here with support for running either left side or right side
     }
@@ -89,6 +85,7 @@ object Main {
         System.setProperty("kryo.unsafe", "false")
 
         Logger.info("Omicron2D v${VERSION}: Copyright (c) 2019-2020 Matt Young. Available under the MPL 2.0.")
+        // TODO bring this back in
         // Omicron2DApp().main(args)
 
         val config = Properties()
@@ -105,5 +102,7 @@ object Main {
         val sex2 = "(begin \"string()\" 0.12345 1.0 1)"
         val parsed = SexpFactory.parse(sex2)
 
+        val testInitMessage = "(init l 22345)"
+        val msg = IncomingInitMessage().deserialise(testInitMessage)
     }
 }
