@@ -1,5 +1,6 @@
 package io.github.omicron2d.communication.messages
 
+import io.github.omicron2d.MessageSender
 import io.github.omicron2d.PlayMode
 import io.github.omicron2d.Side
 import io.github.omicron2d.utils.parserAction
@@ -45,6 +46,7 @@ data class IncomingInitMessage(var side: Side = Side.LEFT, var unum: Int = 0, va
     @BuildParseTree
     private open class IncomingInitMessageParser : BaseParser<IncomingInitMessage>() {
         private val deserialised = IncomingInitMessage()
+        open val playModeNames = PlayMode.values().map { it.toString().toLowerCase() }.toTypedArray()
 
         open fun Digit(): Rule {
             return CharRange('0', '9')
@@ -64,17 +66,33 @@ data class IncomingInitMessage(var side: Side = Side.LEFT, var unum: Int = 0, va
             }))
         }
 
-        // TODO play mode matcher
+        open fun PlayMode(): Rule {
+            val playMode = Var<String>()
+            return Sequence(FirstOf(playModeNames), playMode.set(match()), ACTION(parserAction {
+                deserialised.playMode = PlayMode.valueOf(playMode.get().toUpperCase())
+            }))
+        }
 
         // allow imperfectly formatted messages
-        open fun MaybeWhiteSpace(): Rule {
+        open fun WhiteSpace(): Rule {
             return ZeroOrMore(AnyOf(" \t"))
         }
 
         open fun Expression(): Rule {
-            return Sequence("(init ", Side(), " ", Unum(), MaybeWhiteSpace(), ")", ACTION(parserAction {
-                push(deserialised)
-            }))
+            return Sequence("(init ", Side(), " ", Unum(), " ", PlayMode(), WhiteSpace(), ")",
+                ACTION(parserAction {
+                    push(deserialised)
+                }))
         }
+    }
+}
+
+/**
+ * Server to client error message
+ */
+data class IncomingErrorMessage(var message: String = "") : IncomingServerMessage {
+    override fun deserialise(input: String) {
+        // simple and dumb parser
+        message = input.split(" ").last().replace(")", "")
     }
 }
