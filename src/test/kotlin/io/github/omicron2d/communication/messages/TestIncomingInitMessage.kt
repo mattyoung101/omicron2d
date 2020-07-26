@@ -1,5 +1,7 @@
 package io.github.omicron2d.communication.messages
 
+import io.github.omicron2d.MESSAGE_DESERIALISATION_COUNT
+import io.github.omicron2d.MESSAGE_DESERIALISATION_TIME
 import io.github.omicron2d.PlayMode
 import io.github.omicron2d.Side
 import org.junit.Assert.assertEquals
@@ -23,30 +25,26 @@ class TestIncomingInitMessage {
     @Test
     fun testDeserialisation(){
         val string = "(init l 5 goal_kick_l)"
-        val msg = IncomingInitMessage()
-        msg.deserialise(string)
+        val msg = IncomingInitMessage.deserialise(string)
         val shouldBe = IncomingInitMessage(Side.LEFT, 5, PlayMode.GOAL_KICK_L)
 
-        assertEquals(msg.side, Side.LEFT)
-        assertEquals(msg.unum, 5)
-        assertEquals(msg.playMode, PlayMode.GOAL_KICK_L)
+        assertEquals(msg, shouldBe)
     }
 
     @Test
     fun testDeserialisePerformance(){
         val time = measureTimeMillis {
-            for (i in 0 until 100) {
+            for (i in 0 until MESSAGE_DESERIALISATION_COUNT) {
                 // generate a semi random message
                 val testInitMessage = "(init ${if (Random.nextBoolean()) "l" else "r"} ${Random.nextInt(1, 11)} goal_kick_l)"
 
-                val msg = IncomingInitMessage()
-                msg.deserialise(testInitMessage)
+                val msg = IncomingInitMessage.deserialise(testInitMessage)
                 println(msg.playMode)
             }
-        } / 100
+        } / MESSAGE_DESERIALISATION_COUNT
 
         // give it 35 ms tolerance (should be fine on most computers)
-        assertTrue(time <= 35)
+        assertTrue(time <= MESSAGE_DESERIALISATION_TIME)
         println("Average SimpleInitMessage deserialise time: $time ms")
     }
 

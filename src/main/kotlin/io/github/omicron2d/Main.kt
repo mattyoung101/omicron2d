@@ -1,24 +1,13 @@
 package io.github.omicron2d
 
 import com.esotericsoftware.yamlbeans.YamlReader
-import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.parameters.options.flag
-import com.github.ajalt.clikt.parameters.options.option
 import io.github.omicron2d.communication.PlayerAgent
-import io.github.omicron2d.communication.SoccerAgent
-import io.github.omicron2d.communication.messages.IncomingHearMessage
-import io.github.omicron2d.communication.messages.IncomingInitMessage
+import io.github.omicron2d.communication.messages.HearMessage
 import io.github.omicron2d.communication.messages.OutgoingInitMessage
 import io.github.omicron2d.utils.GeneralConfig
 import org.tinylog.kotlin.Logger
-import java.io.File
-import java.io.FileInputStream
 import java.io.FileReader
 import java.net.InetAddress
-import java.util.*
-import kotlin.concurrent.thread
-import kotlin.system.exitProcess
-import kotlin.system.measureTimeMillis
 
 /*
  * Notes:

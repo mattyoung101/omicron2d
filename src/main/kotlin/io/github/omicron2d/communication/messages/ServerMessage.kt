@@ -19,12 +19,7 @@ interface OutgoingServerMessage : ServerMessage {
  * Incoming server message: transmitted from the server to the client
  */
 interface IncomingServerMessage : ServerMessage {
-    /**
-     * Deserialises the given S-expression to the _current_ instance of this Message.
-     * @param input the S-expression, as pretty much received directly from the server
-     */
-    // TODO replace this with deserialise companion object
-    fun deserialise(input: String)
+    // this class has no methods, instead see IncomingMessageDeserialiser which they are all expected to implement
 }
 
 /**
