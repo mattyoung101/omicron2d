@@ -1,6 +1,5 @@
 package io.github.omicron2d.communication.messages
 
-import io.github.omicron2d.MessageSender
 import io.github.omicron2d.PlayMode
 import io.github.omicron2d.Side
 import io.github.omicron2d.utils.parserAction
@@ -74,12 +73,12 @@ data class IncomingInitMessage(var side: Side = Side.LEFT, var unum: Int = 0, va
         }
 
         // allow imperfectly formatted messages
-        open fun WhiteSpace(): Rule {
+        open fun MaybeWhiteSpace(): Rule {
             return ZeroOrMore(AnyOf(" \t"))
         }
 
         open fun Expression(): Rule {
-            return Sequence("(init ", Side(), " ", Unum(), " ", PlayMode(), WhiteSpace(), ")",
+            return Sequence("(init ", Side(), " ", Unum(), " ", PlayMode(), MaybeWhiteSpace(), ")",
                 ACTION(parserAction {
                     push(deserialised)
                 }))

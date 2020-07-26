@@ -1,9 +1,6 @@
 package io.github.omicron2d.communication.messages
 
 import io.github.omicron2d.SERVER_PROTOCOL_VERSION
-import de.tudresden.inf.lat.jsexp.Sexp
-import de.tudresden.inf.lat.jsexp.SexpFactory
-import de.tudresden.inf.lat.jsexp.SexpList
 import org.parboiled.BaseParser
 import org.parboiled.annotations.BuildParseTree
 

@@ -1,10 +1,10 @@
 # General config file. Loaded by the Omicron2D client to run basic setup
 
 # Team specific stuff
-teamName = Omicron2D
+teamName: Omicron2D
 
 # Networking
-hostName = localhost
-playerPort = 6000
-trainerPort = 6001
-coachPort = 6002
+serverHost: localhost
+playerPort: 6000
+trainerPort: 6001
+coachPort: 6002

@@ -1,4 +1,5 @@
 # Server Communications Plan
+## OUTDATED
 
 1. UDP socket receives data message string
 2. S-expression parsed by jsexp

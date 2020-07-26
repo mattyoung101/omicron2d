@@ -1,7 +1,5 @@
 package io.github.omicron2d.communication.messages
 
-import de.tudresden.inf.lat.jsexp.Sexp
-
 /**
  * Base class for all messages that can be serialised and/or deserialised to the soccer server
  */
@@ -25,5 +23,17 @@ interface IncomingServerMessage : ServerMessage {
      * Deserialises the given S-expression to the _current_ instance of this Message.
      * @param input the S-expression, as pretty much received directly from the server
      */
+    // TODO replace this with deserialise companion object
     fun deserialise(input: String)
+}
+
+/**
+ * Interface for all companion objects of IncomingServerMessage classes that can deserialise server messages
+ */
+interface IncomingMessageDeserialiser {
+    /**
+     * Deserialises the given S-expression and returns a new instance of the respective IncomingServerMessage
+     * @param input the S-expression, as pretty much received directly from the server
+     */
+    fun deserialise(input: String): IncomingServerMessage
 }
