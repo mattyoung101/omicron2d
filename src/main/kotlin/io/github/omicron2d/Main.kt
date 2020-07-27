@@ -2,9 +2,10 @@ package io.github.omicron2d
 
 import com.esotericsoftware.yamlbeans.YamlReader
 import io.github.omicron2d.communication.PlayerAgent
-import io.github.omicron2d.communication.messages.HearMessage
 import io.github.omicron2d.communication.messages.OutgoingInitMessage
 import io.github.omicron2d.utils.GeneralConfig
+import io.github.omicron2d.utils.SERVER_PROTOCOL_VERSION
+import io.github.omicron2d.utils.VERSION
 import org.tinylog.kotlin.Logger
 import java.io.FileReader
 import java.net.InetAddress
@@ -24,7 +25,7 @@ object Main {
         System.setProperty("tinylog.configuration", "tinylog.properties")
         System.setProperty("kryo.unsafe", "false")
 
-        Logger.info("Omicron2D v${VERSION}: Copyright (c) 2019-2020 Matt Young.")
+        Logger.info("Omicron2D v$VERSION: Copyright (c) 2019-2020 Matt Young.")
 
         // load config from YAML files
         val yamlReader = YamlReader(FileReader("config_general.yml"))
@@ -32,7 +33,8 @@ object Main {
         Logger.debug("General config parsed successfully")
 
         Logger.debug("Connecting to ${generalConfig.serverHost}:${generalConfig.playerPort}")
-        val initMessage = OutgoingInitMessage(generalConfig.teamName, SERVER_PROTOCOL_VERSION, false)
+        val initMessage = OutgoingInitMessage(generalConfig.teamName,
+            SERVER_PROTOCOL_VERSION, false)
 
         val agent = PlayerAgent(InetAddress.getByName(generalConfig.serverHost), generalConfig.playerPort)
         agent.connect(initMessage)

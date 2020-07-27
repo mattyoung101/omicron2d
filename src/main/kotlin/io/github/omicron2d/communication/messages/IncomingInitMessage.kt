@@ -1,7 +1,7 @@
 package io.github.omicron2d.communication.messages
 
-import io.github.omicron2d.PlayMode
-import io.github.omicron2d.Side
+import io.github.omicron2d.utils.PlayMode
+import io.github.omicron2d.utils.Side
 import io.github.omicron2d.communication.MessageParseException
 import io.github.omicron2d.utils.parserAction
 import org.parboiled.BaseParser
@@ -10,7 +10,6 @@ import org.parboiled.Rule
 import org.parboiled.annotations.BuildParseTree
 import org.parboiled.errors.ErrorUtils
 import org.parboiled.parserunners.ReportingParseRunner
-import org.parboiled.support.ParseTreeUtils
 import org.parboiled.support.Var
 import org.tinylog.kotlin.Logger
 

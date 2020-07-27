@@ -11,7 +11,7 @@ import org.parboiled.support.ParseTreeUtils
 import org.tinylog.kotlin.Logger
 
 /**
- * See message sent by the server. The real big one to parse...
+ * See message sent by the server. This one's the real doozy to parse...
  */
 data class SeeMessage(var time: Int = 0) : IncomingServerMessage {
     companion object Deserialiser : IncomingMessageDeserialiser {
@@ -38,12 +38,41 @@ data class SeeMessage(var time: Int = 0) : IncomingServerMessage {
     private open class SeeMessageParser : BaseParser<SeeMessage>(){
         private val deserialised = SeeMessageParser()
 
+        /*
+         * Ok, so some notes on this parser because it could be the most complex one so far:
+         * - we will treat players and possibly goals as special objects
+         * - otherwise, for all the flags and lines and stuff, we don't care what they are as an enum, just their ID
+         * so this is super low effort to parse, we just look up an ID like "f t r 20" in a map to get its coordinate
+         * since we only use it for localisation anyways
+         * - lines are kinda wacky, we will have to figure out a smart way to generate a position for that based
+         * on the description, page 37 of the manual
+         */
+
         open fun Digit(): Rule {
             return CharRange('0', '9')
         }
 
+        open fun Number(): Rule {
+            // simple parser for decimal numbers (doubles basically), which are all numbers in the see message
+            // also accepts exponents in case they end up in there, should be compatible with Double.parseDouble()
+            return Sequence(ZeroOrMore('-'), OneOrMore(Digit()), ZeroOrMore('.'), ZeroOrMore(Digit()),
+                ZeroOrMore(AnyOf("Ee+-")), ZeroOrMore(Digit()))
+        }
+
+        open fun MaybeWhiteSpace(): Rule {
+            return ZeroOrMore(AnyOf(" \t"))
+        }
+
+        open fun ObjectName(): Rule {
+            return Sequence('(', ')')
+        }
+
+        open fun Object(): Rule {
+            return Sequence('(', ')')
+        }
+
         open fun Expression(): Rule {
-            return ANY // TODO
+            return Sequence("(see ", OneOrMore(Sequence(Object(), MaybeWhiteSpace())), MaybeWhiteSpace(), ')')
         }
     }
 }

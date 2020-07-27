@@ -1,7 +1,7 @@
 package io.github.omicron2d.communication.messages
 
-import io.github.omicron2d.MessageSender
-import io.github.omicron2d.SAY_CHARSET
+import io.github.omicron2d.utils.MessageSender
+import io.github.omicron2d.utils.SAY_CHARSET
 import io.github.omicron2d.communication.MessageParseException
 import io.github.omicron2d.utils.parserAction
 import org.parboiled.BaseParser

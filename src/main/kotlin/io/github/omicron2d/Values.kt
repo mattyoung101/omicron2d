@@ -1,5 +1,7 @@
 package io.github.omicron2d
 
+import io.github.omicron2d.utils.FIELD_HEIGHT
+import io.github.omicron2d.utils.FIELD_WIDTH
 import mikera.vectorz.Vector2
 
 // Contains various values and data classes

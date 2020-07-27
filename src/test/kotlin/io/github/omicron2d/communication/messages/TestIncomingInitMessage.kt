@@ -2,8 +2,8 @@ package io.github.omicron2d.communication.messages
 
 import io.github.omicron2d.MESSAGE_DESERIALISATION_COUNT
 import io.github.omicron2d.MESSAGE_DESERIALISATION_TIME
-import io.github.omicron2d.PlayMode
-import io.github.omicron2d.Side
+import io.github.omicron2d.utils.PlayMode
+import io.github.omicron2d.utils.Side
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test

@@ -2,8 +2,8 @@ package io.github.omicron2d.communication.messages
 
 import io.github.omicron2d.MESSAGE_DESERIALISATION_COUNT
 import io.github.omicron2d.MESSAGE_DESERIALISATION_TIME
-import io.github.omicron2d.MessageSender
-import io.github.omicron2d.SAY_CHARSET
+import io.github.omicron2d.utils.MessageSender
+import io.github.omicron2d.utils.SAY_CHARSET
 import org.junit.Assert.*
 import org.junit.Test
 import kotlin.random.Random

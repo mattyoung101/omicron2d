@@ -1,7 +1,7 @@
 package io.github.omicron2d.communication.messages
 
 /**
- * Base class for all messages that can be serialised and/or deserialised to the soccer server
+ * Base class for all messages that can be serialised to, or deserialised from the soccer server
  */
 interface ServerMessage
 
@@ -23,7 +23,7 @@ interface IncomingServerMessage : ServerMessage {
 }
 
 /**
- * Interface for all companion objects of IncomingServerMessage classes that can deserialise server messages
+ * Interface for all companion objects of IncomingServerMessage classes that can deserialise server S-expressions
  */
 interface IncomingMessageDeserialiser {
     /**
