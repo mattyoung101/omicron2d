@@ -1,6 +1,5 @@
 package io.github.omicron2d.communication.messages
 
-import io.github.omicron2d.communication.MessageParseException
 import org.parboiled.BaseParser
 import org.parboiled.Parboiled
 import org.parboiled.Rule
@@ -12,6 +11,7 @@ import org.tinylog.kotlin.Logger
 
 /**
  * See message sent by the server. This one's the real doozy to parse...
+ * Reference used is mainly page 33 of the manual
  */
 data class SeeMessage(var time: Int = 0) : IncomingServerMessage {
     companion object Deserialiser : IncomingMessageDeserialiser {
@@ -35,7 +35,7 @@ data class SeeMessage(var time: Int = 0) : IncomingServerMessage {
 
     @Suppress("FunctionName")
     @BuildParseTree
-    private open class SeeMessageParser : BaseParser<SeeMessage>(){
+    private open class SeeMessageParser : SoccerParser<SeeMessage>(){
         private val deserialised = SeeMessageParser()
 
         /*
@@ -48,27 +48,18 @@ data class SeeMessage(var time: Int = 0) : IncomingServerMessage {
          * on the description, page 37 of the manual
          */
 
-        open fun Digit(): Rule {
-            return CharRange('0', '9')
-        }
+        // TODO team name parser
 
-        open fun Number(): Rule {
-            // simple parser for decimal numbers (doubles basically), which are all numbers in the see message
-            // also accepts exponents in case they end up in there, should be compatible with Double.parseDouble()
-            return Sequence(ZeroOrMore('-'), OneOrMore(Digit()), ZeroOrMore('.'), ZeroOrMore(Digit()),
-                ZeroOrMore(AnyOf("Ee+-")), ZeroOrMore(Digit()))
-        }
-
-        open fun MaybeWhiteSpace(): Rule {
-            return ZeroOrMore(AnyOf(" \t"))
+        open fun Player(): Rule {
+            return Sequence(AnyOf("pP"), ' ')
         }
 
         open fun ObjectName(): Rule {
-            return Sequence('(', ')')
+            return Sequence('(', AnyOf("pbgfPBGF"), ' ', ')')
         }
 
         open fun Object(): Rule {
-            return Sequence('(', ')')
+            return Sequence('(', ObjectName(),')')
         }
 
         open fun Expression(): Rule {

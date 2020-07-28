@@ -3,6 +3,7 @@ package io.github.omicron2d.communication.messages
 import io.github.omicron2d.MESSAGE_DESERIALISATION_COUNT
 import io.github.omicron2d.MESSAGE_DESERIALISATION_TIME
 import io.github.omicron2d.utils.MessageSender
+import io.github.omicron2d.utils.PlayMode
 import io.github.omicron2d.utils.SAY_CHARSET
 import org.junit.Assert.*
 import org.junit.Test
@@ -21,15 +22,25 @@ class TestHearMessage {
 
     @Test
     fun testSimpleDeserialisation() {
-        val testHearMessage = "(hear 34 online_coach_left \"big meme?<<>>\")"
+        val testHearMessage = "(hear 34 online_coach_left \"testing**???123456__<<>>\")"
         val msg = HearMessage.deserialise(testHearMessage)
-        val shouldBe = HearMessage(time = 34, sender = MessageSender.ONLINE_COACH_LEFT, message = "big meme?<<>>")
+        val shouldBe = HearMessage(time = 34, sender = MessageSender.ONLINE_COACH_LEFT, message = "testing**???123456__<<>>")
         assertEquals(msg, shouldBe)
 
         val tm2 = "(hear 34 -1 \"test\")"
         val msg2 = HearMessage.deserialise(tm2)
         assertEquals(msg2.direction, -1.0)
         assertNull(msg2.sender)
+    }
+
+    @Test
+    fun testRefMessage(){
+        // sample of real ref calls to make sure it can parse those
+        val msg = HearMessage.deserialise("(hear 0 referee drop_ball)")
+        val msg2 = HearMessage.deserialise("(hear 137 referee yellow_card_l_1)")
+
+        assertEquals(msg.sender, MessageSender.REFEREE)
+        assertEquals(msg.message, "drop_ball")
     }
 
     @Test
@@ -40,16 +51,24 @@ class TestHearMessage {
             val msgStr = SAY_CHARSET.toList().shuffled().take(Random.nextInt(1, 10)).joinToString("")
             val time = Random.nextInt(0, 1000)
 
-            if (Random.nextBoolean()){
-                // use sender
-                val sender = MessageSender.values().random()
-                testMessages.add("(hear $time ${sender.toString().toLowerCase()} \"$msgStr\")")
+            if (Random.nextBoolean()) {
+                // player or coach message
+                if (Random.nextBoolean()) {
+                    // use sender
+                    val sender = MessageSender.values().random()
+                    testMessages.add("(hear $time ${sender.toString().toLowerCase()} \"$msgStr\")")
+                } else {
+                    // use direction
+                    val direction = Random.nextDouble(-180.0, 180.0)
+                    testMessages.add("(hear $time $direction \"$msgStr\")")
+                }
             } else {
-                // use direction
-                val direction = Random.nextDouble(-180.0, 180.0)
-                testMessages.add("(hear $time $direction \"$msgStr\")")
+                // referee message
+                val randomPlayMode = PlayMode.values().random()
+                testMessages.add("(hear ${Random.nextInt(0, 1000)} referee ${randomPlayMode.toString().toLowerCase()})")
             }
         }
+        println("TEST MESSAGES:")
         println(testMessages.joinToString("\n"))
 
         // time deserialisation

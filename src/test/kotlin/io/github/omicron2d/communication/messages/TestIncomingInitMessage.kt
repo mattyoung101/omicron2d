@@ -39,7 +39,6 @@ class TestIncomingInitMessage {
                 val testInitMessage = "(init ${if (Random.nextBoolean()) "l" else "r"} ${Random.nextInt(1, 11)} goal_kick_l)"
 
                 val msg = IncomingInitMessage.deserialise(testInitMessage)
-                println(msg.playMode)
             }
         } / MESSAGE_DESERIALISATION_COUNT
 

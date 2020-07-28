@@ -2,7 +2,6 @@ package io.github.omicron2d.communication.messages
 
 import io.github.omicron2d.utils.PlayMode
 import io.github.omicron2d.utils.Side
-import io.github.omicron2d.communication.MessageParseException
 import io.github.omicron2d.utils.parserAction
 import org.parboiled.BaseParser
 import org.parboiled.Parboiled
@@ -36,13 +35,8 @@ data class IncomingInitMessage(var side: Side = Side.LEFT, var unum: Int = 0,
 
     @Suppress("FunctionName")
     @BuildParseTree
-    private open class IncomingInitMessageParser : BaseParser<IncomingInitMessage>() {
+    private open class IncomingInitMessageParser : SoccerParser<IncomingInitMessage>() {
         private val deserialised = IncomingInitMessage()
-        open val playModeNames = PlayMode.values().map { it.toString().toLowerCase() }.toTypedArray()
-
-        open fun Digit(): Rule {
-            return CharRange('0', '9')
-        }
 
         open fun Unum(): Rule {
             val unum = Var<String>()
@@ -63,11 +57,6 @@ data class IncomingInitMessage(var side: Side = Side.LEFT, var unum: Int = 0,
             return Sequence(FirstOf(playModeNames), playMode.set(match()), ACTION(parserAction {
                 deserialised.playMode = PlayMode.valueOf(playMode.get().toUpperCase())
             }))
-        }
-
-        // allow imperfectly formatted messages
-        open fun MaybeWhiteSpace(): Rule {
-            return ZeroOrMore(AnyOf(" \t"))
         }
 
         open fun Expression(): Rule {

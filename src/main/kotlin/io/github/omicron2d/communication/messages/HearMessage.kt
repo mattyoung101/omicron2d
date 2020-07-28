@@ -2,9 +2,7 @@ package io.github.omicron2d.communication.messages
 
 import io.github.omicron2d.utils.MessageSender
 import io.github.omicron2d.utils.SAY_CHARSET
-import io.github.omicron2d.communication.MessageParseException
 import io.github.omicron2d.utils.parserAction
-import org.parboiled.BaseParser
 import org.parboiled.Parboiled
 import org.parboiled.Rule
 import org.parboiled.annotations.BuildParseTree
@@ -17,7 +15,7 @@ import org.tinylog.kotlin.Logger
  * Hear message sent from server to client
  */
 data class HearMessage(var time: Int = 0, var sender: MessageSender? = null, var direction: Double? = null,
-                       var message: String = "", var neverTouched: String = "DEFAULT_VALUE") : IncomingServerMessage {
+                       var message: String = "") : IncomingServerMessage {
 
     companion object Deserialiser : IncomingMessageDeserialiser {
         override fun deserialise(input: String): HearMessage {
@@ -31,19 +29,17 @@ data class HearMessage(var time: Int = 0, var sender: MessageSender? = null, var
                 throw MessageParseException(errors)
             }
 
+//            val resultTree = ParseTreeUtils.printNodeTree(result)
+//            println(resultTree)
+
             return result.resultValue
         }
     }
 
     @Suppress("FunctionName")
     @BuildParseTree
-    private open class HearMessageParser : BaseParser<HearMessage>() {
-        private val deserialised = HearMessage()
-        open val senderNames = MessageSender.values().map { it.toString().toLowerCase() }.toTypedArray()
-
-        open fun Digit(): Rule {
-            return CharRange('0', '9')
-        }
+    private open class HearMessageParser : SoccerParser<HearMessage>() {
+        open var deserialised = HearMessage()
 
         open fun SayChar(): Rule {
             // as defined on page 51 of the manual
@@ -58,15 +54,28 @@ data class HearMessage(var time: Int = 0, var sender: MessageSender? = null, var
         }
 
         open fun Direction(): Rule {
-            // digits are a double, so we try and build a double parser, who knows how well it works
-            return Sequence(ZeroOrMore('-'), OneOrMore(Digit()), ZeroOrMore('.'), ZeroOrMore(Digit()),
-                // exponent (1.234E+09 or 1.234E-09)
-                ZeroOrMore(AnyOf("Ee+-")), ZeroOrMore(Digit()))
+            return DecimalNumber()
         }
 
-        open fun SayString(): Rule {
+        open fun RefMessage(): Rule {
+            // this is for referee message, usually it's announcing changes in play mode BUT NOT ALWAYS!
+            // sometimes it announces calls like "yellow_card_l_1" which I don't want to make an enum for, so we keep it
+            // as a string
+            // Also interesting to note here is that the specs actually LIE! On page 33 of the docs, the grammar indicates
+            // that messages sent by the server will always be quoted. This is a complete fabrication, in fact, messages
+            // sent by the referee have no quotes at all. The same lie is espoused on the supposedly up-to-date  online docs
+            // as well, which are mostly a direct copy and paste from the 2003 manual and aren't even complete.
             val string = Var<String>()
-            return Sequence(OneOrMore(SayChar()), string.set(match()), ACTION(parserAction {
+            return Sequence(OneOrMore(EnumChar()), string.set((match())), ACTION(parserAction {
+                deserialised.message = string.get()
+                // we could try and parse the enum here, and if it fails, just do a string instead, but that might be tricky
+                // plus, we can just do the same elsewhere if it's called for
+            }))
+        }
+
+        open fun StringMessage(): Rule {
+            val string = Var<String>()
+            return Sequence('"', Sequence(OneOrMore(SayChar()), string.set(match())), '"', ACTION(parserAction {
                 deserialised.message = string.get()
             }))
         }
@@ -77,25 +86,20 @@ data class HearMessage(var time: Int = 0, var sender: MessageSender? = null, var
             val senderDirection = Var<String>()
             val senderName = Var<String>()
             return FirstOf(
+                // the sender was another player, so we get the direction to them
                 Sequence(Direction(), senderDirection.set(match()), ACTION(parserAction {
                     deserialised.direction = senderDirection.get().toDouble()
                 })),
+                // the sender was a referee or a coach, so we get their name
                 Sequence(FirstOf(senderNames), senderName.set(match()), ACTION(parserAction {
                     deserialised.sender = MessageSender.valueOf(senderName.get().toUpperCase())
                 }))
             )
         }
 
-        open fun MaybeWhiteSpace(): Rule {
-            return ZeroOrMore(AnyOf(" \t"))
-        }
-
         open fun Expression(): Rule {
-            return Sequence("(hear ", Time(), " ", Sender(), " \"", SayString(), "\"", MaybeWhiteSpace(), ")",
-                ACTION(parserAction {
-                    push(deserialised)
-                })
-            )
+            return Sequence("(hear ", Time(), ' ', Sender(), ' ', FirstOf(StringMessage(), RefMessage()),
+                MaybeWhiteSpace(), ')', push(deserialised))
         }
     }
 }
