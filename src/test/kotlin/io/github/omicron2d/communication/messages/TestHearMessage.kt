@@ -43,6 +43,12 @@ class TestHearMessage {
         assertEquals(msg.message, "drop_ball")
     }
 
+    @Test(expected = MessageParseException::class)
+    fun testParseError(){
+        val msg = "(hear 129837 -1.0.0.0.0 \"invalid)"
+        HearMessage.deserialise(msg)
+    }
+
     @Test
     fun testPerformanceAndRandom(){
         // setup test

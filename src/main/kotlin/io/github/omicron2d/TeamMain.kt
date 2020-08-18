@@ -7,14 +7,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package io.github.omicron2d.utils
-
-import org.parboiled.Context
+package io.github.omicron2d
 
 /**
- * Utility function for constructing actions in a Parboiled parser
+ * Class to run the entire team, instead of just a single agent
  */
-fun parserAction(func: () -> Unit): Boolean {
-    func()
-    return true
+object TeamMain {
+    @JvmStatic
+    fun main(args: Array<String>){
+
+    }
 }

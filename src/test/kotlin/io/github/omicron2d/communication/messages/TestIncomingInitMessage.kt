@@ -47,8 +47,9 @@ class TestIncomingInitMessage {
         println("Average SimpleInitMessage deserialise time: $time ms")
     }
 
-    @Test
+    @Test(expected = MessageParseException::class)
     fun testDeserialiseError(){
-        // TODO, basically want to check that bad messages don't parse
+        val string = "(init INVALID INVALID BAD BAD"
+        IncomingInitMessage.deserialise(string)
     }
 }
