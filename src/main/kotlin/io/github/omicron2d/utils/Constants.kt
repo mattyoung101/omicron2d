@@ -22,6 +22,8 @@ const val VERSION = "0.1.0a"
 const val SERVER_PROTOCOL_VERSION = "15"
 /** Charset available for the (say) command */
 const val SAY_CHARSET = "1234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM().+*/?<>_ "
+/** Charset available for team names, source is rcssserver serverparam.cpp check_teamname_format() */
+const val TEAM_NAME_CHARSET = "+-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 // Source: https://github.com/rcsoccersim/rcssserver/blob/master/src/serverparam.cpp
 // in our translation, length = width and width = height (effectively instead of length x width it's width x height)

@@ -9,6 +9,7 @@
 
 package io.github.omicron2d.communication.messages
 
+import io.github.omicron2d.utils.TEAM_NAME_CHARSET
 import org.parboiled.BaseParser
 import org.parboiled.Parboiled
 import org.parboiled.Rule
@@ -19,8 +20,8 @@ import org.parboiled.support.ParseTreeUtils
 import org.tinylog.kotlin.Logger
 
 /**
- * See message sent by the server. This one's the real doozy to parse...
- * Reference used is mainly page 33 of the manual
+ * The legend itself, the see message from client to server. By far the most challenging to parse and represent.
+ * Reference used is mainly pages 33-37 of the manual, and some collected messages from the server
  */
 data class SeeMessage(var time: Int = 0) : IncomingServerMessage {
     companion object Deserialiser : IncomingMessageDeserialiser {
@@ -57,22 +58,100 @@ data class SeeMessage(var time: Int = 0) : IncomingServerMessage {
          * on the description, page 37 of the manual
          */
 
-        // TODO team name parser
+        open fun TeamNameChar(): Rule {
+            return AnyOf(TEAM_NAME_CHARSET)
+        }
 
-        open fun Player(): Rule {
-            return Sequence(AnyOf("pP"), ' ')
+        // reference for all of this: page 36 of the manual, top
+        open fun FlagName0(): Rule {
+            return String("(f c)")
+        }
+
+        open fun FlagName1(): Rule {
+            return Sequence("(f ", AnyOf("lcr"), " ", AnyOf("tb"), ")")
+        }
+
+        open fun FlagName2(): Rule {
+            return Sequence("(f ", AnyOf("pg"), " ", AnyOf("lr"), " ",
+                AnyOf("tcb"), ")")
+        }
+
+        open fun FlagName3(): Rule {
+            return Sequence("(f ", AnyOf("lrtb"), " 0)")
+        }
+
+        open fun FlagName4(): Rule {
+            return Sequence("(f ", AnyOf("lrtb"), " ", AnyOf("lrtb"), " ",
+                IntegerNumber(), ")")
+        }
+
+        open fun FlagName(): Rule {
+            return FirstOf(FlagName0(), FlagName1(), FlagName2(), FlagName3(), FlagName4())
+        }
+
+        open fun GoalName(): Rule {
+            return Sequence("(g ", AnyOf("lr"), ")")
+        }
+
+        open fun BallName(): Rule {
+            return String("(b)")
+        }
+
+        open fun LineName(): Rule {
+            return Sequence("(l ", AnyOf("lrtb"), ")")
+        }
+
+        open fun PlayerName(): Rule {
+            return Sequence("(p \"", OneOrMore(TeamNameChar()), "\" ", OneOrMore(IntegerNumber()),
+                MaybeWhiteSpace(), Optional("goalie"), ")")
         }
 
         open fun ObjectName(): Rule {
-            return Sequence('(', AnyOf("pbgfPBGF"), ' ', ')')
+            // match the first object name we see, for example (g r) gets matched to goal right
+            return FirstOf(FlagName(), GoalName(), BallName(), LineName(), PlayerName())
+        }
+
+        open fun Distance(): Rule {
+            return DecimalNumber()
+        }
+
+        open fun Direction(): Rule {
+            return IntegerNumber()
+        }
+
+        open fun DistChange(): Rule {
+            return DecimalNumber()
+        }
+
+        open fun DirChange(): Rule {
+            return DecimalNumber()
+        }
+
+        open fun HeadFaceDir(): Rule {
+            return IntegerNumber()
+        }
+
+        open fun BodyFaceDir(): Rule {
+            return IntegerNumber()
+        }
+
+        open fun ObjectContents(): Rule {
+            return Sequence(Distance(), ' ', Direction(), ' ', Optional(DistChange()), Optional(' '),
+                Optional(DirChange()), Optional(' '), Optional(HeadFaceDir()), Optional(' '),
+                Optional(BodyFaceDir()))
         }
 
         open fun Object(): Rule {
-            return Sequence('(', ObjectName(),')')
+            return Sequence('(', ObjectName(), ' ', ObjectContents(), ')')
+        }
+
+        open fun Time(): Rule {
+            return IntegerNumber()
         }
 
         open fun Expression(): Rule {
-            return Sequence("(see ", OneOrMore(Sequence(Object(), MaybeWhiteSpace())), MaybeWhiteSpace(), ')')
+            return Sequence("(see ", Time(), " ", OneOrMore(Sequence(Object(), MaybeWhiteSpace())),
+                MaybeWhiteSpace(), ')')
         }
     }
 }

@@ -12,7 +12,6 @@ package io.github.omicron2d.ai.say
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.io.Input
 import com.esotericsoftware.kryo.io.Output
-import io.github.omicron2d.AgentMessage
 import org.tinylog.kotlin.Logger
 import java.util.*
 

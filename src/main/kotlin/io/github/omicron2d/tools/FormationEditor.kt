@@ -11,7 +11,6 @@ package io.github.omicron2d.tools
 
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.io.Output
-import io.github.omicron2d.Values.FIELD_CENTRE
 import io.github.omicron2d.utils.FIELD_WIDTH
 import io.github.omicron2d.utils.FIELD_HEIGHT
 import javafx.application.Application
@@ -56,6 +55,7 @@ class FormationEditor : Application() {
         register(Array<Vector2>::class.java)
         register(Vector2::class.java)
     }
+    private val FIELD_CENTRE = Vector2.of(FIELD_WIDTH / 2.0, FIELD_HEIGHT / 2.0)!!
 
     override fun start(stage: Stage) {
         stage.title = "Omicron2D Formation Editor"

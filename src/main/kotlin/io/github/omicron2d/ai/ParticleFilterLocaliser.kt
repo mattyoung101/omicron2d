@@ -32,7 +32,7 @@ private data class Landmark(val position: Vector2 = Vector2.of(0.0, 0.0), var di
  * Based on: https://www.cs.utexas.edu/~teammco/misc/particle_filter/, which is MIT licensed.
  * This is a essentially ported and slightly rewritten version of that.
  */
-@Deprecated("Going to be replaced by ICP")
+@Deprecated("Legacy component. Going to be replaced by ICP")
 class ParticleFilterLocaliser {
     private val rng = RandomSource.create(RandomSource.XOR_SHIFT_1024_S)
     private val particles = Array(NUMBER_PARTICLES){ Particle() }

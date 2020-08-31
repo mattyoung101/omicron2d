@@ -123,3 +123,19 @@ enum class PlayMode {
     ILLEGAL_DEFENSE_L,
     ILLEGAL_DEFENSE_R
 }
+
+enum class AgentMessages {
+    NONE,
+
+    /** I am ready to engage in the previous request you sent **/
+    ACCEPTED,
+    /** I am, at this present moment, not willing to engage in the previous request you sent **/
+    DECLINED,
+    /** Ask me later, I'm not sure right now **/
+    WAIT,
+
+    /** I would like to pass the ball to you **/
+    SEND_PASS_REQUEST,
+    /** I would like to receive the ball from you **/
+    RECEIVE_PASS_REQUEST
+}

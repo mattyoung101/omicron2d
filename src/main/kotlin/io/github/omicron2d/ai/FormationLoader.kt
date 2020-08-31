@@ -16,7 +16,7 @@ import java.io.FileInputStream
 import java.nio.file.Paths
 
 /**
- * TODO replcae this with gson instead of using kryo
+ * TODO replcae this with gson and JSON loading (or maybe YAML?) instead of using kryo
  * Loads a formation file created with the Formation Editor (FormationEditor.kt)
  * @param name the name of the file to load in the form of "FILE.formation"
  */

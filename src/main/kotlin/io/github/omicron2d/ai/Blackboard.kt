@@ -15,6 +15,7 @@ import mikera.vectorz.Vector2
  * The Blackboard is used to share information strictly per agent (else that would be illegal) between different
  * subsystems.
  */
+@Deprecated("Legacy component")
 class Blackboard {
     /** localised position of agent **/
     val agentPos = Vector2()

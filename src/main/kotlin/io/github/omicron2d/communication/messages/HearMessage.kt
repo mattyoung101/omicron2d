@@ -38,9 +38,6 @@ data class HearMessage(var time: Int = 0, var sender: MessageSender? = null, var
                 throw MessageParseException(errors)
             }
 
-//            val resultTree = ParseTreeUtils.printNodeTree(result)
-//            println(resultTree)
-
             return result.resultValue
         }
     }

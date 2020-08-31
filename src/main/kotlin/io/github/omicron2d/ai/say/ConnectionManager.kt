@@ -11,8 +11,6 @@ package io.github.omicron2d.ai.say
 
 import com.esotericsoftware.kryo.Kryo
 import com.github.robocup_atan.atan.model.ActionsPlayer
-import io.github.omicron2d.Connection
-import io.github.omicron2d.AgentMessage
 import org.tinylog.kotlin.Logger
 
 /**

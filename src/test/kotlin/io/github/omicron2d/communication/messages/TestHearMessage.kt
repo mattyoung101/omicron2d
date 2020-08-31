@@ -38,6 +38,7 @@ class TestHearMessage {
         // sample of real ref calls to make sure it can parse those
         val msg = HearMessage.deserialise("(hear 0 referee drop_ball)")
         val msg2 = HearMessage.deserialise("(hear 137 referee yellow_card_l_1)")
+        // TOOD test msg2
 
         assertEquals(msg.sender, MessageSender.REFEREE)
         assertEquals(msg.message, "drop_ball")
