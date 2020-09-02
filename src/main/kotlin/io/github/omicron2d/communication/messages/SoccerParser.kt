@@ -13,6 +13,7 @@ import io.github.omicron2d.utils.MessageSender
 import io.github.omicron2d.utils.PlayMode
 import org.parboiled.BaseParser
 import org.parboiled.Rule
+import org.parboiled.annotations.SuppressSubnodes
 
 /**
  * Base class for classes who implement parsers for messages from rcssserver should implement, instead of BaseParser
@@ -33,6 +34,7 @@ internal open class SoccerParser<V> : BaseParser<V>() {
         return FirstOf(Digit(), '_', CharRange('a', 'z'))
     }
 
+    @SuppressSubnodes
     open fun DecimalNumber(): Rule {
         // simple parser for decimal numbers (doubles basically), which are all numbers in the see message
         // also accepts exponents in case they end up in there, should be compatible with Double.parseDouble()
@@ -40,11 +42,12 @@ internal open class SoccerParser<V> : BaseParser<V>() {
             ZeroOrMore(AnyOf("Ee+-")), ZeroOrMore(Digit()))
     }
 
+    @SuppressSubnodes
     open fun IntegerNumber(): Rule {
         return Sequence(ZeroOrMore('-'), OneOrMore(Digit()))
     }
 
     open fun MaybeWhiteSpace(): Rule {
-        return ZeroOrMore(AnyOf(" \t"))
+        return ZeroOrMore(AnyOf(" \t\r\n"))
     }
 }

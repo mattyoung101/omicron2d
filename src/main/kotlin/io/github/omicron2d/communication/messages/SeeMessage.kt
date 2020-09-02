@@ -9,25 +9,38 @@
 
 package io.github.omicron2d.communication.messages
 
+import io.github.omicron2d.utils.ObjectType
 import io.github.omicron2d.utils.TEAM_NAME_CHARSET
-import org.parboiled.BaseParser
+import io.github.omicron2d.utils.parserAction
 import org.parboiled.Parboiled
 import org.parboiled.Rule
 import org.parboiled.annotations.BuildParseTree
 import org.parboiled.errors.ErrorUtils
 import org.parboiled.parserunners.ReportingParseRunner
 import org.parboiled.support.ParseTreeUtils
+import org.parboiled.support.Var
 import org.tinylog.kotlin.Logger
+
+/**
+ * Information about player name transmitted through see message
+ */
+data class SeePlayerInfo(val teamName: String, val unum: Int, val goalie: Boolean)
+
+/** A singular object reported by the see message */
+data class SeeObject(var type: ObjectType = ObjectType.UNKNOWN, var name: String = "",
+                     var playerInfo: SeePlayerInfo? = null, var distance: Double = 0.0, var direction: Int = 0,
+                     var distChange: Double? = null, val dirChange: Double? = null, val headFaceDir: Int? = null,
+                     val bodyFaceDir: Int? = null)
 
 /**
  * The legend itself, the see message from client to server. By far the most challenging to parse and represent.
  * Reference used is mainly pages 33-37 of the manual, and some collected messages from the server
  */
-data class SeeMessage(var time: Int = 0) : IncomingServerMessage {
+data class SeeMessage(var time: Int = 0, var objects: MutableList<SeeObject> = mutableListOf()) : IncomingServerMessage {
     companion object Deserialiser : IncomingMessageDeserialiser {
         override fun deserialise(input: String): SeeMessage {
             val parser = Parboiled.createParser(SeeMessageParser::class.java)
-            val parseRunner = ReportingParseRunner<SeeMessage>(parser.Expression())
+            val parseRunner = ReportingParseRunner<SeeObject>(parser.Expression())
 
             val result = parseRunner.run(input)
             if (result.hasErrors()) {
@@ -38,16 +51,23 @@ data class SeeMessage(var time: Int = 0) : IncomingServerMessage {
 
             val resultTree = ParseTreeUtils.printNodeTree(result)
             println(resultTree)
+            println("\n\n\n")
+            println("Value stack has ${result.valueStack.size()} entries")
 
-            return result.resultValue
+            val out = SeeMessage()
+            // remove parentheses, it would be better to rewrite the parser to ignore brackets in the name matcher
+            // but this doesn't seem to work
+            for (entry in result.valueStack){
+                entry.name = entry.name.replace("(", "").replace(")", "")
+            }
+            out.objects.addAll(result.valueStack)
+            return out
         }
     }
 
     @Suppress("FunctionName")
     @BuildParseTree
-    private open class SeeMessageParser : SoccerParser<SeeMessage>(){
-        private val deserialised = SeeMessageParser()
-
+    private open class SeeMessageParser : SoccerParser<SeeObject>(){
         /*
          * Ok, so some notes on this parser because it could be the most complex one so far:
          * - we will treat players and possibly goals as special objects
@@ -58,10 +78,66 @@ data class SeeMessage(var time: Int = 0) : IncomingServerMessage {
          * on the description, page 37 of the manual
          */
 
+        /*
+         * Notes v2.0:
+         * - we're going to actually have to use the action stack, push instances of SeeObject() onto it
+         */
+
+        /*************************************
+         * Basic types and variable matchers *
+         *************************************/
         open fun TeamNameChar(): Rule {
             return AnyOf(TEAM_NAME_CHARSET)
         }
 
+        open fun PlayerName(): Rule {
+            // TODO write parser
+            return Sequence("(p \"", OneOrMore(TeamNameChar()), "\" ", OneOrMore(IntegerNumber()),
+                MaybeWhiteSpace(), Optional("goalie"), ")")
+        }
+
+        open fun Distance(): Rule {
+            val dist = Var<String>()
+            return Sequence(DecimalNumber(), dist.set(match()), ACTION(parserAction {
+                peek().distance = dist.get().toDouble()
+            }))
+        }
+
+        open fun Direction(): Rule {
+            val dir = Var<String>()
+            return Sequence(IntegerNumber(), dir.set(match()), ACTION(parserAction {
+                peek().direction = dir.get().toInt()
+            }))
+        }
+
+        open fun DistChange(): Rule {
+            val distChange = Var<String>()
+            return Sequence(DecimalNumber(), distChange.set(match()))
+        }
+
+        open fun DirChange(): Rule {
+            val dirChange = Var<String>()
+            return DecimalNumber()
+        }
+
+        open fun HeadFaceDir(): Rule {
+            val headFaceDir = Var<String>()
+            return IntegerNumber()
+        }
+
+        open fun BodyFaceDir(): Rule {
+            val bodyFaceDir = Var<String>()
+            return IntegerNumber()
+        }
+
+        open fun Time(): Rule {
+            // FIXME: parsing this is a PITA because we don't actually have our SeeObject() on the value stack yet
+            return IntegerNumber()
+        }
+
+        /**********************************
+         * FLAG AND FIELD OBJECT MATCHERS *
+         *********************************/
         // reference for all of this: page 36 of the manual, top
         open fun FlagName0(): Rule {
             return String("(f c)")
@@ -86,72 +162,56 @@ data class SeeMessage(var time: Int = 0) : IncomingServerMessage {
         }
 
         open fun FlagName(): Rule {
-            return FirstOf(FlagName0(), FlagName1(), FlagName2(), FlagName3(), FlagName4())
+            return Sequence(FirstOf(FlagName0(), FlagName1(), FlagName2(), FlagName3(), FlagName4()), ACTION(parserAction {
+                peek().type = ObjectType.FLAG
+            }))
         }
 
         open fun GoalName(): Rule {
-            return Sequence("(g ", AnyOf("lr"), ")")
+            return Sequence("(g ", AnyOf("lr"), ")", ACTION(parserAction {
+                peek().type = ObjectType.GOAL
+            }))
         }
 
         open fun BallName(): Rule {
-            return String("(b)")
+            return Sequence(String("(b)"), ACTION(parserAction {
+                peek().type = ObjectType.BALL
+            }))
         }
 
         open fun LineName(): Rule {
-            return Sequence("(l ", AnyOf("lrtb"), ")")
+            return Sequence("(l ", AnyOf("lrtb"), ")", ACTION(parserAction {
+                peek().type = ObjectType.LINE
+            }))
         }
 
-        open fun PlayerName(): Rule {
-            return Sequence("(p \"", OneOrMore(TeamNameChar()), "\" ", OneOrMore(IntegerNumber()),
-                MaybeWhiteSpace(), Optional("goalie"), ")")
-        }
-
+        /*************************
+         * OBJECT ENTRY MATCHER *
+         ************************/
         open fun ObjectName(): Rule {
-            // match the first object name we see, for example (g r) gets matched to goal right
-            return FirstOf(FlagName(), GoalName(), BallName(), LineName(), PlayerName())
-        }
-
-        open fun Distance(): Rule {
-            return DecimalNumber()
-        }
-
-        open fun Direction(): Rule {
-            return IntegerNumber()
-        }
-
-        open fun DistChange(): Rule {
-            return DecimalNumber()
-        }
-
-        open fun DirChange(): Rule {
-            return DecimalNumber()
-        }
-
-        open fun HeadFaceDir(): Rule {
-            return IntegerNumber()
-        }
-
-        open fun BodyFaceDir(): Rule {
-            return IntegerNumber()
+            val name = Var<String>()
+            return Sequence(FirstOf(FlagName(), GoalName(), BallName(), LineName(), PlayerName()), name.set(match()),
+                ACTION(parserAction {
+                    peek().name = name.get()
+                }))
         }
 
         open fun ObjectContents(): Rule {
-            return Sequence(Distance(), ' ', Direction(), ' ', Optional(DistChange()), Optional(' '),
-                Optional(DirChange()), Optional(' '), Optional(HeadFaceDir()), Optional(' '),
-                Optional(BodyFaceDir()))
+            return Sequence(Distance(), ' ', Direction(), Optional(" ", DistChange()),
+                Optional(" ", DirChange()), Optional(" ", HeadFaceDir()), Optional(" ", BodyFaceDir()))
         }
 
         open fun Object(): Rule {
-            return Sequence('(', ObjectName(), ' ', ObjectContents(), ')')
+            // matches an entire object with name and contents
+            return Sequence(push(SeeObject()), '(', ObjectName(), ' ', ObjectContents(), ')')
         }
 
-        open fun Time(): Rule {
-            return IntegerNumber()
-        }
-
+        /********************
+         * FINAL EXPRESSION *
+         ********************/
         open fun Expression(): Rule {
             return Sequence("(see ", Time(), " ", OneOrMore(Sequence(Object(), MaybeWhiteSpace())),
-                MaybeWhiteSpace(), ')')
+                MaybeWhiteSpace(), ")")
         }
     }
 }

@@ -9,6 +9,20 @@
 
 package io.github.omicron2d.communication.messages
 
+import org.junit.Test
+
 class TestSeeMessage {
     // here I would like to run it through an enormous corpus of see messages
+
+    @Test
+    fun basicTest(){
+        val testMsg = "(see 0 ((f c t) 21.1 8 0 0) ((f r t) 73.7 2) ((f r b) 102.5 44) ((f g r b) 85.6 31) " +
+                "((g r) 82.3 27) ((f g r t) 79 22) ((f p r c) 68 33) ((f p r t) 59.1 16) ((f t 0) 21.1 -5 0 0) " +
+                "((f t r 10) 31.2 -4) ((f t r 20) 40.9 -3) ((f t r 30) 50.9 -2) ((f t r 40) 60.9 -2) " +
+                "((f t r 50) 70.8 -2) ((f t l 10) 11.1 -10 0 0) ((f r 0) 86.5 25) " +
+                "((f r t 10) 83.1 19) ((f r t 20) 80.6 12) ((f r t 30) 79 5) ((f r b 10) 91.8 31) " +
+                "((f r b 20) 96.5 36) ((f r b 30) 103.5 40))"
+        val deserialised = SeeMessage.deserialise(testMsg)
+        println(deserialised)
+    }
 }

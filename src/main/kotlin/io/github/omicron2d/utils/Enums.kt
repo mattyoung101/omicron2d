@@ -68,6 +68,15 @@ enum class MessageSender {
     SELF
 }
 
+enum class ObjectType {
+    UNKNOWN,
+    FLAG,
+    BALL,
+    PLAYER,
+    LINE,
+    GOAL
+}
+
 // Sourced rcsserver src/types.h PLAYMODE_STRINGS
 enum class PlayMode {
     UNKNOWN,
