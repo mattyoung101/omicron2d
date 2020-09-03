@@ -13,6 +13,7 @@ import com.esotericsoftware.yamlbeans.YamlReader
 import io.github.omicron2d.communication.PlayerAgent
 import io.github.omicron2d.communication.messages.HearMessage
 import io.github.omicron2d.communication.messages.OutgoingInitMessage
+import io.github.omicron2d.communication.messages.SeeMessage
 import io.github.omicron2d.utils.GeneralConfig
 import io.github.omicron2d.utils.SERVER_PROTOCOL_VERSION
 import io.github.omicron2d.utils.VERSION
