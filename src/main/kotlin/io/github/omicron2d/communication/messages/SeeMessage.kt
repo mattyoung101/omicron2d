@@ -29,8 +29,8 @@ data class SeePlayerInfo(val teamName: String, val unum: Int, val goalie: Boolea
 /** A singular object reported by the see message */
 data class SeeObject(var type: ObjectType = ObjectType.UNKNOWN, var name: String = "",
                      var playerInfo: SeePlayerInfo? = null, var distance: Double = 0.0, var direction: Int = 0,
-                     var distChange: Double? = null, val dirChange: Double? = null, val headFaceDir: Int? = null,
-                     val bodyFaceDir: Int? = null)
+                     var distChange: Double? = null, var dirChange: Double? = null, var headFaceDir: Int? = null,
+                     var bodyFaceDir: Int? = null)
 
 /**
  * The legend itself, the see message from client to server. By far the most challenging to parse and represent.
@@ -45,14 +45,13 @@ data class SeeMessage(var time: Int = 0, var objects: MutableList<SeeObject> = m
             val result = parseRunner.run(input)
             if (result.hasErrors()) {
                 val errors = ErrorUtils.printParseErrors(result)
-                Logger.warn(errors)
                 throw MessageParseException(errors)
             }
 
-            val resultTree = ParseTreeUtils.printNodeTree(result)
-            println(resultTree)
-            println("\n\n\n")
-            println("Value stack has ${result.valueStack.size()} entries")
+//            val resultTree = ParseTreeUtils.printNodeTree(result)
+//            println(resultTree)
+//            println("\n\n\n")
+//            println("Value stack has ${result.valueStack.size()} entries")
 
             val out = SeeMessage()
             // remove parentheses, it would be better to rewrite the parser to ignore brackets in the name matcher
@@ -69,17 +68,12 @@ data class SeeMessage(var time: Int = 0, var objects: MutableList<SeeObject> = m
     @BuildParseTree
     private open class SeeMessageParser : SoccerParser<SeeObject>(){
         /*
-         * Ok, so some notes on this parser because it could be the most complex one so far:
-         * - we will treat players and possibly goals as special objects
-         * - otherwise, for all the flags and lines and stuff, we don't care what they are as an enum, just their ID
+         * PARSER NOTES:
+         * - for all the flags and lines and stuff, we don't care what they are as an enum, just their ID
          * so this is super low effort to parse, we just look up an ID like "f t r 20" in a map to get its coordinate
          * since we only use it for localisation anyways
          * - lines are kinda wacky, we will have to figure out a smart way to generate a position for that based
          * on the description, page 37 of the manual
-         */
-
-        /*
-         * Notes v2.0:
          * - we're going to actually have to use the action stack, push instances of SeeObject() onto it
          */
 
@@ -112,22 +106,30 @@ data class SeeMessage(var time: Int = 0, var objects: MutableList<SeeObject> = m
 
         open fun DistChange(): Rule {
             val distChange = Var<String>()
-            return Sequence(DecimalNumber(), distChange.set(match()))
+            return Sequence(DecimalNumber(), distChange.set(match()), ACTION(parserAction {
+                peek().distChange = distChange.get().toDouble()
+            }))
         }
 
         open fun DirChange(): Rule {
             val dirChange = Var<String>()
-            return DecimalNumber()
+            return Sequence(DecimalNumber(), dirChange.set(match()), ACTION(parserAction {
+                peek().dirChange = dirChange.get().toDouble()
+            }))
         }
 
         open fun HeadFaceDir(): Rule {
             val headFaceDir = Var<String>()
-            return IntegerNumber()
+            return Sequence(IntegerNumber(), headFaceDir.set(match()), ACTION(parserAction {
+                peek().headFaceDir = headFaceDir.get().toInt()
+            }))
         }
 
         open fun BodyFaceDir(): Rule {
             val bodyFaceDir = Var<String>()
-            return IntegerNumber()
+            return Sequence(IntegerNumber(), bodyFaceDir.set(match()), ACTION(parserAction {
+                peek().bodyFaceDir = bodyFaceDir.get().toInt()
+            }))
         }
 
         open fun Time(): Rule {
@@ -184,6 +186,8 @@ data class SeeMessage(var time: Int = 0, var objects: MutableList<SeeObject> = m
                 peek().type = ObjectType.LINE
             }))
         }
+
+        // TODO add the objects that are like (F), not sure what they are
 
         /*************************
          * OBJECT ENTRY MATCHER *

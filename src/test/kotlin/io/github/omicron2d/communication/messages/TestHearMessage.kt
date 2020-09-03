@@ -38,7 +38,7 @@ class TestHearMessage {
         // sample of real ref calls to make sure it can parse those
         val msg = HearMessage.deserialise("(hear 0 referee drop_ball)")
         val msg2 = HearMessage.deserialise("(hear 137 referee yellow_card_l_1)")
-        // TOOD test msg2
+        // TODO test msg2
 
         assertEquals(msg.sender, MessageSender.REFEREE)
         assertEquals(msg.message, "drop_ball")
@@ -53,6 +53,7 @@ class TestHearMessage {
     @Test
     fun testPerformanceAndRandom(){
         // setup test
+        // TODO make its own function
         val testMessages = mutableListOf<String>()
         for (i in 0 until MESSAGE_DESERIALISATION_COUNT){
             val msgStr = SAY_CHARSET.toList().shuffled().take(Random.nextInt(1, 10)).joinToString("")

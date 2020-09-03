@@ -34,7 +34,6 @@ data class HearMessage(var time: Int = 0, var sender: MessageSender? = null, var
             val result = parseRunner.run(input)
             if (result.hasErrors()) {
                 val errors = ErrorUtils.printParseErrors(result)
-                Logger.warn(errors)
                 throw MessageParseException(errors)
             }
 

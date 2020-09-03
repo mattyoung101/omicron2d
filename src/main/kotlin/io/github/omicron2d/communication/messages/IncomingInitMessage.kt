@@ -34,7 +34,6 @@ data class IncomingInitMessage(var side: Side = Side.LEFT, var unum: Int = 0,
             val result = parseRunner.run(input)
             if (result.hasErrors()) {
                 val errors = ErrorUtils.printParseErrors(result)
-                Logger.warn(errors)
                 throw MessageParseException(errors)
             }
 
