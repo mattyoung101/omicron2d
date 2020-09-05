@@ -10,6 +10,7 @@
 package io.github.omicron2d.communication
 
 import io.github.omicron2d.communication.messages.OutgoingServerMessage
+import org.greenrobot.eventbus.EventBus
 import org.tinylog.kotlin.Logger
 import java.net.*
 import java.nio.charset.Charset
@@ -24,10 +25,12 @@ import kotlin.concurrent.thread
 abstract class SoccerAgent(private var host: InetAddress, private var port: Int) {
     private var isConnected = false
     private val socket = DatagramSocket().apply {
-        // 3 minute timer to ensure the socket stays connected
+        // 3 minute timer to ensure the socket stays connected (inherited from atan)
         soTimeout = 300000
     }
-    private val sockThread = thread(start = false, name = "SocketThread"){
+    val messages = LinkedBlockingQueue<String>()
+
+    private val sockThread = thread(start = false){
         Logger.debug("Socket thread started")
 
         while (true){
@@ -38,23 +41,34 @@ abstract class SoccerAgent(private var host: InetAddress, private var port: Int)
 
             val buf = ByteArray(8192)
             val packet = DatagramPacket(buf, buf.size)
-            socket.receive(packet)
-            // TODO do we need to make sure the packet is actually coming from the correct socket server somehow?
+            try {
+                socket.receive(packet)
+            } catch (e: SocketException){
+                Logger.error("Failed to receive from server socket:")
+                Logger.error(e)
+            } catch (e: SocketTimeoutException){
+                Logger.warn("Timeout during receive! Server may have gone offline.")
+                Logger.warn(e)
+                // TODO do we want to disconnect here?
+            }
 
             val messageBytes = packet.data.takeWhile { it != 0.toByte() }.toByteArray()
             val messageString = messageBytes.toString(charset = Charset.forName("US-ASCII"))
             Logger.trace("Inbound message: $messageString")
-            onReceiveMessage(messageString)
+
+            messages.add(messageString)
+            //println("Queue size: ${messages.size}")
         }
     }
-    val eventQueue = LinkedBlockingQueue<String>()
 
     /**
-     * Called when a message has been received from network.
-     * Note: this runs in the context of the socket thread.
+     * Main loop of agent, usually should wait for a message to become available in the queue and then process it
      */
-    abstract fun onReceiveMessage(message: String)
+    abstract fun run()
 
+    /**
+     * Internal method to transmit a string to the remote server over UDP with ASCII encoding
+     */
     private fun transmitString(str: String){
         Logger.trace("Outbound message: $str")
         val bytes = str.toByteArray(Charset.forName("US-ASCII"))
@@ -79,27 +93,30 @@ abstract class SoccerAgent(private var host: InetAddress, private var port: Int)
         isConnected = true
         transmit(initMessage)
         sockThread.start()
+
+        Runtime.getRuntime().addShutdownHook(thread(start=false){
+            if (isConnected){
+                println("Shutdown hook is cleaning up agent")
+                disconnect()
+            }
+        })
     }
 
     /**
-     * Waits for the socket thread to exit
-     */
-    fun await(){
-        sockThread.join()
-    }
-
-    /**
-     * Closes the socket and cleans up resources
+     * Closes the socket and cleans up resources. This method may block for up to 500 ms.
      */
     fun disconnect(){
         if (!isConnected){
             Logger.warn("Tried to disconnect an agent that is not connected")
             return
         }
+
         // otherwise, hit the disconnect
+        Logger.debug("Disconnecting agent")
         transmitString("(bye)")
-        socket.close()
         sockThread.interrupt()
+        sockThread.join(500)
+        socket.close()
         isConnected = false
     }
 }

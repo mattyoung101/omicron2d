@@ -10,7 +10,7 @@ import org.junit.Test
 import kotlin.random.Random
 import kotlin.system.measureTimeMillis
 
-class TestHearMessage {
+class HearMessageTest {
     @Test
     fun testBasic(){
         val msg = HearMessage(time = 35, sender = null, direction = -35.0, message = "TEST")

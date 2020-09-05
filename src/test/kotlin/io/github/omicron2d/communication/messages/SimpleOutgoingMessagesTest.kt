@@ -3,7 +3,7 @@ package io.github.omicron2d.communication.messages
 import org.junit.Assert.*
 import org.junit.Test
 
-class TestOutgoingInitMessage {
+class OutgoingInitMessageTest {
     @Test
     fun testBasic(){
         val msg1 = OutgoingInitMessage(teamName = "Test123", version = "15", isGoalie = false)

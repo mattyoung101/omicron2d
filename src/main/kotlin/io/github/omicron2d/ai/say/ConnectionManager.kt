@@ -10,7 +10,6 @@
 package io.github.omicron2d.ai.say
 
 import com.esotericsoftware.kryo.Kryo
-import com.github.robocup_atan.atan.model.ActionsPlayer
 import org.tinylog.kotlin.Logger
 
 /**
@@ -59,11 +58,11 @@ class ConnectionManager(kryo: Kryo) {
     }
 
     /** Transmits a message to another agent. Automatically sets remoteId to the correct number and says via ActionsPlayer **/
-    fun send(message: AgentMessage, connection: Connection, actions: ActionsPlayer?){
+    fun send(message: AgentMessage, connection: Connection){
         message.remoteId = connection.id
         val msg = messageTransformer.encode(message)
         println("Transmitting message: $msg")
-        actions?.say(msg)
+        // TODO transmit it
         connection.sent.add(message)
     }
 

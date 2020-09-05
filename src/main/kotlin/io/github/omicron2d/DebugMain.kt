@@ -12,7 +12,7 @@ package io.github.omicron2d
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
-import io.github.omicron2d.utils.VERSION
+import io.github.omicron2d.utils.OMICRON2D_VERSION
 import org.tinylog.kotlin.Logger
 import java.io.File
 import kotlin.concurrent.thread
@@ -85,7 +85,7 @@ object DebugMain{
         System.setProperty("tinylog.configuration", "tinylog.properties")
         System.setProperty("kryo.unsafe", "false")
 
-        Logger.info("Omicron2D v$VERSION: Copyright (c) 2019-2020 Matt Young. Available under the MPL 2.0.")
+        Logger.info("Omicron2D v$OMICRON2D_VERSION: Copyright (c) 2019-2020 Matt Young. Available under the MPL 2.0.")
         Omicron2DApp().main(args)
     }
 }

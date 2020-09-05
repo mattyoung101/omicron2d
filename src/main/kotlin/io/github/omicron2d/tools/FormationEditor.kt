@@ -35,8 +35,6 @@ import java.io.FileOutputStream
 import java.nio.file.Paths
 
 
-private const val VERSION = "1.0"
-
 /**
  * Formation Editor applicatio.
  * Not the cleanest code ever, pretty much just hacked together to be usable in a few days.
@@ -56,6 +54,7 @@ class FormationEditor : Application() {
         register(Vector2::class.java)
     }
     private val FIELD_CENTRE = Vector2.of(FIELD_WIDTH / 2.0, FIELD_HEIGHT / 2.0)!!
+    private val VERSION = "1.0"
 
     override fun start(stage: Stage) {
         stage.title = "Omicron2D Formation Editor"

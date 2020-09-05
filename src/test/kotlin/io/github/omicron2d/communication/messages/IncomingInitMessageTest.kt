@@ -10,7 +10,7 @@ import org.junit.Test
 import kotlin.random.Random
 import kotlin.system.measureTimeMillis
 
-class TestIncomingInitMessage {
+class IncomingInitMessageTest {
     @Test
     fun testBasic(){
         val msg1 = IncomingInitMessage(side = Side.LEFT, unum = 12, playMode = PlayMode.PLAY_ON)
