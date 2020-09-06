@@ -9,6 +9,7 @@
 
 package io.github.omicron2d.ai.world
 
+import io.github.omicron2d.communication.messages.SeeObject
 import io.github.omicron2d.utils.PlayMode
 import io.github.omicron2d.utils.Side
 
@@ -18,5 +19,10 @@ import io.github.omicron2d.utils.Side
  */
 data class LowLevelWorldModel(
     var unum: Int = -1,
-    var side: Side = Side.UNKNOWN)
-    : WorldModel
+    var side: Side = Side.UNKNOWN,
+    /** list of flags, received directly from server */
+    var flags: List<SeeObject> = listOf(),
+    var players: List<SeeObject> = listOf(),
+    /** relative position of ball if visible, received directly from server */
+    var ball: SeeObject? = null
+) : WorldModel

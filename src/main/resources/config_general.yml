@@ -8,3 +8,4 @@ serverHost: localhost
 playerPort: 6000
 trainerPort: 6001
 coachPort: 6002
+timeout: 10000

@@ -7,16 +7,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package io.github.omicron2d.utils
+package io.github.omicron2d.ai.world
 
 /**
- * Deserialised by YAMLBeans, loaded from config_general.yml
+ * Performs localisation by solving a 2D iterative closest point (ICP) problem, which is sort of similar to least squares
+ * type thing.
  */
-data class GeneralConfig(
-    var teamName: String = "",
-    var serverHost: String = "",
-    var playerPort: Int = 0,
-    var trainerPort: Int = 0,
-    var coachPort: Int = 0,
-    var timeout: Int = 0
-)
+class ICPLocalisation {
+}

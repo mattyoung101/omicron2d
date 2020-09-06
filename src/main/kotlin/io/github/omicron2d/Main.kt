@@ -18,6 +18,7 @@ import io.github.omicron2d.communication.messages.SeeMessage
 import io.github.omicron2d.utils.GeneralConfig
 import io.github.omicron2d.utils.SERVER_PROTOCOL_VERSION
 import io.github.omicron2d.utils.OMICRON2D_VERSION
+import io.github.omicron2d.utils.currentConfig
 import org.tinylog.kotlin.Logger
 import java.io.FileReader
 import java.net.InetAddress
@@ -42,7 +43,9 @@ object Main {
         // load config from YAML files
         val yamlReader = YamlReader(FileReader("config_general.yml"))
         val generalConfig = yamlReader.read(GeneralConfig::class.java)
+        currentConfig = generalConfig
         Logger.info("General config parsed successfully")
+        Logger.trace(generalConfig)
 
         Logger.info("Connecting to ${generalConfig.serverHost}:${generalConfig.playerPort}")
         val initMessage = OutgoingInitMessage(generalConfig.teamName,
@@ -51,6 +54,8 @@ object Main {
         val agent = PlayerAgent(InetAddress.getByName(generalConfig.serverHost), generalConfig.playerPort)
         agent.connect(initMessage)
         agent.run()
-        agent.disconnect()
+        // hopefully the agent will have already disconnected itself by here (for example, in a timeout)
+        Logger.info("Omicron2D main finishing")
+        println("Goodbye!")
     }
 }

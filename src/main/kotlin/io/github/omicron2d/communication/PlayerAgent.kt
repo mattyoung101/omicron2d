@@ -12,6 +12,7 @@ package io.github.omicron2d.communication
 import io.github.omicron2d.ai.world.HighLevelWorldModel
 import io.github.omicron2d.ai.world.LowLevelWorldModel
 import io.github.omicron2d.communication.messages.*
+import io.github.omicron2d.utils.ObjectType
 import io.github.omicron2d.utils.PlayMode
 import org.tinylog.kotlin.Logger
 import java.net.InetAddress
@@ -22,8 +23,7 @@ import java.util.concurrent.TimeUnit
  *
  * This is the class in which the main information processing pipeline takes place.
  */
-class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = 6000) : SoccerAgent(host, port) {
-    // TODO consider dropping the low level world model
+class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = 6000) : SoccerAgent(host, port), PlayerMessageHandler {
     private val lowModel = LowLevelWorldModel()
     private val highModel = HighLevelWorldModel()
 
@@ -32,27 +32,26 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = 60
 
         while (true){
             // 1. Receive message from server and parse
-            val msgStr = messages.poll(Long.MAX_VALUE, TimeUnit.DAYS) ?: continue
-            val msg = MessageFactory.parseIncomingMessage(msgStr)
-
-            // 2. Dispatch message to handlers
-            if (msg != null){
-                // do you think there's a better solution than a giant loop? maybe we can inline it into MessageFactory somehow?
-                when (msg){
-                    is IncomingInitMessage -> handleInitMessage(msg)
-                    is SeeMessage -> handleSeeMessage(msg)
-                    is HearMessage -> handleHearMessage(msg)
-                    is ErrorMessage -> handleErrorMessage(msg)
-                }
-            } else {
-                Logger.warn("No parser for message: $msgStr")
+            val msgStr = messages.poll(30, TimeUnit.SECONDS)
+            if (msgStr == null){
+                Logger.warn("Unexpected null message from message queue, server dead? Terminating!")
+                break
+            } else if (msgStr == "INTERNAL_TIMED_OUT"){
+                Logger.warn("Received server timeout message, terminating PlayerAgent!")
+                break
             }
 
-            // 3. Process world model
+            // 2. Dispatch message to handlers
+            dispatchMessage(msgStr)
+
+            // 3. We have now created the low level world model. Perform localisation on high level world model.
+
+            // 4. Update positions of seen objects in high level world model
+            //transmitString("(move 1 1)")
         }
     }
 
-    private fun handleInitMessage(init: IncomingInitMessage){
+    override fun handleInitMessage(init: IncomingInitMessage){
         if (init.playMode != PlayMode.BEFORE_KICK_OFF){
             Logger.warn("Unexpected play mode during init: ${init.playMode}")
         }
@@ -61,15 +60,18 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = 60
         Logger.debug("Parsed init message $init, world model is now $lowModel")
     }
 
-    private fun handleSeeMessage(see: SeeMessage){
+    override fun handleSeeMessage(see: SeeMessage){
+        // filter out only flags in the see message
+        lowModel.flags = see.objects.filter { it.type == ObjectType.FLAG }
+        lowModel.players = see.objects.filter { it.type == ObjectType.PLAYER }
+        lowModel.ball = see.objects.firstOrNull { it.type == ObjectType.BALL }
+    }
+
+    override fun handleHearMessage(hear: HearMessage){
 
     }
 
-    private fun handleHearMessage(hear: HearMessage){
-
-    }
-
-    private fun handleErrorMessage(error: ErrorMessage){
+    override fun handleErrorMessage(error: ErrorMessage){
         Logger.warn("Received server error: ${error.message}")
     }
 }

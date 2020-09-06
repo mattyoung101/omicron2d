@@ -10,24 +10,41 @@
 package io.github.omicron2d.communication
 
 import io.github.omicron2d.communication.messages.OutgoingServerMessage
-import org.greenrobot.eventbus.EventBus
+import io.github.omicron2d.utils.currentConfig
 import org.tinylog.kotlin.Logger
 import java.net.*
 import java.nio.charset.Charset
 import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
 /**
  * Abstract class for all intelligent agents on the soccer simulation server, for example, players and coaches.
  * The reference for this is page 71 of the manual (section 6)
  * Also based on AbstractUDPClient from the atan Java rcssserver library
+ * @param host IP address of rcssserver
+ * @param defaultPort default port of server, will be switched to server assigned one later
  */
-abstract class SoccerAgent(private var host: InetAddress, private var port: Int) {
+abstract class SoccerAgent(private var host: InetAddress, private var defaultPort: Int) {
     private var isConnected = false
     private val socket = DatagramSocket().apply {
-        // 3 minute timer to ensure the socket stays connected (inherited from atan)
-        soTimeout = 300000
+        // 10 second timer to ensure the socket stays connected (inherited from atan)
+        soTimeout = currentConfig.timeout
     }
+
+    /**
+     * Port to respond to, instead of the default port (init port), once we've received a response from rcssserver.
+     *
+     * The docs are extremely unclear, but it appears that in versions 8+ you're not allowed to send anything but init
+     * on the default port, and you have to switch over to the port that rcssserver replies to you with otherwise it
+     * gives you (error only_init_allowed_on_init_port). For reference, do a search in rcssserver project for that error:
+     * ~/workspace/rcssserver-16.0.0$ rg -i only_init_allowed_on_init_port
+     */
+    private var respondTo: Int? = null
+
+    /**
+     * Contains the queue of messages received from the server, that are awaiting processing
+     */
     val messages = LinkedBlockingQueue<String>()
 
     private val sockThread = thread(start = false){
@@ -44,17 +61,37 @@ abstract class SoccerAgent(private var host: InetAddress, private var port: Int)
             try {
                 socket.receive(packet)
             } catch (e: SocketException){
-                Logger.error("Failed to receive from server socket:")
+                // if the read was interrupted and we should be terminating, just quit
+                if (Thread.interrupted()){
+                    println("Terminating socket thread from socket exception")
+                    return@thread
+                }
+
+                // otherwise, log the error
+                Logger.error("Failed to receive():")
                 Logger.error(e)
             } catch (e: SocketTimeoutException){
-                Logger.warn("Timeout during receive! Server may have gone offline.")
+                Logger.warn("Timeout during receive(), server probably offline:")
                 Logger.warn(e)
-                // TODO do we want to disconnect here?
+
+                // simple teardown routine since calling disconnect() doesn't work
+                isConnected = false
+                respondTo = null
+                socket.close()
+                messages.add("INTERNAL_TIMED_OUT")
+                println("Socket thread finished due to timeout")
+                return@thread
+            }
+
+            // switch to new port to avoid error (see respondTo description)
+            if (respondTo == null){
+                Logger.info("Switching to new port ${packet.port}")
+                respondTo = packet.port
             }
 
             val messageBytes = packet.data.takeWhile { it != 0.toByte() }.toByteArray()
             val messageString = messageBytes.toString(charset = Charset.forName("US-ASCII"))
-            Logger.trace("Inbound message: $messageString")
+            Logger.trace("Inbound message (from ${packet.address}:${packet.port}): $messageString")
 
             messages.add(messageString)
             //println("Queue size: ${messages.size}")
@@ -67,12 +104,17 @@ abstract class SoccerAgent(private var host: InetAddress, private var port: Int)
     abstract fun run()
 
     /**
-     * Internal method to transmit a string to the remote server over UDP with ASCII encoding
+     * Internal method to transmit a string to the remote server over UDP with ASCII encoding. Generally you want to use
+     * transmit()
      */
-    private fun transmitString(str: String){
-        Logger.trace("Outbound message: $str")
+    protected fun transmitString(str: String){
+        if (!isConnected){
+            throw IllegalStateException("Tried to send message on unconnected socket")
+        }
+
+        Logger.trace("Outbound message (to ${host}:${respondTo ?: defaultPort}): $str")
         val bytes = str.toByteArray(Charset.forName("US-ASCII"))
-        val packet = DatagramPacket(bytes, bytes.size, host, port)
+        val packet = DatagramPacket(bytes, bytes.size, host, respondTo ?: defaultPort)
         socket.send(packet)
     }
 
@@ -80,9 +122,6 @@ abstract class SoccerAgent(private var host: InetAddress, private var port: Int)
      * Serialises then transmits a message to the server
      */
     fun transmit(message: OutgoingServerMessage){
-        if (!isConnected){
-            throw IllegalStateException("Tried to send message on unconnected socket")
-        }
         transmitString(message.serialise())
     }
 
@@ -111,12 +150,19 @@ abstract class SoccerAgent(private var host: InetAddress, private var port: Int)
             return
         }
 
-        // otherwise, hit the disconnect
-        Logger.debug("Disconnecting agent")
+        // tell the server we're disconnecting
+        println("Disconnecting agent")
         transmitString("(bye)")
+        Thread.sleep(100)
+        // TODO find a better way to ensure transmission has completed? or do we not need to?
+
+        // close down the socket
         sockThread.interrupt()
-        sockThread.join(500)
         socket.close()
+        sockThread.join(500)
+        println("Socket thread joined!")
+
         isConnected = false
+        respondTo = null
     }
 }
