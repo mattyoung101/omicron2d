@@ -10,9 +10,13 @@
 package io.github.omicron2d.communication.messages
 
 import com.google.gson.GsonBuilder
+import io.github.omicron2d.MESSAGE_DESERIALISATION_TIME
 import io.github.omicron2d.utils.ObjectType
 import org.junit.Assert.*
 import org.junit.Test
+import java.io.File
+import java.nio.file.Paths
+import kotlin.system.measureTimeMillis
 
 class SeeMessageTest {
     @Test
@@ -39,9 +43,6 @@ class SeeMessageTest {
                 "((f r t 10) 83.1 19) ((f r t 20) 80.6 12) ((f r t 30) 79 5) ((f r b 10) 91.8 31) " +
                 "((f r b 20) 96.5 36) ((f r b 30) 103.5 40))"
         val deserialised = SeeMessage.deserialise(testMsg)
-        for (entry in deserialised.objects){
-            println(entry)
-        }
 
         assertEquals(deserialised.objects.size, 22)
         // check to make sure at least one object is in there
@@ -53,9 +54,27 @@ class SeeMessageTest {
         })
     }
 
+    private fun loadSeeCorpus(): List<String> {
+        return File("src/test/resources/SEE_TEST_DATASET.txt").readLines().filter {
+            !it.startsWith("#") && it.trim().isNotEmpty()
+        }
+    }
+
     @Test
     fun testCorpusAndPerformance(){
-        // here I would like to run it through an enormous corpus of see messages
+        val corpus = loadSeeCorpus()
+        println("Loaded ${corpus.size} see messages for corpus")
+
+        val avgTime = measureTimeMillis {
+            for ((i, msg) in corpus.withIndex()){
+                // println("Parsing message $i/${corpus.size}")
+                val deserialised = SeeMessage.deserialise(msg)
+            }
+        }.toDouble() / corpus.size
+        println("All messages deserialised successfully")
+
+        println("Average SeeMessage deserialisation time: $avgTime ms")
+        assertTrue(avgTime <= MESSAGE_DESERIALISATION_TIME)
     }
 
     @Test(expected = MessageParseException::class)

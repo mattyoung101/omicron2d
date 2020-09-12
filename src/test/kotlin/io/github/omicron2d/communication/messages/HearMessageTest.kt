@@ -50,11 +50,9 @@ class HearMessageTest {
         HearMessage.deserialise(msg)
     }
 
-    @Test
-    fun testPerformanceAndRandom(){
-        // setup test
-        // TODO make its own function
+    private fun generateTestMessages(): List<String>{
         val testMessages = mutableListOf<String>()
+
         for (i in 0 until MESSAGE_DESERIALISATION_COUNT){
             val msgStr = SAY_CHARSET.toList().shuffled().take(Random.nextInt(1, 10)).joinToString("")
             val time = Random.nextInt(0, 1000)
@@ -76,15 +74,24 @@ class HearMessageTest {
                 testMessages.add("(hear ${Random.nextInt(0, 1000)} referee ${randomPlayMode.toString().toLowerCase()})")
             }
         }
-        println("TEST MESSAGES:")
-        println(testMessages.joinToString("\n"))
+//        println("TEST MESSAGES:")
+//        println(testMessages.joinToString("\n"))
+
+        return testMessages
+    }
+
+    @Test
+    fun testPerformanceAndRandom(){
+        // setup test
+        // TODO make its own function
+        val testMessages = generateTestMessages()
 
         // time deserialisation
         val time = measureTimeMillis {
             for (entry in testMessages){
                 val result = HearMessage.deserialise(entry)
             }
-        } / MESSAGE_DESERIALISATION_COUNT
+        }.toDouble() / MESSAGE_DESERIALISATION_COUNT
 
         // give it 35 ms tolerance (should be fine on most computers)
         println("Average IncomingHearMessage deserialise time: $time ms")

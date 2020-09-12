@@ -10,8 +10,7 @@
 package io.github.omicron2d.ai.world
 
 /**
- * Performs localisation by solving a 2D iterative closest point (ICP) problem, which is sort of similar to least squares
- * type thing.
+ * Describes algorithms which can perform localisation
  */
-class ICPLocalisation : Localiser {
+interface Localiser {
 }

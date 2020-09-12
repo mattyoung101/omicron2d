@@ -12,6 +12,7 @@ package io.github.omicron2d.communication
 import io.github.omicron2d.ai.world.HighLevelWorldModel
 import io.github.omicron2d.ai.world.LowLevelWorldModel
 import io.github.omicron2d.communication.messages.*
+import io.github.omicron2d.utils.DEFAULT_PLAYER_PORT
 import io.github.omicron2d.utils.ObjectType
 import io.github.omicron2d.utils.PlayMode
 import org.tinylog.kotlin.Logger
@@ -23,7 +24,8 @@ import java.util.concurrent.TimeUnit
  *
  * This is the class in which the main information processing pipeline takes place.
  */
-class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = 6000) : SoccerAgent(host, port), PlayerMessageHandler {
+class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DEFAULT_PLAYER_PORT)
+    : AbstractSoccerAgent(host, port), PlayerMessageHandler {
     private val lowModel = LowLevelWorldModel()
     private val highModel = HighLevelWorldModel()
 
@@ -57,7 +59,7 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = 60
         }
         lowModel.side = init.side
         lowModel.unum = init.unum
-        Logger.debug("Parsed init message $init, world model is now $lowModel")
+        Logger.debug("Init message received: $init")
     }
 
     override fun handleSeeMessage(see: SeeMessage){

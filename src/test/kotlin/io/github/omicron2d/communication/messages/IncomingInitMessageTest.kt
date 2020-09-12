@@ -40,7 +40,7 @@ class IncomingInitMessageTest {
 
                 val msg = IncomingInitMessage.deserialise(testInitMessage)
             }
-        } / MESSAGE_DESERIALISATION_COUNT
+        }.toDouble() / MESSAGE_DESERIALISATION_COUNT
 
         // give it 35 ms tolerance (should be fine on most computers)
         assertTrue(time <= MESSAGE_DESERIALISATION_TIME)

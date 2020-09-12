@@ -48,8 +48,7 @@ object Main {
         Logger.trace(generalConfig)
 
         Logger.info("Connecting to ${generalConfig.serverHost}:${generalConfig.playerPort}")
-        val initMessage = OutgoingInitMessage(generalConfig.teamName,
-            SERVER_PROTOCOL_VERSION, false)
+        val initMessage = OutgoingInitMessage(generalConfig.teamName, SERVER_PROTOCOL_VERSION, false)
 
         val agent = PlayerAgent(InetAddress.getByName(generalConfig.serverHost), generalConfig.playerPort)
         agent.connect(initMessage)

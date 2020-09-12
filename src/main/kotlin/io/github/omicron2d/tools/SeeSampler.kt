@@ -10,32 +10,52 @@
 package io.github.omicron2d.tools
 
 import com.esotericsoftware.yamlbeans.YamlReader
+import io.github.omicron2d.communication.SamplerAgent
 import io.github.omicron2d.communication.messages.OutgoingInitMessage
 import io.github.omicron2d.utils.GeneralConfig
 import io.github.omicron2d.utils.OMICRON2D_VERSION
 import io.github.omicron2d.utils.SERVER_PROTOCOL_VERSION
 import org.tinylog.kotlin.Logger
+import java.io.File
+import java.io.FileOutputStream
 import java.io.FileReader
+import java.io.PrintStream
+import java.net.InetAddress
+import java.util.*
+import kotlin.system.exitProcess
 
 /**
  * The SeeSampler randomly moves a team of players around the field, and samples messages from one of them, to generate
  * an enormous corpus of (see) messages to check the parser with.
  */
 object SeeSampler {
-    private const val OUTPUT = "see_sampler.txt"
+    private val uuid = UUID.randomUUID().toString()
+    private val outputPath = "see_sampler/see_sampler_$uuid.txt"
 
     @JvmStatic
     fun main(args: Array<String>){
-        println("Omicron2D v$OMICRON2D_VERSION See Sampler")
+        Logger.info("Omicron2D v$OMICRON2D_VERSION See Sampler")
+
+        // open log file
+        val logFile = File(outputPath)
+        logFile.createNewFile()
+        val stream = PrintStream(FileOutputStream(logFile, false))
 
         // load config from YAML files
         val yamlReader = YamlReader(FileReader("config_general.yml"))
         val generalConfig = yamlReader.read(GeneralConfig::class.java)
-        println("General config parsed successfully")
-        generalConfig.teamName = "Omicron2D SeeSampler"
+        generalConfig.teamName = "Omi2DSeeSampler"
+        Logger.debug("General config parsed successfully")
 
-        println("Connecting to ${generalConfig.serverHost}:${generalConfig.playerPort}")
-        val initMessage = OutgoingInitMessage(generalConfig.teamName,
-            SERVER_PROTOCOL_VERSION, false)
+        Logger.info("Connecting to ${generalConfig.serverHost}:${generalConfig.playerPort}")
+        val initMessage = OutgoingInitMessage(generalConfig.teamName, SERVER_PROTOCOL_VERSION, false)
+
+        val agent = SamplerAgent(stream, InetAddress.getByName(generalConfig.serverHost), generalConfig.playerPort)
+        agent.connect(initMessage)
+        agent.run()
+
+        Logger.info("SeeSampler main finishing")
+        println("Goodbye!")
+        exitProcess(0)
     }
 }

@@ -9,6 +9,7 @@
 
 package io.github.omicron2d.communication
 
+import io.github.omicron2d.communication.messages.OutgoingInitMessage
 import io.github.omicron2d.communication.messages.OutgoingServerMessage
 import io.github.omicron2d.utils.currentConfig
 import org.tinylog.kotlin.Logger
@@ -25,7 +26,7 @@ import kotlin.concurrent.thread
  * @param host IP address of rcssserver
  * @param defaultPort default port of server, will be switched to server assigned one later
  */
-abstract class SoccerAgent(private var host: InetAddress, private var defaultPort: Int) {
+abstract class AbstractSoccerAgent(private var host: InetAddress, private var defaultPort: Int) {
     private var isConnected = false
     private val socket = DatagramSocket().apply {
         // 10 second timer to ensure the socket stays connected (inherited from atan)
@@ -63,7 +64,7 @@ abstract class SoccerAgent(private var host: InetAddress, private var defaultPor
             } catch (e: SocketException){
                 // if the read was interrupted and we should be terminating, just quit
                 if (Thread.interrupted()){
-                    println("Terminating socket thread from socket exception")
+                    println("Ignoring socket exception due to thread interrupt (quitting!)")
                     return@thread
                 }
 
@@ -128,7 +129,7 @@ abstract class SoccerAgent(private var host: InetAddress, private var defaultPor
     /**
      * Starts socket thread and sends init message to server
      */
-    fun connect(initMessage: OutgoingServerMessage){
+    fun connect(initMessage: OutgoingInitMessage){
         isConnected = true
         transmit(initMessage)
         sockThread.start()

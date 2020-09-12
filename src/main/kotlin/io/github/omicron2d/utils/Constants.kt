@@ -25,6 +25,7 @@ const val SERVER_PROTOCOL_VERSION = "15"
 const val SAY_CHARSET = "1234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM().+*/?<>_ "
 /** Charset available for team names, source is rcssserver serverparam.cpp check_teamname_format() */
 const val TEAM_NAME_CHARSET = "+-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+const val DEFAULT_PLAYER_PORT = 6000
 var currentConfig = GeneralConfig()
 
 // Source: https://github.com/rcsoccersim/rcssserver/blob/master/src/serverparam.cpp

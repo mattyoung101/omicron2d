@@ -24,7 +24,7 @@ import org.tinylog.kotlin.Logger
 /**
  * Information about player name transmitted through see message
  */
-data class SeePlayerInfo(val teamName: String, val unum: Int, val goalie: Boolean)
+data class SeePlayerInfo(var teamName: String? = null, var unum: Int? = null, var goalie: Boolean = false)
 
 /** A singular object reported by the see message */
 data class SeeObject(var type: ObjectType = ObjectType.UNKNOWN, var name: String = "",
@@ -80,14 +80,42 @@ data class SeeMessage(var time: Int = 0, var objects: MutableList<SeeObject> = m
         /*************************************
          * Basic types and variable matchers *
          *************************************/
-        open fun TeamNameChar(): Rule {
-            return AnyOf(TEAM_NAME_CHARSET)
+        open fun TeamName(): Rule {
+            return OneOrMore(AnyOf(TEAM_NAME_CHARSET))
+        }
+
+        open fun Unum(): Rule {
+            return OneOrMore(IntegerNumber())
         }
 
         open fun PlayerName(): Rule {
-            // TODO write parser
-            return Sequence("(p \"", OneOrMore(TeamNameChar()), "\" ", OneOrMore(IntegerNumber()),
-                MaybeWhiteSpace(), Optional("goalie"), ")")
+            val teamName = Var<String?>()
+            val unum = Var<String?>()
+            val isGoalie = Var<Boolean?>()
+
+            // so of course the bastard manual doesn't say it, but just about everything in the player message is optional
+            // ...yes, even including the team name, for some reason??? why can't they tell us this??????
+            // NOTE: this rule is a NIGHTMARE, please be extremely careful when editing it! match parentheses correctly!!
+
+            return Sequence(
+                Sequence(
+                    "(p", MaybeWhiteSpace(),
+                    // now match the team name if there is one
+                    Optional(Sequence("\"", Sequence(TeamName(), teamName.set(match()), "\""))),
+                    // possibly unum as well
+                    Optional(Sequence(" ", Sequence(Unum(), unum.set(match())))),
+                    // may also have an extra tag that says goalie if it's a goalie
+                    Optional(Sequence(" goalie", isGoalie.set(true))),
+                    MaybeWhiteSpace(), ")"
+                ),
+                ACTION(parserAction{
+                    // FIXME make this work (haha as if, it will never work)
+                })
+            )
+        }
+
+        open fun PlayerBehind(): Rule {
+            return String("(P)")
         }
 
         open fun Distance(): Rule {
@@ -163,10 +191,18 @@ data class SeeMessage(var time: Int = 0, var objects: MutableList<SeeObject> = m
                 IntegerNumber(), ")")
         }
 
+        // not really sure what this is, I see it mentioned as a "behind flag" in librcsc though
+        open fun FlagBehind(): Rule {
+            return String("(F)")
+        }
+
         open fun FlagName(): Rule {
-            return Sequence(FirstOf(FlagName0(), FlagName1(), FlagName2(), FlagName3(), FlagName4()), ACTION(parserAction {
-                peek().type = ObjectType.FLAG
-            }))
+            return Sequence(
+                FirstOf(FlagName0(), FlagName1(), FlagName2(), FlagName3(), FlagName4(), FlagBehind()),
+                ACTION(parserAction {
+                    peek().type = ObjectType.FLAG
+                })
+            )
         }
 
         open fun GoalName(): Rule {
@@ -175,10 +211,18 @@ data class SeeMessage(var time: Int = 0, var objects: MutableList<SeeObject> = m
             }))
         }
 
+        open fun GoalBehind(): Rule {
+            return String("(G)")
+        }
+
         open fun BallName(): Rule {
-            return Sequence(String("(b)"), ACTION(parserAction {
+            return Sequence("(b)", ACTION(parserAction {
                 peek().type = ObjectType.BALL
             }))
+        }
+
+        open fun BallBehind(): Rule {
+            return String("(B)")
         }
 
         open fun LineName(): Rule {
@@ -194,10 +238,14 @@ data class SeeMessage(var time: Int = 0, var objects: MutableList<SeeObject> = m
          ************************/
         open fun ObjectName(): Rule {
             val name = Var<String>()
-            return Sequence(FirstOf(FlagName(), GoalName(), BallName(), LineName(), PlayerName()), name.set(match()),
+            return Sequence(
+                FirstOf(FlagName(), GoalName(), BallName(), LineName(), PlayerName(),
+                    FlagBehind(), GoalBehind(), BallBehind(), PlayerBehind()),
+                name.set(match()),
                 ACTION(parserAction {
                     peek().name = name.get()
-                }))
+                })
+            )
         }
 
         open fun ObjectContents(): Rule {

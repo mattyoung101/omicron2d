@@ -40,6 +40,7 @@ interface MessageHandler {
 interface PlayerMessageHandler : MessageHandler {
     override fun dispatchMessage(msg: String) {
         val name = msg.split(" ").first().replace("(", "")
+        // TODO if slow, use msg.startsWith()
 
         try {
             when (name) {

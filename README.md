@@ -10,8 +10,16 @@ engineer on the RoboCup Jr team). If you feel like getting involved, don't hesit
 If you have any questions, please contact Matt Young (matt.young.1@outlook.com).
 
 ## Project status
-The project is just getting started. I have almost finished writing the parsers for incoming server messages (see, hear, etc), 
-and soon I can move on to writing localisation and basic movement.
+**The project has been postponed due to the parser library, Parboiled, causing me too much grief.**
+
+The simple truth of the matter is Parboiled doesn't work. It is too insufferably complicated to write rules for, literally,
+every time I want to write a new parser I have to fight off random problems with ZERO useful debugging info
+for hours and hours and hours. What am I supposed to do with `Unwrapped action expression`!!! There's no help in the docs,
+nothing online anywhere, it's ridiculous. I made a grave mistake using this over other, more common frameworks.
+ 
+The project will be resumed once I have the time and mental energy to rewrite all the parsers in ANTLR or JavaCC.
+
+This is all with respect to the Parboiled developers. It probably does work, but it's not for me. Good riddance.
 
 ## About the agents
 If you want to know more about our agents, please check out some Markdown files in the docs folder (such as
