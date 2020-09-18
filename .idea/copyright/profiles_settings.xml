@@ -2,6 +2,7 @@
   <settings default="Omicron2D Copyright">
     <module2copyright>
       <element module="Project Files" copyright="Omicron2D Copyright" />
+      <element module="Tests" copyright="Omicron2D Copyright" />
     </module2copyright>
   </settings>
 </component>

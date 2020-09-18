@@ -8,6 +8,196 @@ import org.antlr.v4.runtime.tree.ParseTreeListener;
  */
 public interface ServerMessageListener extends ParseTreeListener {
 	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#teamName}.
+	 * @param ctx the parse tree
+	 */
+	void enterTeamName(ServerMessageParser.TeamNameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#teamName}.
+	 * @param ctx the parse tree
+	 */
+	void exitTeamName(ServerMessageParser.TeamNameContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#playerName}.
+	 * @param ctx the parse tree
+	 */
+	void enterPlayerName(ServerMessageParser.PlayerNameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#playerName}.
+	 * @param ctx the parse tree
+	 */
+	void exitPlayerName(ServerMessageParser.PlayerNameContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#playerBehind}.
+	 * @param ctx the parse tree
+	 */
+	void enterPlayerBehind(ServerMessageParser.PlayerBehindContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#playerBehind}.
+	 * @param ctx the parse tree
+	 */
+	void exitPlayerBehind(ServerMessageParser.PlayerBehindContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#distance}.
+	 * @param ctx the parse tree
+	 */
+	void enterDistance(ServerMessageParser.DistanceContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#distance}.
+	 * @param ctx the parse tree
+	 */
+	void exitDistance(ServerMessageParser.DistanceContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#seeDirection}.
+	 * @param ctx the parse tree
+	 */
+	void enterSeeDirection(ServerMessageParser.SeeDirectionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#seeDirection}.
+	 * @param ctx the parse tree
+	 */
+	void exitSeeDirection(ServerMessageParser.SeeDirectionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#distChange}.
+	 * @param ctx the parse tree
+	 */
+	void enterDistChange(ServerMessageParser.DistChangeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#distChange}.
+	 * @param ctx the parse tree
+	 */
+	void exitDistChange(ServerMessageParser.DistChangeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#dirChange}.
+	 * @param ctx the parse tree
+	 */
+	void enterDirChange(ServerMessageParser.DirChangeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#dirChange}.
+	 * @param ctx the parse tree
+	 */
+	void exitDirChange(ServerMessageParser.DirChangeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#headFaceDir}.
+	 * @param ctx the parse tree
+	 */
+	void enterHeadFaceDir(ServerMessageParser.HeadFaceDirContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#headFaceDir}.
+	 * @param ctx the parse tree
+	 */
+	void exitHeadFaceDir(ServerMessageParser.HeadFaceDirContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#bodyFaceDir}.
+	 * @param ctx the parse tree
+	 */
+	void enterBodyFaceDir(ServerMessageParser.BodyFaceDirContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#bodyFaceDir}.
+	 * @param ctx the parse tree
+	 */
+	void exitBodyFaceDir(ServerMessageParser.BodyFaceDirContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#flagName}.
+	 * @param ctx the parse tree
+	 */
+	void enterFlagName(ServerMessageParser.FlagNameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#flagName}.
+	 * @param ctx the parse tree
+	 */
+	void exitFlagName(ServerMessageParser.FlagNameContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#flagBehind}.
+	 * @param ctx the parse tree
+	 */
+	void enterFlagBehind(ServerMessageParser.FlagBehindContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#flagBehind}.
+	 * @param ctx the parse tree
+	 */
+	void exitFlagBehind(ServerMessageParser.FlagBehindContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#goalBehind}.
+	 * @param ctx the parse tree
+	 */
+	void enterGoalBehind(ServerMessageParser.GoalBehindContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#goalBehind}.
+	 * @param ctx the parse tree
+	 */
+	void exitGoalBehind(ServerMessageParser.GoalBehindContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#goalName}.
+	 * @param ctx the parse tree
+	 */
+	void enterGoalName(ServerMessageParser.GoalNameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#goalName}.
+	 * @param ctx the parse tree
+	 */
+	void exitGoalName(ServerMessageParser.GoalNameContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#ballName}.
+	 * @param ctx the parse tree
+	 */
+	void enterBallName(ServerMessageParser.BallNameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#ballName}.
+	 * @param ctx the parse tree
+	 */
+	void exitBallName(ServerMessageParser.BallNameContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#ballBehind}.
+	 * @param ctx the parse tree
+	 */
+	void enterBallBehind(ServerMessageParser.BallBehindContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#ballBehind}.
+	 * @param ctx the parse tree
+	 */
+	void exitBallBehind(ServerMessageParser.BallBehindContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#lineName}.
+	 * @param ctx the parse tree
+	 */
+	void enterLineName(ServerMessageParser.LineNameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#lineName}.
+	 * @param ctx the parse tree
+	 */
+	void exitLineName(ServerMessageParser.LineNameContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#objectName}.
+	 * @param ctx the parse tree
+	 */
+	void enterObjectName(ServerMessageParser.ObjectNameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#objectName}.
+	 * @param ctx the parse tree
+	 */
+	void exitObjectName(ServerMessageParser.ObjectNameContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#objectContents}.
+	 * @param ctx the parse tree
+	 */
+	void enterObjectContents(ServerMessageParser.ObjectContentsContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#objectContents}.
+	 * @param ctx the parse tree
+	 */
+	void exitObjectContents(ServerMessageParser.ObjectContentsContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#seeObject}.
+	 * @param ctx the parse tree
+	 */
+	void enterSeeObject(ServerMessageParser.SeeObjectContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#seeObject}.
+	 * @param ctx the parse tree
+	 */
+	void exitSeeObject(ServerMessageParser.SeeObjectContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ServerMessageParser#seeMessage}.
 	 * @param ctx the parse tree
 	 */

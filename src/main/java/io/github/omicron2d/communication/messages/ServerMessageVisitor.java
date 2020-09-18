@@ -11,6 +11,120 @@ import org.antlr.v4.runtime.tree.ParseTreeVisitor;
  */
 public interface ServerMessageVisitor<T> extends ParseTreeVisitor<T> {
 	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#teamName}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTeamName(ServerMessageParser.TeamNameContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#playerName}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPlayerName(ServerMessageParser.PlayerNameContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#playerBehind}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPlayerBehind(ServerMessageParser.PlayerBehindContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#distance}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDistance(ServerMessageParser.DistanceContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#seeDirection}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSeeDirection(ServerMessageParser.SeeDirectionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#distChange}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDistChange(ServerMessageParser.DistChangeContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#dirChange}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDirChange(ServerMessageParser.DirChangeContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#headFaceDir}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitHeadFaceDir(ServerMessageParser.HeadFaceDirContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#bodyFaceDir}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBodyFaceDir(ServerMessageParser.BodyFaceDirContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#flagName}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFlagName(ServerMessageParser.FlagNameContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#flagBehind}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFlagBehind(ServerMessageParser.FlagBehindContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#goalBehind}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitGoalBehind(ServerMessageParser.GoalBehindContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#goalName}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitGoalName(ServerMessageParser.GoalNameContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#ballName}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBallName(ServerMessageParser.BallNameContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#ballBehind}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBallBehind(ServerMessageParser.BallBehindContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#lineName}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLineName(ServerMessageParser.LineNameContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#objectName}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitObjectName(ServerMessageParser.ObjectNameContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#objectContents}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitObjectContents(ServerMessageParser.ObjectContentsContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#seeObject}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSeeObject(ServerMessageParser.SeeObjectContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link ServerMessageParser#seeMessage}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

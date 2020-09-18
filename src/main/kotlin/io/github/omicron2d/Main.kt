@@ -13,6 +13,7 @@ import com.esotericsoftware.yamlbeans.YamlReader
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import io.github.omicron2d.communication.PlayerAgent
+import io.github.omicron2d.communication.messages.IncomingInitMessage
 import io.github.omicron2d.communication.messages.OutgoingInitMessage
 import io.github.omicron2d.communication.messages.SeeMessage
 import io.github.omicron2d.utils.GeneralConfig

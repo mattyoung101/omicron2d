@@ -1,3 +1,12 @@
+/*
+ * This file is part of the Omicron2D RoboCup 2D Soccer Simulation team.
+ * Copyright (c) 2020 Matt Young. All rights reserved.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package io.github.omicron2d.communication.messages
 
 import io.github.omicron2d.MESSAGE_DESERIALISATION_COUNT
@@ -25,11 +34,11 @@ class HearMessageTest {
         val testHearMessage = "(hear 34 online_coach_left \"testing**???123456__<<>>\")"
         val msg = HearMessage.deserialise(testHearMessage)
         val shouldBe = HearMessage(time = 34, sender = MessageSender.ONLINE_COACH_LEFT, message = "testing**???123456__<<>>")
-        assertEquals(msg, shouldBe)
+        assertEquals(shouldBe, msg)
 
         val tm2 = "(hear 34 -1 \"test\")"
         val msg2 = HearMessage.deserialise(tm2)
-        assertEquals(msg2.direction, -1.0)
+        assertEquals(-1.0, msg2.direction)
         assertNull(msg2.sender)
     }
 
@@ -42,6 +51,7 @@ class HearMessageTest {
 
         assertEquals(msg.sender, MessageSender.REFEREE)
         assertEquals(msg.message, "drop_ball")
+        assertEquals("yellow_card_l_1", msg2.message)
     }
 
     @Test(expected = MessageParseException::class)
@@ -60,8 +70,8 @@ class HearMessageTest {
             if (Random.nextBoolean()) {
                 // player or coach message
                 if (Random.nextBoolean()) {
-                    // use sender
-                    val sender = MessageSender.values().random()
+                    // use sender, removing MessageSender.UNKNOWN since the parser doesn't support that
+                    val sender = MessageSender.values().filter { it != MessageSender.UNKNOWN }.random()
                     testMessages.add("(hear $time ${sender.toString().toLowerCase()} \"$msgStr\")")
                 } else {
                     // use direction
@@ -74,26 +84,23 @@ class HearMessageTest {
                 testMessages.add("(hear ${Random.nextInt(0, 1000)} referee ${randomPlayMode.toString().toLowerCase()})")
             }
         }
-//        println("TEST MESSAGES:")
-//        println(testMessages.joinToString("\n"))
 
         return testMessages
     }
 
     @Test
     fun testPerformanceAndRandom(){
-        // setup test
-        // TODO make its own function
         val testMessages = generateTestMessages()
 
         // time deserialisation
         val time = measureTimeMillis {
             for (entry in testMessages){
+                //println("message: $entry")
                 val result = HearMessage.deserialise(entry)
             }
         }.toDouble() / MESSAGE_DESERIALISATION_COUNT
 
-        // give it 35 ms tolerance (should be fine on most computers)
+        // check the time to deserialise
         println("Average IncomingHearMessage deserialise time: $time ms")
         assertTrue(time <= MESSAGE_DESERIALISATION_TIME)
     }
