@@ -16,9 +16,10 @@ package io.github.omicron2d.utils
  * Version history:
  * 0.0.0-alpha: initial version
  * 0.1.0-alpha: major rewrite and refactor
- * 0.2.0-alpha: (WIP)
+ * 0.2.0-alpha: rewrite parsers in ANTLR
+ * 0.3.0-alpha: (WIP)
  */
-const val OMICRON2D_VERSION = "0.2.0-alpha"
+const val OMICRON2D_VERSION = "0.3.0-alpha"
 /** Supported rcssserver protocol version */
 const val SERVER_PROTOCOL_VERSION = "15"
 /** Charset available for the (say) command */

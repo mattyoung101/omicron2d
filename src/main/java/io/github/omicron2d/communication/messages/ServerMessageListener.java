@@ -8,6 +8,136 @@ import org.antlr.v4.runtime.tree.ParseTreeListener;
  */
 public interface ServerMessageListener extends ParseTreeListener {
 	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#viewQuality}.
+	 * @param ctx the parse tree
+	 */
+	void enterViewQuality(ServerMessageParser.ViewQualityContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#viewQuality}.
+	 * @param ctx the parse tree
+	 */
+	void exitViewQuality(ServerMessageParser.ViewQualityContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#viewAngle}.
+	 * @param ctx the parse tree
+	 */
+	void enterViewAngle(ServerMessageParser.ViewAngleContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#viewAngle}.
+	 * @param ctx the parse tree
+	 */
+	void exitViewAngle(ServerMessageParser.ViewAngleContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#viewModeMsg}.
+	 * @param ctx the parse tree
+	 */
+	void enterViewModeMsg(ServerMessageParser.ViewModeMsgContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#viewModeMsg}.
+	 * @param ctx the parse tree
+	 */
+	void exitViewModeMsg(ServerMessageParser.ViewModeMsgContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#stamina}.
+	 * @param ctx the parse tree
+	 */
+	void enterStamina(ServerMessageParser.StaminaContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#stamina}.
+	 * @param ctx the parse tree
+	 */
+	void exitStamina(ServerMessageParser.StaminaContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#effort}.
+	 * @param ctx the parse tree
+	 */
+	void enterEffort(ServerMessageParser.EffortContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#effort}.
+	 * @param ctx the parse tree
+	 */
+	void exitEffort(ServerMessageParser.EffortContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#staminaMsg}.
+	 * @param ctx the parse tree
+	 */
+	void enterStaminaMsg(ServerMessageParser.StaminaMsgContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#staminaMsg}.
+	 * @param ctx the parse tree
+	 */
+	void exitStaminaMsg(ServerMessageParser.StaminaMsgContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#amountOfSpeed}.
+	 * @param ctx the parse tree
+	 */
+	void enterAmountOfSpeed(ServerMessageParser.AmountOfSpeedContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#amountOfSpeed}.
+	 * @param ctx the parse tree
+	 */
+	void exitAmountOfSpeed(ServerMessageParser.AmountOfSpeedContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#directionOfSpeed}.
+	 * @param ctx the parse tree
+	 */
+	void enterDirectionOfSpeed(ServerMessageParser.DirectionOfSpeedContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#directionOfSpeed}.
+	 * @param ctx the parse tree
+	 */
+	void exitDirectionOfSpeed(ServerMessageParser.DirectionOfSpeedContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#speedMsg}.
+	 * @param ctx the parse tree
+	 */
+	void enterSpeedMsg(ServerMessageParser.SpeedMsgContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#speedMsg}.
+	 * @param ctx the parse tree
+	 */
+	void exitSpeedMsg(ServerMessageParser.SpeedMsgContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#headAngle}.
+	 * @param ctx the parse tree
+	 */
+	void enterHeadAngle(ServerMessageParser.HeadAngleContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#headAngle}.
+	 * @param ctx the parse tree
+	 */
+	void exitHeadAngle(ServerMessageParser.HeadAngleContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#headAngleMsg}.
+	 * @param ctx the parse tree
+	 */
+	void enterHeadAngleMsg(ServerMessageParser.HeadAngleMsgContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#headAngleMsg}.
+	 * @param ctx the parse tree
+	 */
+	void exitHeadAngleMsg(ServerMessageParser.HeadAngleMsgContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#useless}.
+	 * @param ctx the parse tree
+	 */
+	void enterUseless(ServerMessageParser.UselessContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#useless}.
+	 * @param ctx the parse tree
+	 */
+	void exitUseless(ServerMessageParser.UselessContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#senseBodyMessage}.
+	 * @param ctx the parse tree
+	 */
+	void enterSenseBodyMessage(ServerMessageParser.SenseBodyMessageContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#senseBodyMessage}.
+	 * @param ctx the parse tree
+	 */
+	void exitSenseBodyMessage(ServerMessageParser.SenseBodyMessageContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ServerMessageParser#teamName}.
 	 * @param ctx the parse tree
 	 */
@@ -17,6 +147,16 @@ public interface ServerMessageListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitTeamName(ServerMessageParser.TeamNameContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#goalie}.
+	 * @param ctx the parse tree
+	 */
+	void enterGoalie(ServerMessageParser.GoalieContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#goalie}.
+	 * @param ctx the parse tree
+	 */
+	void exitGoalie(ServerMessageParser.GoalieContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ServerMessageParser#playerName}.
 	 * @param ctx the parse tree
@@ -47,16 +187,6 @@ public interface ServerMessageListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitDistance(ServerMessageParser.DistanceContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link ServerMessageParser#seeDirection}.
-	 * @param ctx the parse tree
-	 */
-	void enterSeeDirection(ServerMessageParser.SeeDirectionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link ServerMessageParser#seeDirection}.
-	 * @param ctx the parse tree
-	 */
-	void exitSeeDirection(ServerMessageParser.SeeDirectionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ServerMessageParser#distChange}.
 	 * @param ctx the parse tree

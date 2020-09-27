@@ -11,6 +11,7 @@ package io.github.omicron2d.communication
 
 import io.github.omicron2d.ai.world.HighLevelWorldModel
 import io.github.omicron2d.ai.world.LowLevelWorldModel
+import io.github.omicron2d.ai.world.MarkerManager
 import io.github.omicron2d.communication.messages.*
 import io.github.omicron2d.utils.DEFAULT_PLAYER_PORT
 import io.github.omicron2d.utils.ObjectType
@@ -31,6 +32,7 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
 
     override fun run() {
         Logger.debug("PlayerAgent main loop started")
+        MarkerManager.refreshMarkers()
 
         while (true){
             // 1. Receive message from server and parse
@@ -67,13 +69,18 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
         lowModel.flags = see.objects.filter { it.type == ObjectType.FLAG }
         lowModel.players = see.objects.filter { it.type == ObjectType.PLAYER }
         lowModel.ball = see.objects.firstOrNull { it.type == ObjectType.BALL }
+        Logger.debug("Received see message: $see")
     }
 
     override fun handleHearMessage(hear: HearMessage){
-
+        Logger.debug("Received hear message: $hear")
     }
 
     override fun handleErrorMessage(error: ErrorMessage){
         Logger.warn("Received server error: ${error.message}")
+    }
+
+    override fun handleWarningMessage(warning: WarningMessage) {
+        Logger.warn("Received server warning: ${warning.message}")
     }
 }

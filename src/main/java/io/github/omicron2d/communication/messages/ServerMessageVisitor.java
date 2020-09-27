@@ -11,11 +11,95 @@ import org.antlr.v4.runtime.tree.ParseTreeVisitor;
  */
 public interface ServerMessageVisitor<T> extends ParseTreeVisitor<T> {
 	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#viewQuality}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitViewQuality(ServerMessageParser.ViewQualityContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#viewAngle}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitViewAngle(ServerMessageParser.ViewAngleContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#viewModeMsg}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitViewModeMsg(ServerMessageParser.ViewModeMsgContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#stamina}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStamina(ServerMessageParser.StaminaContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#effort}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitEffort(ServerMessageParser.EffortContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#staminaMsg}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStaminaMsg(ServerMessageParser.StaminaMsgContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#amountOfSpeed}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAmountOfSpeed(ServerMessageParser.AmountOfSpeedContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#directionOfSpeed}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDirectionOfSpeed(ServerMessageParser.DirectionOfSpeedContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#speedMsg}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSpeedMsg(ServerMessageParser.SpeedMsgContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#headAngle}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitHeadAngle(ServerMessageParser.HeadAngleContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#headAngleMsg}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitHeadAngleMsg(ServerMessageParser.HeadAngleMsgContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#useless}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitUseless(ServerMessageParser.UselessContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#senseBodyMessage}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSenseBodyMessage(ServerMessageParser.SenseBodyMessageContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link ServerMessageParser#teamName}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitTeamName(ServerMessageParser.TeamNameContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#goalie}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitGoalie(ServerMessageParser.GoalieContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ServerMessageParser#playerName}.
 	 * @param ctx the parse tree
@@ -34,12 +118,6 @@ public interface ServerMessageVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitDistance(ServerMessageParser.DistanceContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link ServerMessageParser#seeDirection}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSeeDirection(ServerMessageParser.SeeDirectionContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ServerMessageParser#distChange}.
 	 * @param ctx the parse tree

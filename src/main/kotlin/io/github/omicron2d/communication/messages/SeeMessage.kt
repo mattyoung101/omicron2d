@@ -10,27 +10,23 @@
 package io.github.omicron2d.communication.messages
 
 import io.github.omicron2d.utils.ObjectType
-import io.github.omicron2d.utils.TEAM_NAME_CHARSET
-import io.github.omicron2d.utils.parserAction
-import org.parboiled.Parboiled
-import org.parboiled.Rule
-import org.parboiled.annotations.BuildParseTree
-import org.parboiled.errors.ErrorUtils
-import org.parboiled.parserunners.ReportingParseRunner
-import org.parboiled.support.ParseTreeUtils
-import org.parboiled.support.Var
-import org.tinylog.kotlin.Logger
+import org.antlr.v4.runtime.CharStreams
+import org.antlr.v4.runtime.CommonTokenStream
+import org.antlr.v4.runtime.tree.ParseTreeWalker
+import kotlin.math.roundToInt
 
 /**
  * Information about player name transmitted through see message
  */
 data class SeePlayerInfo(var teamName: String? = null, var unum: Int? = null, var goalie: Boolean = false)
 
-/** A singular object reported by the see message */
+/**
+ * A singular object reported by the see message
+ */
 data class SeeObject(var type: ObjectType = ObjectType.UNKNOWN, var name: String = "",
                      var playerInfo: SeePlayerInfo? = null, var distance: Double = 0.0, var direction: Int = 0,
                      var distChange: Double? = null, var dirChange: Double? = null, var headFaceDir: Int? = null,
-                     var bodyFaceDir: Int? = null)
+                     var bodyFaceDir: Int? = null, var isBehind: Boolean = false)
 
 /**
  * The legend itself, the see message from client to server. By far the most challenging to parse and represent.
@@ -39,231 +35,115 @@ data class SeeObject(var type: ObjectType = ObjectType.UNKNOWN, var name: String
 data class SeeMessage(var time: Int = 0, var objects: MutableList<SeeObject> = mutableListOf()) : IncomingServerMessage {
     companion object Deserialiser : IncomingMessageDeserialiser {
         override fun deserialise(input: String): SeeMessage {
-            val parser = Parboiled.createParser(SeeMessageParser::class.java)
-            val parseRunner = ReportingParseRunner<SeeObject>(parser.Expression())
+            // lexer stage
+            val lexer = ServerMessageLexer(CharStreams.fromString(input))
+            lexer.removeErrorListeners()
+            lexer.addErrorListener(ErrorListener)
+            val tokens = CommonTokenStream(lexer)
 
-            val result = parseRunner.run(input)
-            if (result.hasErrors()) {
-                val errors = ErrorUtils.printParseErrors(result)
-                throw MessageParseException(errors)
-            }
+            // parser stage
+            val parser = ServerMessageParser(tokens)
+            parser.removeErrorListeners()
+            parser.addErrorListener(ErrorListener)
+            val tree = parser.seeMessage()
 
-//            val resultTree = ParseTreeUtils.printNodeTree(result)
-//            println(resultTree)
-//            println("\n\n\n")
-//            println("Value stack has ${result.valueStack.size()} entries")
+            // walk the parse tree, generate the message
+            val parseWalker = ParseTreeWalker()
+            val seeListener = SeeMessageListener()
+            parseWalker.walk(seeListener, tree)
 
-            val out = SeeMessage()
-            // remove parentheses, it would be better to rewrite the parser to ignore brackets in the name matcher
-            // but this doesn't seem to work
-            for (entry in result.valueStack){
-                entry.name = entry.name.replace("(", "").replace(")", "")
-            }
-            out.objects.addAll(result.valueStack)
-            return out
+            // and return it back
+            return seeListener.message
         }
     }
 
-    @Suppress("FunctionName")
-    @BuildParseTree
-    private open class SeeMessageParser : SoccerParser<SeeObject>(){
-        /*
-         * PARSER NOTES:
-         * - for all the flags and lines and stuff, we don't care what they are as an enum, just their ID
-         * so this is super low effort to parse, we just look up an ID like "f t r 20" in a map to get its coordinate
-         * since we only use it for localisation anyways
-         * - lines are kinda wacky, we will have to figure out a smart way to generate a position for that based
-         * on the description, page 37 of the manual
-         * - we're going to actually have to use the action stack, push instances of SeeObject() onto it
-         */
+    private class SeeMessageListener : ServerMessageBaseListener() {
+        val message = SeeMessage()
+        // current object we are working with
+        var obj = SeeObject()
 
-        /*************************************
-         * Basic types and variable matchers *
-         *************************************/
-        open fun TeamName(): Rule {
-            return OneOrMore(AnyOf(TEAM_NAME_CHARSET))
+        override fun enterTime(ctx: ServerMessageParser.TimeContext) {
+            message.time = ctx.INTEGER().text.toInt()
         }
 
-        open fun Unum(): Rule {
-            return OneOrMore(IntegerNumber())
+        override fun enterSeeObject(ctx: ServerMessageParser.SeeObjectContext) {
+            obj = SeeObject()
         }
 
-        open fun PlayerName(): Rule {
-            val teamName = Var<String?>()
-            val unum = Var<String?>()
-            val isGoalie = Var<Boolean?>()
-
-            // so of course the bastard manual doesn't say it, but just about everything in the player message is optional
-            // ...yes, even including the team name, for some reason??? why can't they tell us this??????
-            // NOTE: this rule is a NIGHTMARE, please be extremely careful when editing it! match parentheses correctly!!
-
-            return Sequence(
-                Sequence(
-                    "(p", MaybeWhiteSpace(),
-                    // now match the team name if there is one
-                    Optional(Sequence("\"", Sequence(TeamName(), teamName.set(match()), "\""))),
-                    // possibly unum as well
-                    Optional(Sequence(" ", Sequence(Unum(), unum.set(match())))),
-                    // may also have an extra tag that says goalie if it's a goalie
-                    Optional(Sequence(" goalie", isGoalie.set(true))),
-                    MaybeWhiteSpace(), ")"
-                ),
-                ACTION(parserAction{
-                    // FIXME make this work (haha as if, it will never work)
-                })
-            )
+        override fun exitSeeObject(ctx: ServerMessageParser.SeeObjectContext) {
+            message.objects.add(obj)
         }
 
-        open fun PlayerBehind(): Rule {
-            return String("(P)")
+        override fun enterPlayerName(ctx: ServerMessageParser.PlayerNameContext) {
+            val playerName = ctx.teamName()?.QUOTED_TEXT()?.text?.replace("\"", "")
+            val playerUnum = ctx.unum()?.INTEGER()?.text?.toIntOrNull()
+            val isGoalie = ctx.goalie() != null
+            obj.playerInfo = SeePlayerInfo(playerName, playerUnum, isGoalie)
+            obj.type = ObjectType.PLAYER
         }
 
-        open fun Distance(): Rule {
-            val dist = Var<String>()
-            return Sequence(DecimalNumber(), dist.set(match()), ACTION(parserAction {
-                peek().distance = dist.get().toDouble()
-            }))
+        override fun enterPlayerBehind(ctx: ServerMessageParser.PlayerBehindContext) {
+            obj.type = ObjectType.PLAYER
+            obj.isBehind = true
         }
 
-        open fun Direction(): Rule {
-            val dir = Var<String>()
-            return Sequence(IntegerNumber(), dir.set(match()), ACTION(parserAction {
-                peek().direction = dir.get().toInt()
-            }))
+        override fun enterFlagName(ctx: ServerMessageParser.FlagNameContext) {
+            obj.type = ObjectType.FLAG
+            obj.name = ctx.FLAG_NAME().text
         }
 
-        open fun DistChange(): Rule {
-            val distChange = Var<String>()
-            return Sequence(DecimalNumber(), distChange.set(match()), ACTION(parserAction {
-                peek().distChange = distChange.get().toDouble()
-            }))
+        override fun enterFlagBehind(ctx: ServerMessageParser.FlagBehindContext) {
+            obj.type = ObjectType.FLAG
+            obj.isBehind = true
         }
 
-        open fun DirChange(): Rule {
-            val dirChange = Var<String>()
-            return Sequence(DecimalNumber(), dirChange.set(match()), ACTION(parserAction {
-                peek().dirChange = dirChange.get().toDouble()
-            }))
+        override fun enterGoalBehind(ctx: ServerMessageParser.GoalBehindContext) {
+            obj.type = ObjectType.GOAL
+            obj.isBehind = true
         }
 
-        open fun HeadFaceDir(): Rule {
-            val headFaceDir = Var<String>()
-            return Sequence(IntegerNumber(), headFaceDir.set(match()), ACTION(parserAction {
-                peek().headFaceDir = headFaceDir.get().toInt()
-            }))
+        override fun enterGoalName(ctx: ServerMessageParser.GoalNameContext) {
+            obj.type = ObjectType.GOAL
+            obj.name = ctx.GOAL_NAME().text
         }
 
-        open fun BodyFaceDir(): Rule {
-            val bodyFaceDir = Var<String>()
-            return Sequence(IntegerNumber(), bodyFaceDir.set(match()), ACTION(parserAction {
-                peek().bodyFaceDir = bodyFaceDir.get().toInt()
-            }))
+        override fun enterBallName(ctx: ServerMessageParser.BallNameContext) {
+            obj.type = ObjectType.BALL
         }
 
-        open fun Time(): Rule {
-            // FIXME: parsing this is a PITA because we don't actually have our SeeObject() on the value stack yet
-            return IntegerNumber()
+        override fun enterBallBehind(ctx: ServerMessageParser.BallBehindContext) {
+            obj.type = ObjectType.BALL
+            obj.isBehind = true
         }
 
-        /**********************************
-         * FLAG AND FIELD OBJECT MATCHERS *
-         *********************************/
-        // reference for all of this: page 36 of the manual, top
-        open fun FlagName0(): Rule {
-            return String("(f c)")
+        override fun enterLineName(ctx: ServerMessageParser.LineNameContext) {
+            obj.type = ObjectType.LINE
+            obj.name = ctx.LINE_NAME().text
         }
 
-        open fun FlagName1(): Rule {
-            return Sequence("(f ", AnyOf("lcr"), " ", AnyOf("tb"), ")")
+        override fun enterDistance(ctx: ServerMessageParser.DistanceContext) {
+            obj.distance = ctx.text.toDouble()
         }
 
-        open fun FlagName2(): Rule {
-            return Sequence("(f ", AnyOf("pg"), " ", AnyOf("lr"), " ",
-                AnyOf("tcb"), ")")
+        override fun enterDirection(ctx: ServerMessageParser.DirectionContext) {
+            // we treat it as a double first (since all ints are doubles too), then cast back to an int
+            obj.direction = ctx.text.toDouble().roundToInt()
         }
 
-        open fun FlagName3(): Rule {
-            return Sequence("(f ", AnyOf("lrtb"), " 0)")
+        override fun enterDistChange(ctx: ServerMessageParser.DistChangeContext) {
+            obj.distChange = ctx.text.toDouble()
         }
 
-        open fun FlagName4(): Rule {
-            return Sequence("(f ", AnyOf("lrtb"), " ", AnyOf("lrtb"), " ",
-                IntegerNumber(), ")")
+        override fun enterDirChange(ctx: ServerMessageParser.DirChangeContext) {
+            obj.dirChange = ctx.text.toDouble()
         }
 
-        // not really sure what this is, I see it mentioned as a "behind flag" in librcsc though
-        open fun FlagBehind(): Rule {
-            return String("(F)")
+        override fun enterHeadFaceDir(ctx: ServerMessageParser.HeadFaceDirContext) {
+            obj.headFaceDir = ctx.text.toDouble().roundToInt()
         }
 
-        open fun FlagName(): Rule {
-            return Sequence(
-                FirstOf(FlagName0(), FlagName1(), FlagName2(), FlagName3(), FlagName4(), FlagBehind()),
-                ACTION(parserAction {
-                    peek().type = ObjectType.FLAG
-                })
-            )
-        }
-
-        open fun GoalName(): Rule {
-            return Sequence("(g ", AnyOf("lr"), ")", ACTION(parserAction {
-                peek().type = ObjectType.GOAL
-            }))
-        }
-
-        open fun GoalBehind(): Rule {
-            return String("(G)")
-        }
-
-        open fun BallName(): Rule {
-            return Sequence("(b)", ACTION(parserAction {
-                peek().type = ObjectType.BALL
-            }))
-        }
-
-        open fun BallBehind(): Rule {
-            return String("(B)")
-        }
-
-        open fun LineName(): Rule {
-            return Sequence("(l ", AnyOf("lrtb"), ")", ACTION(parserAction {
-                peek().type = ObjectType.LINE
-            }))
-        }
-
-        // TODO add the objects that are like (F), not sure what they are
-
-        /*************************
-         * OBJECT ENTRY MATCHER *
-         ************************/
-        open fun ObjectName(): Rule {
-            val name = Var<String>()
-            return Sequence(
-                FirstOf(FlagName(), GoalName(), BallName(), LineName(), PlayerName(),
-                    FlagBehind(), GoalBehind(), BallBehind(), PlayerBehind()),
-                name.set(match()),
-                ACTION(parserAction {
-                    peek().name = name.get()
-                })
-            )
-        }
-
-        open fun ObjectContents(): Rule {
-            return Sequence(Distance(), ' ', Direction(), Optional(" ", DistChange()),
-                Optional(" ", DirChange()), Optional(" ", HeadFaceDir()), Optional(" ", BodyFaceDir()))
-        }
-
-        open fun Object(): Rule {
-            // matches an entire object with name and contents
-            return Sequence(push(SeeObject()), '(', ObjectName(), ' ', ObjectContents(), ')')
-        }
-
-        /********************
-         * FINAL EXPRESSION *
-         ********************/
-        open fun Expression(): Rule {
-            return Sequence("(see ", Time(), " ", OneOrMore(Sequence(Object(), MaybeWhiteSpace())),
-                MaybeWhiteSpace(), ")")
+        override fun enterBodyFaceDir(ctx: ServerMessageParser.BodyFaceDirContext) {
+            obj.bodyFaceDir = ctx.text.toDouble().roundToInt()
         }
     }
 }

@@ -1,0 +1,60 @@
+# File contains marker names and their absolute positions on the field
+# Source: librcsc, player/object_table.cpp (mirror: https://github.com/mhauskn/librcsc/blob/master/rcsc/player/object_table.cpp)
+
+g l: -pitch_half_l, 0.0
+g r: +pitch_half_l, 0.0
+
+# Generated using rewrite_flags.py
+f c: 0.0, 0.0
+f c t: 0.0, -pitch_half_w
+f c b: 0.0, +pitch_half_w
+f l t: -pitch_half_l, -pitch_half_w
+f l b: -pitch_half_l, +pitch_half_w
+f r t: +pitch_half_l, -pitch_half_w
+f r b: +pitch_half_l, +pitch_half_w
+f p l t: -(pitch_half_l - penalty_l), -penalty_half_w
+f p l c: -(pitch_half_l - penalty_l), 0.0
+f p l b: -(pitch_half_l - penalty_l), +penalty_half_w
+f p r t: +(pitch_half_l - penalty_l), -penalty_half_w
+f p r c: +(pitch_half_l - penalty_l), 0.0
+f p r b: +(pitch_half_l - penalty_l), +penalty_half_w
+f g l t: -pitch_half_l, -goal_half_w
+f g l b: -pitch_half_l, +goal_half_w
+f g r t: +pitch_half_l, -goal_half_w
+f g r b: +pitch_half_l, +goal_half_w
+f t l 50: -50.0, -pitch_half_w - 5.0
+f t l 40: -40.0, -pitch_half_w - 5.0
+f t l 30: -30.0, -pitch_half_w - 5.0
+f t l 20: -20.0, -pitch_half_w - 5.0
+f t l 10: -10.0, -pitch_half_w - 5.0
+f t 0: 0.0, -pitch_half_w - 5.0
+f t r 10: +10.0, -pitch_half_w - 5.0
+f t r 20: +20.0, -pitch_half_w - 5.0
+f t r 30: +30.0, -pitch_half_w - 5.0
+f t r 40: +40.0, -pitch_half_w - 5.0
+f t r 50: +50.0, -pitch_half_w - 5.0
+f b l 50: -50.0, pitch_half_w + 5.0
+f b l 40: -40.0, pitch_half_w + 5.0
+f b l 30: -30.0, pitch_half_w + 5.0
+f b l 20: -20.0, pitch_half_w + 5.0
+f b l 10: -10.0, pitch_half_w + 5.0
+f b 0: 0.0, pitch_half_w + 5.0
+f b r 10: +10.0, pitch_half_w + 5.0
+f b r 20: +20.0, pitch_half_w + 5.0
+f b r 30: +30.0, pitch_half_w + 5.0
+f b r 40: +40.0, pitch_half_w + 5.0
+f b r 50: +50.0, pitch_half_w + 5.0
+f l t 30: -pitch_half_l - 5.0, -30.0
+f l t 20: -pitch_half_l - 5.0, -20.0
+f l t 10: -pitch_half_l - 5.0, -10.0
+f l 0: -pitch_half_l - 5.0, 0.0
+f l b 10: -pitch_half_l - 5.0, 10.0
+f l b 20: -pitch_half_l - 5.0, 20.0
+f l b 30: -pitch_half_l - 5.0, 30.0
+f r t 30: +pitch_half_l + 5.0, -30.0
+f r t 20: +pitch_half_l + 5.0, -20.0
+f r t 10: +pitch_half_l + 5.0, -10.0
+f r 0: +pitch_half_l + 5.0, 0.0
+f r b 10: +pitch_half_l + 5.0, 10.0
+f r b 20: +pitch_half_l + 5.0, 20.0
+f r b 30: +pitch_half_l + 5.0, 30.0

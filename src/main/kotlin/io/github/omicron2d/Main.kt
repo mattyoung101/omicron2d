@@ -12,6 +12,7 @@ package io.github.omicron2d
 import com.esotericsoftware.yamlbeans.YamlReader
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import io.github.omicron2d.ai.world.MarkerManager
 import io.github.omicron2d.communication.PlayerAgent
 import io.github.omicron2d.communication.messages.IncomingInitMessage
 import io.github.omicron2d.communication.messages.OutgoingInitMessage
@@ -54,7 +55,9 @@ object Main {
         val agent = PlayerAgent(InetAddress.getByName(generalConfig.serverHost), generalConfig.playerPort)
         agent.connect(initMessage)
         agent.run()
-        // hopefully the agent will have already disconnected itself by here (for example, in a timeout)
+
+        // the above method call will block until a timeout or an error
+        // so, hopefully the agent will have already disconnected itself by here (for example, in a timeout)
         Logger.info("Omicron2D main finishing")
         println("Goodbye!")
     }

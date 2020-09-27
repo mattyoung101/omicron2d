@@ -16,6 +16,162 @@ public class ServerMessageBaseListener implements ServerMessageListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterViewQuality(ServerMessageParser.ViewQualityContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitViewQuality(ServerMessageParser.ViewQualityContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterViewAngle(ServerMessageParser.ViewAngleContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitViewAngle(ServerMessageParser.ViewAngleContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterViewModeMsg(ServerMessageParser.ViewModeMsgContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitViewModeMsg(ServerMessageParser.ViewModeMsgContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterStamina(ServerMessageParser.StaminaContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitStamina(ServerMessageParser.StaminaContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterEffort(ServerMessageParser.EffortContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitEffort(ServerMessageParser.EffortContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterStaminaMsg(ServerMessageParser.StaminaMsgContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitStaminaMsg(ServerMessageParser.StaminaMsgContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAmountOfSpeed(ServerMessageParser.AmountOfSpeedContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAmountOfSpeed(ServerMessageParser.AmountOfSpeedContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterDirectionOfSpeed(ServerMessageParser.DirectionOfSpeedContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDirectionOfSpeed(ServerMessageParser.DirectionOfSpeedContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterSpeedMsg(ServerMessageParser.SpeedMsgContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSpeedMsg(ServerMessageParser.SpeedMsgContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterHeadAngle(ServerMessageParser.HeadAngleContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitHeadAngle(ServerMessageParser.HeadAngleContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterHeadAngleMsg(ServerMessageParser.HeadAngleMsgContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitHeadAngleMsg(ServerMessageParser.HeadAngleMsgContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterUseless(ServerMessageParser.UselessContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUseless(ServerMessageParser.UselessContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterSenseBodyMessage(ServerMessageParser.SenseBodyMessageContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSenseBodyMessage(ServerMessageParser.SenseBodyMessageContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterTeamName(ServerMessageParser.TeamNameContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -23,6 +179,18 @@ public class ServerMessageBaseListener implements ServerMessageListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitTeamName(ServerMessageParser.TeamNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterGoalie(ServerMessageParser.GoalieContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitGoalie(ServerMessageParser.GoalieContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -59,18 +227,6 @@ public class ServerMessageBaseListener implements ServerMessageListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitDistance(ServerMessageParser.DistanceContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterSeeDirection(ServerMessageParser.SeeDirectionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitSeeDirection(ServerMessageParser.SeeDirectionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

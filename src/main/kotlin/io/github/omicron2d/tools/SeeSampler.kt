@@ -25,7 +25,7 @@ import java.util.*
 import kotlin.system.exitProcess
 
 /**
- * The SeeSampler randomly moves a team of players around the field, and samples messages from one of them, to generate
+ * The SeeSampler agent randomly moves around the field and samples messages to generate
  * an enormous corpus of (see) messages to check the parser with.
  */
 object SeeSampler {

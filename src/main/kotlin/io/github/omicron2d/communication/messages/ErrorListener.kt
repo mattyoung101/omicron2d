@@ -24,7 +24,6 @@ object ErrorListener : BaseErrorListener() {
         msg: String?,
         e: RecognitionException?
     ) {
-        // TODO we would also like to print the whole original message here as well
         throw MessageParseException("Syntax error at position $charPositionInLine: $msg")
     }
 }

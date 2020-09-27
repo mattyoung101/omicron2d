@@ -24,12 +24,18 @@ interface MessageHandler {
      */
     fun dispatchMessage(msg: String)
 
+    /**
+     * Called if there is no parser registered for the given message. Default behaviour just logs.
+     */
     fun handleUnknownMessage(msg: String){
-        //Logger.warn("No parser for message received by player: $msg")
+        Logger.trace("No parser for message received by player: $msg")
     }
 
+    /**
+     * Called if the given message cannot be parsed. Default behaviour is to log.
+     */
     fun handleIllegalMessage(msg: String, ex: MessageParseException){
-        Logger.warn("Error parsing message: $msg")
+        Logger.warn("Failed to parse message: $msg")
         Logger.warn(ex)
     }
 }
@@ -40,7 +46,6 @@ interface MessageHandler {
 interface PlayerMessageHandler : MessageHandler {
     override fun dispatchMessage(msg: String) {
         val name = msg.split(" ").first().replace("(", "")
-        // TODO if slow, use msg.startsWith()
 
         try {
             when (name) {
@@ -55,6 +60,9 @@ interface PlayerMessageHandler : MessageHandler {
                 }
                 "error" -> {
                     handleErrorMessage(ErrorMessage.deserialise(msg))
+                }
+                "warning" -> {
+                    handleWarningMessage(WarningMessage.deserialise(msg))
                 }
                 else -> {
                     handleUnknownMessage(msg)
@@ -72,4 +80,6 @@ interface PlayerMessageHandler : MessageHandler {
     fun handleHearMessage(hear: HearMessage)
 
     fun handleErrorMessage(error: ErrorMessage)
+
+    fun handleWarningMessage(warning: WarningMessage)
 }

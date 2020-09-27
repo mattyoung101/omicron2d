@@ -23,3 +23,15 @@ data class ErrorMessage(var message: String = "") : IncomingServerMessage {
         }
     }
 }
+
+/**
+ * Server to client warning message
+ */
+data class WarningMessage(var message: String = "") : IncomingServerMessage {
+    companion object Deserialiser : IncomingMessageDeserialiser {
+        override fun deserialise(input: String): WarningMessage {
+            // simple and dumb parser
+            return WarningMessage(input.split(" ").last().replace(")", ""))
+        }
+    }
+}

@@ -19,26 +19,80 @@ grammar ServerMessage;
 // * = zero or more
 // ? = optional
 
+// TODO: redefine all numbers to be just "NUMBER" which is a float or an integer, then cast in code (maybe?)
+
+// sense body message
+viewQuality
+    : 'high' | 'low' ;
+
+viewAngle
+    : 'narrow' | 'normal' | 'wide' ;
+
+viewModeMsg
+    : LPAREN 'view_mode' viewQuality viewAngle RPAREN ;
+
+stamina
+    : FLOAT
+    | INTEGER ;
+
+effort
+    : FLOAT
+    | INTEGER ;
+
+capacity
+    : INTEGER
+    | FLOAT ;
+
+staminaMsg
+    : LPAREN 'stamina' stamina effort capacity RPAREN ;
+
+amountOfSpeed
+    : FLOAT
+    | INTEGER ;
+
+directionOfSpeed
+    : FLOAT
+    | INTEGER ;
+
+speedMsg
+    : LPAREN 'speed' amountOfSpeed directionOfSpeed RPAREN ;
+
+headAngle
+    : FLOAT
+    | INTEGER ;
+
+headAngleMsg
+    : LPAREN 'head_angle' headAngle RPAREN ;
+
+// we don't currently care about the counts, so this rule matches all of them
+useless
+    : LPAREN
+    ('kick' | 'dash' | 'turn' | 'say' | 'turn_neck' | 'catch' | 'move' | 'change_view')
+    INTEGER
+    RPAREN ;
+
+// note: the sense_body documentation in the 2003 manual is out of date, you need to use the online docs instead!
+// (one of the rare instances they're actually up to date)
+senseBodyMessage
+    : LPAREN 'sense_body' time viewModeMsg staminaMsg speedMsg headAngleMsg useless* RPAREN EOF ;
+
 // see message
-// basic types
 teamName
     : QUOTED_TEXT ;
 
+goalie
+    : 'goalie' ;
+
 playerName
-    : 'p' (teamName | unum)? 'goalie'? ;
+    : 'p' teamName? unum? goalie? ;
 
 // can't really make this a lexer rule or it matches all upper case Ps (maybe we could? not sure?)
-// TODO if parsing too slow convert these all to lexer rules
 playerBehind
     : 'P' ;
 
 distance
     : FLOAT
     | INTEGER ;
-
-seeDirection
-    : INTEGER
-    | FLOAT ;
 
 distChange
     : FLOAT
@@ -89,10 +143,10 @@ objectName
     | playerBehind ;
 
 objectContents
-    : distance direction distChange? dirChange? headFaceDir? bodyFaceDir? ;
+    : distance direction distChange? dirChange? headFaceDir? bodyFaceDir?  ;
 
 seeObject
-    : LPAREN LPAREN objectName RPAREN objectContents RPAREN  ;
+    : LPAREN LPAREN objectName RPAREN objectContents RPAREN ;
 
 seeMessage
     : LPAREN 'see' time seeObject+ RPAREN EOF ;
@@ -244,6 +298,6 @@ LINE_NAME
 REF_MESSAGE
     : [0-9a-z_]+ ;
 
-WHITESPACE
+WS
    : (' ' | '\n' | '\t' | '\r')+ -> skip
    ;

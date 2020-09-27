@@ -15,6 +15,7 @@ import io.github.omicron2d.utils.currentConfig
 import org.tinylog.kotlin.Logger
 import java.net.*
 import java.nio.charset.Charset
+import java.nio.charset.CharsetEncoder
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
@@ -106,15 +107,20 @@ abstract class AbstractSoccerAgent(private var host: InetAddress, private var de
 
     /**
      * Internal method to transmit a string to the remote server over UDP with ASCII encoding. Generally you want to use
-     * transmit()
+     * transmit(). The string provided will have a null terminator added for transport.
      */
     protected fun transmitString(str: String){
         if (!isConnected){
             throw IllegalStateException("Tried to send message on unconnected socket")
         }
-
         Logger.trace("Outbound message (to ${host}:${respondTo ?: defaultPort}): $str")
-        val bytes = str.toByteArray(Charset.forName("US-ASCII"))
+
+        // write null terminated string
+        // source: https://stackoverflow.com/a/17737242/5007892
+        val b = str.toByteArray(Charset.forName("US-ASCII"))
+        val bytes = ByteArray(b.size + 1)
+        System.arraycopy(b, 0, bytes, 0, b.size)
+
         val packet = DatagramPacket(bytes, bytes.size, host, respondTo ?: defaultPort)
         socket.send(packet)
     }

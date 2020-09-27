@@ -7,24 +7,22 @@ Omicron2D is related to Team Omicron, an official team competing in RoboCup Jr O
 Omicron2D, however, is currently just an independent side-project consisting of only one member: me, Matt Young (software
 engineer on the RoboCup Jr team). If you feel like getting involved, don't hesitate to get in touch :)
 
-If you have any questions, please contact Matt Young (matt.young.1@outlook.com).
-
 ## Project status
-**The project has been postponed due to the parser library, Parboiled, causing me too much grief.**
+Incoming server message parser (now written using ANTLR) is almost complete, just adding support for the sense_body message.
 
-The simple truth of the matter is Parboiled doesn't work. It is too insufferably complicated to write rules for, literally,
-every time I want to write a new parser I have to fight off random problems with ZERO useful debugging info
-for hours and hours and hours. What am I supposed to do with `Unwrapped action expression`!!! There's no help in the docs,
-nothing online anywhere, it's ridiculous. I made a grave mistake using this over other, more common frameworks.
- 
-The project will be resumed once I have the time and mental energy to rewrite all the parsers in ANTLR or JavaCC.
-
-This is all with respect to the Parboiled developers. It probably does work, but it's not for me. Good riddance.
+After this, I will start working on localisation and outgoing server messages, then formations.
 
 ## About the agents
 If you want to know more about our agents, please check out some Markdown files in the docs folder (such as
 PLANNING.md) and/or read the code. In the future when we're closer to the tournament, a team description
 paper (TDP) will be prepared.
+
+Novel features of Omicron2D plan to be:
+
+- Behaviour planning using Goal Oriented Action Planning (GOAP), a STRIPS-like planning algorithm
+- Iterative Closest Point (ICP) for efficient and accurate localisation
+- Complex data exchange with fellow teammates using the `say` command with only 10 characters per message
+- Implemented from scratch using Kotlin, rather than librcsc/agent2d and C++ as is done normally
 
 ## Building/running
 **To build:**
@@ -34,6 +32,8 @@ TBA: basically clone the project, open in IntelliJ and run Main.kt
 **To run:**
 
 TBA: more complicated, talk about command line parameters, etc.
+
+TBA: also cover running unit tests.
 
 ## License
 This repo is licenced under the Mozilla Public License v2.0, see LICENSE.txt.
