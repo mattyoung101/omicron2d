@@ -9,9 +9,15 @@
 
 package io.github.omicron2d.ai.world
 
+import mikera.vectorz.Vector2
+
 /**
  * The HighLevelWorldModel contains information processed from the low level world model into more refined and useful data,
  * such as the agent's actual position
  */
-class HighLevelWorldModel : WorldModel {
-}
+data class HighLevelWorldModel(
+    /** localised agent position */
+    var agentPos: Vector2 = Vector2.of(0.0, 0.0),
+    /** localised ball position */
+    var ballPos: Vector2 = Vector2.of(0.0, 0.0),
+) : WorldModel

@@ -9,3 +9,12 @@
 
 package io.github.omicron2d.utils
 
+import org.apache.commons.math3.linear.ArrayRealVector
+import org.apache.commons.math3.linear.RealVector
+
+/**
+ * Creates an ArrayRealVector with the given x and y using Apache Commons Math
+ */
+fun vec2d(x: Double, y: Double): RealVector {
+    return ArrayRealVector(doubleArrayOf(x, y))
+}

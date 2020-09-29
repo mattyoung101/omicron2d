@@ -10,13 +10,8 @@
 package io.github.omicron2d
 
 import com.esotericsoftware.yamlbeans.YamlReader
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import io.github.omicron2d.ai.world.MarkerManager
 import io.github.omicron2d.communication.PlayerAgent
-import io.github.omicron2d.communication.messages.IncomingInitMessage
 import io.github.omicron2d.communication.messages.OutgoingInitMessage
-import io.github.omicron2d.communication.messages.SeeMessage
 import io.github.omicron2d.utils.GeneralConfig
 import io.github.omicron2d.utils.SERVER_PROTOCOL_VERSION
 import io.github.omicron2d.utils.OMICRON2D_VERSION
@@ -32,7 +27,6 @@ import java.net.InetAddress
  * We would also have to write a shell script to launch the agent using an embedded JVM for at the venue.
  * Maybe use java packager with the jvm for that to reduce build size. We can worry about that if we get to it.
  */
-
 object Main {
     @JvmStatic
     fun main(args: Array<String>){

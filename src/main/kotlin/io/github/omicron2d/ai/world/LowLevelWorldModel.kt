@@ -24,5 +24,5 @@ data class LowLevelWorldModel(
     var flags: List<SeeObject> = listOf(),
     var players: List<SeeObject> = listOf(),
     /** relative position of ball if visible, received directly from server */
-    var ball: SeeObject? = null
+    var ball: SeeObject? = null,
 ) : WorldModel

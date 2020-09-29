@@ -10,7 +10,6 @@
 package io.github.omicron2d.communication
 
 import io.github.omicron2d.utils.DEFAULT_PLAYER_PORT
-import io.github.omicron2d.utils.FIELD_HEIGHT
 import org.tinylog.kotlin.Logger
 import java.io.PrintStream
 import java.net.InetAddress

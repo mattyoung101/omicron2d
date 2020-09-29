@@ -9,6 +9,8 @@
 
 package io.github.omicron2d.utils
 
+import mikera.vectorz.Vector2
+
 // This file holds constant, compile time defines that will not be edited
 // General config should be stored in the *.properties files in the resources folder
 
@@ -17,7 +19,7 @@ package io.github.omicron2d.utils
  * 0.0.0-alpha: initial version
  * 0.1.0-alpha: major rewrite and refactor
  * 0.2.0-alpha: rewrite parsers in ANTLR
- * 0.3.0-alpha: (WIP)
+ * 0.3.0-alpha: (WIP) localisation implemented, more ANTLR parsers, formation manager
  */
 const val OMICRON2D_VERSION = "0.3.0-alpha"
 /** Supported rcssserver protocol version */
@@ -27,15 +29,14 @@ const val SAY_CHARSET = "1234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKL
 /** Charset available for team names, source is rcssserver serverparam.cpp check_teamname_format() */
 const val TEAM_NAME_CHARSET = "+-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 const val DEFAULT_PLAYER_PORT = 6000
+/** Multiply to convert degrees to radians */
+const val DEG_RAD = 0.017453292519943295
+/** Multiply to convert radians to degrees */
+const val RAD_DEG = 57.29577951308232
 var currentConfig = GeneralConfig()
+val ZERO_VECTOR = Vector2(0.0, 0.0).immutable()
 
 // Source: https://github.com/rcsoccersim/rcssserver/blob/master/src/serverparam.cpp
-// in our translation, length = width and width = height (effectively instead of length x width it's width x height)
-const val FIELD_WIDTH = 105.0
-const val FIELD_HEIGHT = 68.0
-const val FIELD_DIAGONAL = 125.1
-const val PENALTY_AREA_WIDTH = 16.5
-const val PENALTY_AREA_HEIGHT = 40.32
-const val GOAL_AREA_WIDTH = 5.5
-const val GOAL_AREA_HEIGHT = 18.32
-const val GOAL_WIDTH = 14.02
+// TODO remove and change back to original names
+const val FIELD_LENGTH = 105.0
+const val FIELD_WIDTH = 68.0

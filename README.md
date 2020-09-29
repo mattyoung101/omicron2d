@@ -29,14 +29,15 @@ Novel features of Omicron2D plan to be:
 
 TBA: basically clone the project, open in IntelliJ and run Main.kt
 
+TBA: also cover instructions on how to build dist version (for comp).
+
 **To run:**
 
-TBA: more complicated, talk about command line parameters, etc.
+TBA: cover how to run locally, and how to run for competition.
 
 TBA: also cover running unit tests.
 
 ## License
 This repo is licenced under the Mozilla Public License v2.0, see LICENSE.txt.
 
-## Libraries and licenses
-See ATTRIBUTION.txt
+See ATTRIBUTION.txt for libraries which require attribution in project documentation.

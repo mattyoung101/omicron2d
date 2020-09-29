@@ -9,9 +9,7 @@
 
 package io.github.omicron2d.communication
 
-import io.github.omicron2d.ai.world.HighLevelWorldModel
-import io.github.omicron2d.ai.world.LowLevelWorldModel
-import io.github.omicron2d.ai.world.MarkerManager
+import io.github.omicron2d.ai.world.*
 import io.github.omicron2d.communication.messages.*
 import io.github.omicron2d.utils.DEFAULT_PLAYER_PORT
 import io.github.omicron2d.utils.ObjectType
@@ -35,7 +33,7 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
         MarkerManager.refreshMarkers()
 
         while (true){
-            // 1. Receive message from server and parse
+            // Receive message from server and parse
             val msgStr = messages.poll(30, TimeUnit.SECONDS)
             if (msgStr == null){
                 Logger.warn("Unexpected null message from message queue, server dead? Terminating!")
@@ -45,13 +43,21 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
                 break
             }
 
-            // 2. Dispatch message to handlers
+            // Dispatch message to handlers for data processing. Runs in same thread, no need to worry about data races
             dispatchMessage(msgStr)
 
-            // 3. We have now created the low level world model. Perform localisation on high level world model.
+            // With all of our data now processed in the LowLevelWorldModel, we now perform localisation using the ICP
+            // algorithm.
+            // First we convert our messy flag data into polar flag observations that the localiser requires
+            val observations = hashMapOf<String, FlagObservationPolar>()
+            for (flag in lowModel.flags){
+                observations[flag.name] = FlagObservationPolar(flag.distance, flag.direction.toDouble())
+            }
+            // and now we perform localisation
+            val agentPos = ICPLocalisation.localise(observations)
 
-            // 4. Update positions of seen objects in high level world model
-            //transmitString("(move 1 1)")
+            // Next of all, we need to update the high level world model with the absolute positions of all the objects
+            // we observed relatively in the low level world model
         }
     }
 

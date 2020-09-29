@@ -9,10 +9,9 @@
 
 package io.github.omicron2d.tools
 
-import com.esotericsoftware.kryo.Kryo
-import com.esotericsoftware.kryo.io.Output
+import com.google.gson.GsonBuilder
+import io.github.omicron2d.utils.FIELD_LENGTH
 import io.github.omicron2d.utils.FIELD_WIDTH
-import io.github.omicron2d.utils.FIELD_HEIGHT
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.scene.Scene
@@ -24,15 +23,15 @@ import javafx.scene.input.KeyCombination
 import javafx.scene.layout.Pane
 import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
+import javafx.scene.shape.Circle
+import javafx.scene.text.Text
+import javafx.scene.text.TextBoundsType
 import javafx.stage.FileChooser
 import javafx.stage.Stage
 import mikera.vectorz.Vector2
-import kotlin.system.exitProcess
-import javafx.scene.text.TextBoundsType
-import javafx.scene.shape.Circle
-import javafx.scene.text.Text
-import java.io.FileOutputStream
+import java.io.FileWriter
 import java.nio.file.Paths
+import kotlin.system.exitProcess
 
 
 /**
@@ -49,11 +48,8 @@ import java.nio.file.Paths
  *  - prompt on exit if unsaved changes
  */
 class FormationEditor : Application() {
-    private val kryo = Kryo().apply {
-        register(Array<Vector2>::class.java)
-        register(Vector2::class.java)
-    }
-    private val FIELD_CENTRE = Vector2.of(FIELD_WIDTH / 2.0, FIELD_HEIGHT / 2.0)!!
+    private val gson = GsonBuilder().setPrettyPrinting().create()
+    private val FIELD_CENTRE = Vector2.of(FIELD_LENGTH / 2.0, FIELD_WIDTH / 2.0)
     private val VERSION = "1.0"
 
     override fun start(stage: Stage) {
@@ -62,7 +58,7 @@ class FormationEditor : Application() {
         // setup the field, at the top of the file so that we can serialise players in the save dialogue
         val field = Pane()
         val fieldImage = ImageView("field.png")
-        val fieldScale = Vector2.of(fieldImage.image.width / FIELD_WIDTH, fieldImage.image.height / FIELD_HEIGHT)
+        val fieldScale = Vector2.of(fieldImage.image.width / FIELD_LENGTH, fieldImage.image.height / FIELD_WIDTH)
         println("Field scale: ${fieldScale.x} by ${fieldScale.y}")
         field.children.add(fieldImage)
         val players = mutableListOf<Pane>()
@@ -113,7 +109,7 @@ class FormationEditor : Application() {
             initialDirectory = Paths.get("src/main/resources").toFile()
         }
         fileChooser.extensionFilters.add(FileChooser.ExtensionFilter(
-            "Formation files (*.formation)", "*.formation"))
+            "JSON files (*.json)", "*.json"))
 
         val fileMenu = Menu("File")
         val openFormation = MenuItem("Open formation").apply {
@@ -149,7 +145,7 @@ class FormationEditor : Application() {
             if (selectedFile != null){
                 println("Writing to file: $selectedFile")
                 selectedFile.createNewFile()
-                val output = Output(FileOutputStream(selectedFile)).apply { variableLengthEncoding = true }
+                val writer = FileWriter(selectedFile)
 
                 // collect positions
                 val positions = players.map {
@@ -161,9 +157,10 @@ class FormationEditor : Application() {
                     pos
                 }.toTypedArray()
 
-                // serialise to disk
-                kryo.writeObject(output, positions)
-                output.close()
+                // serialise to disk with JSON
+                val json = gson.toJson(positions)
+                writer.write(json)
+                writer.close()
                 println("Written to disk successfully.")
             }
         }

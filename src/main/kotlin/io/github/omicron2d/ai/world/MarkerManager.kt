@@ -24,7 +24,6 @@ import java.io.FileReader
 object MarkerManager {
     /** calculated coordinates for markers, refresh using refreshMarkers() */
     private val markers = mutableMapOf<String, Vector2D>()
-
     /** default values for variables on a standard field */
     private val variables = hashMapOf(
         // default values sourced from: https://github.com/rcsoccersim/rcssserver/blob/master/src/serverparam.cpp#L130
@@ -32,7 +31,7 @@ object MarkerManager {
         Pair("pitch_half_l", 105.0 / 2.0),
         Pair("penalty_l", 16.5),
         Pair("penalty_half_w", 40.32 / 2.0),
-        Pair("goal_half_w", 18.32 / 2.0)
+        Pair("goal_half_w", 18.32 / 2.0),
     )
 
     /**
