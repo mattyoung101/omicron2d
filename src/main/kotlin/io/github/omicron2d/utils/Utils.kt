@@ -9,12 +9,26 @@
 
 package io.github.omicron2d.utils
 
-import org.apache.commons.math3.linear.ArrayRealVector
-import org.apache.commons.math3.linear.RealVector
+import mikera.vectorz.Vector2
+import org.apache.commons.math3.linear.*
 
 /**
  * Creates an ArrayRealVector with the given x and y using Apache Commons Math
  */
-fun vec2d(x: Double, y: Double): RealVector {
+fun makeCommonsVector(x: Double, y: Double): RealVector {
     return ArrayRealVector(doubleArrayOf(x, y))
+}
+
+fun makeCommonsVector(vec: Vector2): RealVector {
+    return ArrayRealVector(doubleArrayOf(vec.x, vec.y))
+}
+
+fun createOnesMatrix(rows: Int, cols: Int): RealMatrix {
+    val mat = MatrixUtils.createRealMatrix(rows, cols)
+    mat.walkInOptimizedOrder(object : DefaultRealMatrixChangingVisitor() {
+        override fun visit(row: Int, column: Int, value: Double): Double {
+            return 1.0
+        }
+    })
+    return mat
 }

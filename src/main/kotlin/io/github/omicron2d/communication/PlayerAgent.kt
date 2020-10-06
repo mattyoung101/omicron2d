@@ -30,7 +30,6 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
 
     override fun run() {
         Logger.debug("PlayerAgent main loop started")
-        MarkerManager.refreshMarkers()
 
         while (true){
             // Receive message from server and parse
@@ -49,12 +48,14 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
             // With all of our data now processed in the LowLevelWorldModel, we now perform localisation using the ICP
             // algorithm.
             // First we convert our messy flag data into polar flag observations that the localiser requires
-            val observations = hashMapOf<String, FlagObservationPolar>()
-            for (flag in lowModel.flags){
-                observations[flag.name] = FlagObservationPolar(flag.distance, flag.direction.toDouble())
+            if (lowModel.flags.isNotEmpty()) {
+                val observations = hashMapOf<String, FlagObservationPolar>()
+                for (flag in lowModel.flags) {
+                    observations[flag.name] = FlagObservationPolar(flag.distance, flag.direction.toDouble())
+                }
+                // and now we perform localisation
+                val agentPos = ICPLocalisation.performLocalisation(observations)
             }
-            // and now we perform localisation
-            val agentPos = ICPLocalisation.localise(observations)
 
             // Next of all, we need to update the high level world model with the absolute positions of all the objects
             // we observed relatively in the low level world model

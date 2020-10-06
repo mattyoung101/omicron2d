@@ -122,7 +122,6 @@ class FormationEditor : Application() {
                 ButtonType.OK).apply {
                 headerText = "Open functionality has not yet been implemented."
 
-                // I can't believe how fucking broken these alert boxes are.
                 // Fix from: https://github.com/javafxports/openjdk-jfx/issues/222#issuecomment-458690238
                 isResizable = true
                 setOnShown {
@@ -184,7 +183,6 @@ class FormationEditor : Application() {
                 headerText = "Omicron2D Formation Editor v$VERSION"
                 title = "About"
 
-                // I can't believe how fucking broken these alert boxes are.
                 // Fix from: https://github.com/javafxports/openjdk-jfx/issues/222#issuecomment-458690238
                 isResizable = true
                 setOnShown {
@@ -204,7 +202,7 @@ class FormationEditor : Application() {
         vbox.isFillWidth = true
         vbox.children.add(field)
 
-        // height is calculated manually due to the fact that you can't just add the height of the fucking MenuBar
+        // height is calculated manually due to the fact that you can't just add the height of the MenuBar
         val scene = Scene(vbox, 1254.0, 847.0)
         stage.scene = scene
 

@@ -19,6 +19,7 @@ import io.github.omicron2d.utils.currentConfig
 import org.tinylog.kotlin.Logger
 import java.io.FileReader
 import java.net.InetAddress
+import kotlin.system.exitProcess
 
 /*
  * Notes:
@@ -54,5 +55,6 @@ object Main {
         // so, hopefully the agent will have already disconnected itself by here (for example, in a timeout)
         Logger.info("Omicron2D main finishing")
         println("Goodbye!")
+        exitProcess(0)
     }
 }

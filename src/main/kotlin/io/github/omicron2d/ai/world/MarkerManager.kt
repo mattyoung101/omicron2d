@@ -12,6 +12,8 @@ package io.github.omicron2d.ai.world
 import com.esotericsoftware.yamlbeans.YamlReader
 import net.objecthunter.exp4j.ExpressionBuilder
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
+import org.apache.commons.math3.linear.MatrixUtils
+import org.apache.commons.math3.linear.RealMatrix
 import org.tinylog.kotlin.Logger
 import java.io.FileReader
 
@@ -33,6 +35,9 @@ object MarkerManager {
         Pair("penalty_half_w", 40.32 / 2.0),
         Pair("goal_half_w", 18.32 / 2.0),
     )
+    /** matrix of absolute marker coordinates, with 2 columns and the number of markers rows */
+    val markerMatrix = MatrixUtils.createRealMatrix(55, 2)
+    // note: if number of markers changes, please update number of rows above
 
     /**
      * Refresh marker coordinates by loading the YAML config file and re-calculating all the expressions.
@@ -45,6 +50,7 @@ object MarkerManager {
         val yamlReader = YamlReader(FileReader("config_markers.yml"))
         val yamlMarkers = yamlReader.read(Map::class.java)
 
+        // parse marker expressions from yaml file, and add them to markers hashmap
         for (entry in yamlMarkers){
             val markerName = entry.key.toString()
             val pairs = entry.value.toString().split(",")
@@ -57,7 +63,12 @@ object MarkerManager {
             markers[markerName] = Vector2D(xexp.evaluate(), yexp.evaluate())
         }
 
-        Logger.debug("Marker refresh took ${System.currentTimeMillis().toDouble() - begin} ms")
+        // create marker matrix, basically a list of marker coordinates
+        for ((i, marker) in markers.values.withIndex()){
+            markerMatrix.setRow(i, doubleArrayOf(marker.x, marker.y))
+        }
+
+        Logger.debug("Marker refresh took ${System.currentTimeMillis().toDouble() - begin} ms (${markers.size} markers)")
     }
 
     init {

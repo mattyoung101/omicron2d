@@ -18,5 +18,7 @@ data class GeneralConfig(
     var playerPort: Int = 0,
     var trainerPort: Int = 0,
     var coachPort: Int = 0,
-    var timeout: Int = 0
+    var timeout: Int = 0,
+    var icpMaxIters: Int = 0,
+    var icpTolerance: Double = 0.0,
 )

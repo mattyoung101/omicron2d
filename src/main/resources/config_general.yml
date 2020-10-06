@@ -1,11 +1,13 @@
 # General config file. Loaded by the Omicron2D client to run basic setup
 
-# Team specific stuff
+# Networking config
 teamName: Omicron2D
-
-# Networking
 serverHost: localhost
 playerPort: 6000
 trainerPort: 6001
 coachPort: 6002
-timeout: 10000
+timeout: 10000 # milliseconds
+
+# ICP config
+icpMaxIters: 255
+icpTolerance: 0.001

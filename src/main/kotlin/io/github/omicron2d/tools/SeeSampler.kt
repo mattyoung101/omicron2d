@@ -29,8 +29,8 @@ import kotlin.system.exitProcess
  * an enormous corpus of (see) messages to check the parser with.
  */
 object SeeSampler {
-    private val uuid = UUID.randomUUID().toString()
-    private val outputPath = "see_sampler/see_sampler_$uuid.txt"
+    private val id = System.currentTimeMillis()
+    private val outputPath = "see_sampler/see_sampler_$id.txt"
 
     @JvmStatic
     fun main(args: Array<String>){
