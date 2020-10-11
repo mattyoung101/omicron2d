@@ -1,3 +1,4 @@
+# This file is part of the Omicron2D RoboCup 2D Soccer Simulation team.
 # General config file. Loaded by the Omicron2D client to run basic setup
 
 # Networking config
@@ -9,5 +10,8 @@ coachPort: 6002
 timeout: 10000 # milliseconds
 
 # ICP config
-icpMaxIters: 255
+icpMaxIters: 128
 icpTolerance: 0.001
+
+# GUI config
+showDebugDisplay: true

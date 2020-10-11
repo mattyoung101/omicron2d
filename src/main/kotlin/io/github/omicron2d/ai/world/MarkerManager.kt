@@ -29,6 +29,7 @@ object MarkerManager {
     /** default values for variables on a standard field */
     private val variables = hashMapOf(
         // default values sourced from: https://github.com/rcsoccersim/rcssserver/blob/master/src/serverparam.cpp#L130
+        // TODO define these in general config
         Pair("pitch_half_w", 68.0 / 2.0),
         Pair("pitch_half_l", 105.0 / 2.0),
         Pair("penalty_l", 16.5),

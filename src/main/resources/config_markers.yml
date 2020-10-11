@@ -1,3 +1,4 @@
+# This file is part of the Omicron2D RoboCup 2D Soccer Simulation team.
 # File contains marker names and their absolute positions on the field
 # Source: librcsc, player/object_table.cpp (mirror: https://github.com/mhauskn/librcsc/blob/master/rcsc/player/object_table.cpp)
 

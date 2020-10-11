@@ -12,13 +12,14 @@ package io.github.omicron2d
 import com.esotericsoftware.yamlbeans.YamlReader
 import io.github.omicron2d.communication.PlayerAgent
 import io.github.omicron2d.communication.messages.OutgoingInitMessage
-import io.github.omicron2d.utils.GeneralConfig
-import io.github.omicron2d.utils.SERVER_PROTOCOL_VERSION
-import io.github.omicron2d.utils.OMICRON2D_VERSION
-import io.github.omicron2d.utils.currentConfig
+import io.github.omicron2d.debug.DebugDisplay
+import io.github.omicron2d.utils.*
+import javafx.application.Platform
+import javafx.stage.Stage
 import org.tinylog.kotlin.Logger
 import java.io.FileReader
 import java.net.InetAddress
+import javax.swing.SwingUtilities
 import kotlin.system.exitProcess
 
 /*
@@ -44,16 +45,28 @@ object Main {
         Logger.info("General config parsed successfully")
         Logger.trace(generalConfig)
 
+        // show debug UI
+        if (generalConfig.showDebugDisplay){
+            Logger.debug("Starting debug UI")
+            SwingUtilities.invokeLater {
+                val app = DebugDisplay()
+                app.pack()
+                app.setLocationRelativeTo(null)
+                app.isVisible = true
+                debugDisplay = app
+            }
+        }
+
         Logger.info("Connecting to ${generalConfig.serverHost}:${generalConfig.playerPort}")
         val initMessage = OutgoingInitMessage(generalConfig.teamName, SERVER_PROTOCOL_VERSION, false)
 
         val agent = PlayerAgent(InetAddress.getByName(generalConfig.serverHost), generalConfig.playerPort)
         agent.connect(initMessage)
-        agent.run()
+        agent.run() // blocking
 
         // the above method call will block until a timeout or an error
         // so, hopefully the agent will have already disconnected itself by here (for example, in a timeout)
-        Logger.info("Omicron2D main finishing")
+        Logger.info("PlayerAgent.run() has finished, terminating")
         println("Goodbye!")
         exitProcess(0)
     }

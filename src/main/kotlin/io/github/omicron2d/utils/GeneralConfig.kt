@@ -21,4 +21,5 @@ data class GeneralConfig(
     var timeout: Int = 0,
     var icpMaxIters: Int = 0,
     var icpTolerance: Double = 0.0,
+    var showDebugDisplay: Boolean = false,
 )

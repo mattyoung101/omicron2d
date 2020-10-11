@@ -9,6 +9,7 @@
 
 package io.github.omicron2d.communication
 
+import io.github.omicron2d.communication.messages.DashMessage
 import io.github.omicron2d.communication.messages.OutgoingInitMessage
 import io.github.omicron2d.communication.messages.OutgoingServerMessage
 import io.github.omicron2d.utils.currentConfig
@@ -73,8 +74,8 @@ abstract class AbstractSoccerAgent(private var host: InetAddress, private var de
                 Logger.error("Failed to receive():")
                 Logger.error(e)
             } catch (e: SocketTimeoutException){
-                Logger.warn("Timeout during receive(), server probably offline:")
-                Logger.warn(e)
+                Logger.error("Timeout during receive(), server probably offline:")
+                Logger.error(e)
 
                 // simple teardown routine since calling disconnect() doesn't work
                 isConnected = false
@@ -133,6 +134,22 @@ abstract class AbstractSoccerAgent(private var host: InetAddress, private var de
     }
 
     /**
+     * Concatenates all messages into one string, and then transmits the bunch
+     */
+    fun transmit(messages: Iterable<OutgoingServerMessage>){
+        val text = messages.joinToString("") { it.serialise() }
+        transmitString(text)
+    }
+
+    /**
+     * Concatenates all messages into one string, and then transmits the bunch
+     */
+    fun transmit(messages: Array<OutgoingServerMessage>){
+        val text = messages.joinToString("") { it.serialise() }
+        transmitString(text)
+    }
+
+    /**
      * Starts socket thread and sends init message to server
      */
     fun connect(initMessage: OutgoingInitMessage){
@@ -157,16 +174,15 @@ abstract class AbstractSoccerAgent(private var host: InetAddress, private var de
             return
         }
 
-        // tell the server we're disconnecting
+        // tell the server we're disconnecting (attempt to shut down gracefully)
         println("Disconnecting agent")
         transmitString("(bye)")
-        Thread.sleep(100)
-        // TODO find a better way to ensure transmission has completed? or do we not need to?
+        Thread.sleep(100) // wait for transmission
 
         // close down the socket
         sockThread.interrupt()
-        socket.close()
         sockThread.join(500)
+        socket.close()
         println("Socket thread joined!")
 
         isConnected = false

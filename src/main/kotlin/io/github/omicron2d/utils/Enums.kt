@@ -39,20 +39,6 @@ enum class PlayerRoles {
     RIGHT_WING, // 10
 }
 
-/**
- * This enum is used by the movement executor to decide how much stamina to use when moving somewhere
- */
-enum class NavigationUrgency {
-    /** reaching this point is desirable within a very long timeframe, so don't use much stamina **/
-    LOW,
-    /** reaching this point is desirable within the next few ticks **/
-    NORMAL,
-    /** not reaching this point could miss a potential scoring opportunity **/
-    HIGH,
-    /** not reaching this point could concede a goal **/
-    CRITICAL
-}
-
 enum class Side {
     UNKNOWN,
     LEFT,
@@ -75,6 +61,19 @@ enum class ObjectType {
     PLAYER,
     LINE,
     GOAL
+}
+
+enum class ViewMode {
+    UNKNOWN,
+    NARROW,
+    NORMAL,
+    WIDE
+}
+
+enum class ViewQuality {
+    UNKNOWN,
+    HIGH,
+    LOW
 }
 
 // Sourced rcsserver src/types.h PLAYMODE_STRINGS
@@ -131,20 +130,4 @@ enum class PlayMode {
     PENALTY_SCORE_R,
     ILLEGAL_DEFENSE_L,
     ILLEGAL_DEFENSE_R
-}
-
-enum class AgentMessages {
-    NONE,
-
-    /** I am ready to engage in the previous request you sent **/
-    ACCEPTED,
-    /** I am, at this present moment, not willing to engage in the previous request you sent **/
-    DECLINED,
-    /** Ask me later, I'm not sure right now **/
-    WAIT,
-
-    /** I would like to pass the ball to you **/
-    SEND_PASS_REQUEST,
-    /** I would like to receive the ball from you **/
-    RECEIVE_PASS_REQUEST
 }

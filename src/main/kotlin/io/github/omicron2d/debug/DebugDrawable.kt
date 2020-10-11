@@ -9,6 +9,8 @@
 
 package io.github.omicron2d.debug
 
+import org.jfree.chart.JFreeChart
+
 /**
  * Interface for classes that support rendering their output to a graph-like display for debug purposes
  */

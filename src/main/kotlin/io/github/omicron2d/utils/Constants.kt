@@ -9,6 +9,7 @@
 
 package io.github.omicron2d.utils
 
+import io.github.omicron2d.debug.DebugDisplay
 import mikera.vectorz.Vector2
 
 // This file holds constant, compile time defines that will not be edited
@@ -34,6 +35,7 @@ const val DEG_RAD = 0.017453292519943295
 /** Multiply to convert radians to degrees */
 const val RAD_DEG = 57.29577951308232
 var currentConfig = GeneralConfig()
+var debugDisplay: DebugDisplay? = null
 val ZERO_VECTOR = Vector2(0.0, 0.0).immutable()
 
 // Source: https://github.com/rcsoccersim/rcssserver/blob/master/src/serverparam.cpp
