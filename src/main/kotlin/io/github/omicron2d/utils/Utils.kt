@@ -24,11 +24,33 @@ fun makeCommonsVector(vec: Vector2): RealVector {
 }
 
 fun createOnesMatrix(rows: Int, cols: Int): RealMatrix {
+    return createFilledMatrix(rows, cols, 1.0)
+}
+
+fun createFilledMatrix(rows: Int, cols: Int, value: Double): RealMatrix {
     val mat = MatrixUtils.createRealMatrix(rows, cols)
     mat.walkInOptimizedOrder(object : DefaultRealMatrixChangingVisitor() {
         override fun visit(row: Int, column: Int, value: Double): Double {
-            return 1.0
+            return value
         }
     })
     return mat
 }
+
+/** Same as numpy.mean(matrix, axis=0). Returned matrix will have `matrix.columnDimension` cols, and 1 row. */
+// note on numpy dimension ordering: https://stackoverflow.com/a/52468964/5007892
+fun matrixMeanCols(matrix: RealMatrix): RealMatrix {
+    val outMat = MatrixUtils.createRealMatrix(1, matrix.columnDimension)
+    for (i in 0 until outMat.columnDimension){
+        val mean = matrix.getColumn(i).sum() / matrix.rowDimension.toDouble()
+        outMat.setEntry(0, i, mean)
+    }
+    return outMat
+}
+
+/**
+ * Represents a 2D position and rotation.
+ * @param pos position of the agent, measured with (0,0) being centre of field
+ * @param theta angle in radians, counter-clockwise (standard trig format)
+ */
+data class Transform2D(val pos: Vector2, val theta: Double)

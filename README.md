@@ -10,7 +10,7 @@ engineer on the RoboCup Jr team). If you feel like getting involved, don't hesit
 ## Project status
 Incoming server message parser (now written using ANTLR) is almost complete, just adding support for the sense_body message.
 
-After this, I will start working on localisation and outgoing server messages, then formations.
+Currently mostly occupied by exams, but working on ICP localisation and debug display right now.
 
 ## About the agents
 If you want to know more about our agents, please check out some Markdown files in the docs folder (such as

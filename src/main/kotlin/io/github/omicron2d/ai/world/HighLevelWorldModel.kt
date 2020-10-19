@@ -9,6 +9,7 @@
 
 package io.github.omicron2d.ai.world
 
+import io.github.omicron2d.utils.Transform2D
 import mikera.vectorz.Vector2
 
 /**
@@ -16,8 +17,9 @@ import mikera.vectorz.Vector2
  * such as the agent's actual position
  */
 data class HighLevelWorldModel(
-    /** localised agent position */
-    var agentPos: Vector2 = Vector2.of(0.0, 0.0),
+    // TODO replace agentTransform with player list/hashmap and getSelfPlayer function
+    /** localised agent position and orientation */
+    var agentTransform: Transform2D = Transform2D(Vector2(0.0, 0.0), 0.0),
     /** localised ball position */
     var ballPos: Vector2 = Vector2.of(0.0, 0.0),
 ) : WorldModel

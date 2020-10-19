@@ -54,7 +54,7 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
 
             // NOTE: just for testing
             if (!initial){
-                transmit(MoveMessage(-41.74, 0.23))
+                transmit(MoveMessage(-8.0, -27.0))
                 initial = true
                 Logger.debug("Initial")
             }
@@ -73,7 +73,9 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
                     observations[flag.name] = FlagObservationPolar(flag.distance, direction)
                 }
                 // and now we perform localisation
-                val agentPos = ICPLocalisation.performLocalisation(observations)
+                val agentTransform = ICPLocalisation.performLocalisation(observations)
+
+                // calculate absolute positions for the ball and other players
             }
 
             // Next of all, we need to update the high level world model with the absolute positions of all the objects
@@ -92,7 +94,8 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
 
     override fun handleSeeMessage(see: SeeMessage){
         // filter out only flags in the see message
-        lowModel.flags = see.objects.filter { it.type == ObjectType.FLAG }
+        // TODO rename flags to goodFlags, ones that we use for localising
+        lowModel.flags = see.objects.filter { it.type == ObjectType.FLAG && it.name.isNotEmpty() && !it.isBehind }
         lowModel.players = see.objects.filter { it.type == ObjectType.PLAYER }
         lowModel.ball = see.objects.firstOrNull { it.type == ObjectType.BALL }
         Logger.trace("Received see message: $see")

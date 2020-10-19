@@ -10,10 +10,13 @@
 package io.github.omicron2d.ai.world
 
 import com.esotericsoftware.yamlbeans.YamlReader
+import mikera.vectorz.Vector2
 import net.objecthunter.exp4j.ExpressionBuilder
-import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
 import org.apache.commons.math3.linear.MatrixUtils
-import org.apache.commons.math3.linear.RealMatrix
+import org.jfree.chart.ChartFactory
+import org.jfree.chart.JFreeChart
+import org.jfree.data.xy.XYSeries
+import org.jfree.data.xy.XYSeriesCollection
 import org.tinylog.kotlin.Logger
 import java.io.FileReader
 
@@ -25,9 +28,9 @@ import java.io.FileReader
  */
 object MarkerManager {
     /** calculated coordinates for markers, refresh using refreshMarkers() */
-    private val markers = mutableMapOf<String, Vector2D>()
+    val markers = sortedMapOf<String, Vector2>()
     /** default values for variables on a standard field */
-    private val variables = hashMapOf(
+    private val variables = sortedMapOf(
         // default values sourced from: https://github.com/rcsoccersim/rcssserver/blob/master/src/serverparam.cpp#L130
         // TODO define these in general config
         Pair("pitch_half_w", 68.0 / 2.0),
@@ -61,7 +64,7 @@ object MarkerManager {
 
             val xexp = ExpressionBuilder(xstr).variables(variables.keys).build().setVariables(variables)
             val yexp = ExpressionBuilder(ystr).variables(variables.keys).build().setVariables(variables)
-            markers[markerName] = Vector2D(xexp.evaluate(), yexp.evaluate())
+            markers[markerName] = Vector2(xexp.evaluate(), yexp.evaluate())
         }
 
         // create marker matrix, basically a list of marker coordinates
@@ -84,7 +87,20 @@ object MarkerManager {
      * Returns the coordinate for the requested marker
      * @param marker the marker ID, including its type. For example "f g r b".
      */
-    fun getMarkerCoord(marker: String): Vector2D {
+    fun getMarkerCoord(marker: String): Vector2 {
         return markers[marker] ?: throw IllegalArgumentException("No entry for marker \"$marker\"")
+    }
+
+    /**
+     * Returns a plot of the positions of all the flags on the field
+     */
+    fun getMarkerPlot(): JFreeChart {
+        val dataset = XYSeriesCollection()
+        val series = XYSeries("Flags")
+        for (marker in markers){
+            series.add(marker.value.x, marker.value.y)
+        }
+        dataset.addSeries(series)
+        return ChartFactory.createScatterPlot("Real Flag Positions", "X", "Y", dataset)
     }
 }

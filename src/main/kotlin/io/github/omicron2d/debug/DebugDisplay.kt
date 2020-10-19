@@ -22,7 +22,7 @@ import java.awt.Dimension
  */
 class DebugDisplay : ApplicationFrame("Omicron2D Debug") {
     private var currentChart =
-        ChartFactory.createPolarChart("Empty Chart", null, false, false, false).apply {
+        ChartFactory.createPolarChart("Awaiting data...", null, false, false, false).apply {
             // 4:3 aspect ratios: https://calculateaspectratio.com/4-3-calculator
             preferredSize = Dimension(800, 600)
         }
