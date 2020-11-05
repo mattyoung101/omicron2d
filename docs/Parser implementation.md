@@ -25,17 +25,17 @@ unit tests don't fail on slow systems), however realistically parsers run in 30 
 2 milliseconds for the most complex ones, which is great.
 
 ## Accuracy
-In saying that though, the parser will successfully parse technically invalid messages that could be sent by the server in
-a few cases:
+In saying that though, the parser will erroneously successfully parse technically invalid messages that could be sent by 
+the server in a few cases:
 
 - Due to ANTLR shenanigans, the lexer for the team name is the same as the lexer for a quoted say message. This means
 the parser will accept some technically illegal team names.
-- The parser will accept illegal whitespace placement, because it ignores whitespace
+- The parser will accept possibly illegal whitespace placement, because it ignores whitespace
 
 This means that the parser should not be used as a ground truth, 100% accurate solution, just a mostly-correct solution
 that works for Omicron2D.
 
 ## Conclusion
 The Omicron2D server message parser is written as an ANTLR grammar in `src/main/antlr/ServerMessage.g4`. The parser
-is tested, so it should accept all valid messages. However, occasionally it may accept invalid messages as well. It is
-pretty fast as well.
+is tested, so it should accept all valid messages. However, occasionally it may accept invalid messages as well. It is very
+fast.

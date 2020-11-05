@@ -18,10 +18,10 @@ import java.io.File
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 
-/*
+/**
  * DebugMain is similar to main except it also starts up the tools and related for easy debugging
  */
-
+@Deprecated("This is no longer used")
 class Omicron2DApp : CliktCommand(){
     private val startServer by option(help="Start an instance of rcssserver").flag()
     private val startMonitor by option(help="Start an instance of rcssmonitor").flag()
@@ -78,6 +78,7 @@ class Omicron2DApp : CliktCommand(){
     }
 }
 
+@Deprecated("This is no longer used")
 object DebugMain{
     @JvmStatic
     fun main(args: Array<String>){

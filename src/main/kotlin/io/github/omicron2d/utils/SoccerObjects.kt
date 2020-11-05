@@ -30,4 +30,5 @@ data class PlayerObject(
  * @param pos position of the object, with (0,0) being the centre of the field
  * @param vel velocity of the player, in (TODO determine unit)
  */
-data class BallObject(val pos: Vector2, val vel: Vector2, var isKnown: Boolean = false)
+data class BallObject(val pos: Vector2 = Vector2(0.0, 0.0), val vel: Vector2 = Vector2(0.0, 0.0),
+                      var isKnown: Boolean = false)

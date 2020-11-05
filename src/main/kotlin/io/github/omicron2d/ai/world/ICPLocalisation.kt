@@ -9,10 +9,7 @@
 
 package io.github.omicron2d.ai.world
 
-import io.github.omicron2d.utils.DEG_RAD
-import io.github.omicron2d.utils.Transform2D
-import io.github.omicron2d.utils.debugDisplay
-import io.github.omicron2d.utils.matrixMeanCols
+import io.github.omicron2d.utils.*
 import mikera.vectorz.Vector2
 import org.apache.commons.math3.linear.*
 import org.jfree.chart.ChartFactory
@@ -20,8 +17,7 @@ import org.jfree.data.xy.XYSeries
 import org.jfree.data.xy.XYSeriesCollection
 import org.tinylog.kotlin.Logger
 import java.util.*
-import kotlin.math.cos
-import kotlin.math.sin
+import kotlin.math.*
 
 /**
  * @param angle, must be converted to 0 to 360 (NOT -180 to 180 as is sent by server!!)
@@ -54,7 +50,6 @@ object ICPLocalisation {
      * @return the estimated transform (position and rotation) of the agent
      */
     fun performLocalisation(observations: Map<String, FlagObservationPolar>): Transform2D {
-        val begin = System.currentTimeMillis()
         // convert polar observations to a list of cartesian observations
         val observedPointsMap = makeCartesian(observations)
 
@@ -81,7 +76,7 @@ object ICPLocalisation {
         val centroidA = matrixMeanCols(observedPoints)
         val centroidB = matrixMeanCols(correlatedPoints)
         // note our imitation of numpy broadcasting behaviour here
-        // we need to duplicate each row from centroidA down to match with the rows in the A matrix (observedPoints)
+        // we need to duplicate each row from centroidA to match with the rows in the A matrix (observedPoints)
         // to confirm this, in numpy execute: np.broadcast_to(centroid_A, A.shape)
         val aa = observedPoints.subtract(matrixBroadcast(centroidA, observedPoints.rowDimension))
         val bb = correlatedPoints.subtract(matrixBroadcast(centroidB, correlatedPoints.rowDimension))
@@ -92,12 +87,10 @@ object ICPLocalisation {
         val h = aa.transpose().multiply(bb)
         val svd = SingularValueDecomposition(h)
         val u = svd.u
-        val s = svd.s
         val vt = svd.vt
         var r = vt.transpose().multiply(u.transpose())
 
         // special reflection case
-        // omicron2d note: the only way to calculate determinant in commons is to do a full LU decomp
         if (LUDecomposition(r).determinant < 0){
             // TODO check correctness
             // python code: Vt[m - 1, :] *= -1
@@ -111,15 +104,23 @@ object ICPLocalisation {
 
         // translation
         val t = centroidB.transpose().subtract(r.multiply(centroidA.transpose()))
-        // omicron2d note: don't bother calculating homogenous transform, we don't use it
+        // omicron2d note: don't bother calculating homogenous transform matrix, we don't use it
 
-        // from rotation matrix, calculate angle
-        // from transform matrix, pick out x and y transform
+        // we've got the whole rotation matrix, but we just want the angle. seems as though there's many ways of doing this
+        // source for this implementation: https://math.stackexchange.com/a/301335
+        // [cos, -sin],
+        // [sin, cos]
+        val plusCosTerm = r.getEntry(0, 0) // +cos(theta) term in 2D rotation matrix
+        val plusSinTerm = r.getEntry(1, 0) // +sin(theta) term in 2D rotation matrix
+        val theta = (atan2(plusSinTerm, plusCosTerm) + PI2) % PI2
+        // TODO verify correctness of theta conversion from (-PI,PI) to (0, 2PI) with modulo
 
         dispatchToDisplayCartesian(observedPointsMap)
         //debugDisplay?.updateChart(MarkerManager.getMarkerPlot())
-        //println("Localisation took: ${System.currentTimeMillis() - begin} ms")
-        return Transform2D(Vector2(t.getEntry(0, 0), t.getEntry(1, 0)), 0.0)
+
+        val x = t.getEntry(0, 0)
+        val y = t.getEntry(1, 0)
+        return Transform2D(Vector2(x, y), theta)
     }
 
     /**

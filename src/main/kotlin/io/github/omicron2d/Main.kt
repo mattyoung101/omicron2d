@@ -29,6 +29,10 @@ import kotlin.system.exitProcess
  * We would also have to write a shell script to launch the agent using an embedded JVM for at the venue.
  * Maybe use java packager with the jvm for that to reduce build size. We can worry about that if we get to it.
  */
+
+/**
+ * Main class for Omicron2D, launches a single PlayerAgent that connects to the server and plays the game
+ */
 object Main {
     @JvmStatic
     fun main(args: Array<String>){

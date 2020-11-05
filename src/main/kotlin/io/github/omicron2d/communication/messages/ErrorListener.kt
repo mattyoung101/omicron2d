@@ -15,6 +15,7 @@ import org.antlr.v4.runtime.dfa.DFA
 import org.tinylog.kotlin.Logger
 import java.util.*
 
+/** Used to log ANTLR parse errors */
 object ErrorListener : BaseErrorListener() {
     override fun syntaxError(
         recognizer: Recognizer<*, *>?,

@@ -18,7 +18,7 @@ import kotlin.random.Random
 
 /**
  * The SamplerAgent is an agent that connects to the server, and rapidly moves around to random valid positions on the field
- * (as long as the server is in BEFORE_KICK_OFF) and writes the data it sees to disk
+ * (as long as the server is in BEFORE_KICK_OFF) and writes the data it sees to disk.
  *
  * TODO allow specifying which message we are looking to record
  */
@@ -53,7 +53,7 @@ class SamplerAgent(private val stream: PrintStream,
                 Logger.warn("Unexpected null message from message queue, server dead? Terminating!")
                 break
             } else if (msg == "INTERNAL_TIMED_OUT"){
-                Logger.warn("Received server timeout message, terminating SamplerAgent!")
+                Logger.warn("Received server timeout message, terminating agent!")
                 break
             }
 

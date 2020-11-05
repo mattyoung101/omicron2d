@@ -11,6 +11,7 @@ package io.github.omicron2d.utils
 
 import io.github.omicron2d.debug.DebugDisplay
 import mikera.vectorz.Vector2
+import kotlin.math.PI
 
 // This file holds constant, compile time defines that will not be edited
 // General config should be stored in the *.properties files in the resources folder
@@ -34,6 +35,8 @@ const val DEFAULT_PLAYER_PORT = 6000
 const val DEG_RAD = 0.017453292519943295
 /** Multiply to convert radians to degrees */
 const val RAD_DEG = 57.29577951308232
+/** PI * 2 **/
+const val PI2 = PI * 2.0
 var currentConfig = GeneralConfig()
 var debugDisplay: DebugDisplay? = null
 val ZERO_VECTOR = Vector2(0.0, 0.0).immutable()

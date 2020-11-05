@@ -24,6 +24,7 @@ data class OutgoingInitMessage(var teamName: String = "", var version: String = 
     }
 }
 
+/** Catch message for goalie */
 data class CatchMessage(val direction: Double): OutgoingServerMessage {
     override fun serialise(): String {
         val str = "%.2f".format(direction)
@@ -36,7 +37,6 @@ data class ChangeViewMessage(var width: ViewMode = ViewMode.UNKNOWN,
     override fun serialise(): String {
         return "(change_view ${width.toString().toLowerCase()} ${quality.toString().toLowerCase()})"
     }
-
 }
 
 data class DashMessage(var power: Double = 0.0): OutgoingServerMessage {
@@ -44,9 +44,11 @@ data class DashMessage(var power: Double = 0.0): OutgoingServerMessage {
         val str = "%.2f".format(power)
         return "(dash $str)"
     }
-
 }
 
+/**
+ * @param angle -180 to 180 (TODO check this)
+ */
 data class TurnMessage(var angle: Int = 0): OutgoingServerMessage {
     override fun serialise(): String {
         // TODO can angle be a double?
@@ -63,6 +65,9 @@ data class MoveMessage(var x: Double = 0.0, var y: Double = 0.0): OutgoingServer
     }
 }
 
+/**
+ * @param angle -180 to 180
+ */
 data class TurnNeckMessage(var angle: Int = 0): OutgoingServerMessage {
     override fun serialise(): String {
         return "(turn_neck $angle)"
@@ -71,7 +76,7 @@ data class TurnNeckMessage(var angle: Int = 0): OutgoingServerMessage {
 
 data class SayMessage(var message: String = ""): OutgoingServerMessage {
     override fun serialise(): String {
-        // TODO is the message actually in quotes??
+        // TODO is the message in quotes or not??
         return "(say \"$message\")"
     }
 }

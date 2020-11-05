@@ -16,11 +16,8 @@ import io.github.omicron2d.utils.ObjectType
 import io.github.omicron2d.utils.PlayMode
 import org.tinylog.kotlin.Logger
 import java.net.InetAddress
-import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.timer
-import kotlin.concurrent.timerTask
-import kotlin.random.Random
 
 /**
  * Class for all standard soccer agents (players) including the goalie.
@@ -87,8 +84,8 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
         if (init.playMode != PlayMode.BEFORE_KICK_OFF){
             Logger.warn("Unexpected play mode during init: ${init.playMode} (agent joined late?)")
         }
-        lowModel.side = init.side
-        lowModel.unum = init.unum
+        lowModel.mySide = init.side
+        lowModel.myUnum = init.unum
         Logger.info("Init message received: $init")
     }
 

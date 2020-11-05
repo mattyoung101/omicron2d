@@ -18,11 +18,13 @@ import io.github.omicron2d.utils.Side
  * a list of flags rather than the agent's position.
  */
 data class LowLevelWorldModel(
-    var unum: Int = -1,
-    var side: Side = Side.UNKNOWN,
-    /** list of flags, received directly from server */
+    /** unum of this agent */
+    var myUnum: Int = -1,
+    /** side of this agent */
+    var mySide: Side = Side.UNKNOWN,
     var flags: List<SeeObject> = listOf(),
+    /** list of flags we can actually feed to the localiser, basically excludes all the weird ones */
+    var goodFlags: List<SeeObject> = listOf(),
     var players: List<SeeObject> = listOf(),
-    /** relative position of ball if visible, received directly from server */
     var ball: SeeObject? = null,
 ) : WorldModel
