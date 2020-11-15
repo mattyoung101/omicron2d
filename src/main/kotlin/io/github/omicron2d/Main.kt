@@ -10,6 +10,8 @@
 package io.github.omicron2d
 
 import com.esotericsoftware.yamlbeans.YamlReader
+import com.esotericsoftware.yamlbeans.YamlWriter
+import com.google.gson.GsonBuilder
 import io.github.omicron2d.communication.PlayerAgent
 import io.github.omicron2d.communication.messages.OutgoingInitMessage
 import io.github.omicron2d.debug.DebugDisplay
@@ -18,17 +20,12 @@ import javafx.application.Platform
 import javafx.stage.Stage
 import org.tinylog.kotlin.Logger
 import java.io.FileReader
+import java.io.StringWriter
 import java.net.InetAddress
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import javax.swing.SwingUtilities
 import kotlin.system.exitProcess
-
-/*
- * Notes:
- * I think the best way to arrange the Main is to have it do what it's supposed to, start a single agent.
- * Then make a file called like TestRunner.kt which runs the agents and tools and everything separately.
- * We would also have to write a shell script to launch the agent using an embedded JVM for at the venue.
- * Maybe use java packager with the jvm for that to reduce build size. We can worry about that if we get to it.
- */
 
 /**
  * Main class for Omicron2D, launches a single PlayerAgent that connects to the server and plays the game

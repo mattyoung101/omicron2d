@@ -16,24 +16,18 @@ import org.tinylog.kotlin.Logger
 
 /**
  * A MessageHandler is a class that Agents (those who inherit from SoccerAgent) can use to deserialise messages and
- * call the appropriate handler function with the deserialised message
+ * call the appropriate handler function with the deserialised message. In other words, it's a message router.
  */
 interface MessageHandler {
-    /**
-     * Deserialises the message passed, and dispatches it to the correct message handler
-     */
+    /** Deserialises the message passed, and dispatches it to the correct message handler */
     fun dispatchMessage(msg: String)
 
-    /**
-     * Called if there is no parser registered for the given message. Default behaviour just logs.
-     */
+    /** Called if there is no parser registered for the given message. Default behaviour just logs. */
     fun handleUnknownMessage(msg: String){
         Logger.trace("No parser for message received by player: $msg")
     }
 
-    /**
-     * Called if the given message cannot be parsed. Default behaviour is to log.
-     */
+    /** Called if the given message cannot be parsed. Default behaviour is to log. */
     fun handleIllegalMessage(msg: String, ex: MessageParseException){
         Logger.warn("Failed to parse message: $msg")
         Logger.warn(ex)

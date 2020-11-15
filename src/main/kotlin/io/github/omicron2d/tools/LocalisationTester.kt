@@ -10,8 +10,8 @@
 package io.github.omicron2d.tools
 
 import com.esotericsoftware.yamlbeans.YamlReader
+import io.github.omicron2d.ai.Formation
 import io.github.omicron2d.communication.LocalisationTesterAgent
-import io.github.omicron2d.communication.SamplerAgent
 import io.github.omicron2d.communication.messages.OutgoingInitMessage
 import io.github.omicron2d.debug.DebugDisplay
 import io.github.omicron2d.utils.GeneralConfig
@@ -19,10 +19,7 @@ import io.github.omicron2d.utils.OMICRON2D_VERSION
 import io.github.omicron2d.utils.SERVER_PROTOCOL_VERSION
 import io.github.omicron2d.utils.debugDisplay
 import org.tinylog.kotlin.Logger
-import java.io.File
-import java.io.FileOutputStream
 import java.io.FileReader
-import java.io.PrintStream
 import java.net.InetAddress
 import javax.swing.SwingUtilities
 import kotlin.system.exitProcess

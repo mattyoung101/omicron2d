@@ -9,16 +9,14 @@
 
 package io.github.omicron2d.communication
 
-import io.github.omicron2d.communication.messages.DashMessage
 import io.github.omicron2d.communication.messages.OutgoingInitMessage
 import io.github.omicron2d.communication.messages.OutgoingServerMessage
 import io.github.omicron2d.utils.currentConfig
 import org.tinylog.kotlin.Logger
 import java.net.*
 import java.nio.charset.Charset
-import java.nio.charset.CharsetEncoder
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.LinkedBlockingQueue
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
 /**
@@ -34,21 +32,22 @@ abstract class AbstractSoccerAgent(private var host: InetAddress, private var de
         // 10 second timer to ensure the socket stays connected (inherited from atan)
         soTimeout = currentConfig.timeout
     }
-
     /**
      * Port to respond to, instead of the default port (init port), once we've received a response from rcssserver.
      *
      * The docs are extremely unclear, but it appears that in versions 8+ you're not allowed to send anything but init
      * on the default port, and you have to switch over to the port that rcssserver replies to you with otherwise it
      * gives you (error only_init_allowed_on_init_port). For reference, do a search in rcssserver project for that error:
-     * ~/workspace/rcssserver-16.0.0$ rg -i only_init_allowed_on_init_port
+     *
+     * `~/workspace/rcssserver-16.0.0$ rg -i only_init_allowed_on_init_port`
      */
     private var respondTo: Int? = null
-
     /**
      * Contains the queue of messages received from the server, that are awaiting processing
      */
     val messages = LinkedBlockingQueue<String>()
+    /** Queue of individual messages that can be batched together and transmitted as one string to rcsserver */
+    private val messageBatch = ConcurrentLinkedQueue<OutgoingServerMessage>()
 
     private val sockThread = thread(start = false){
         Logger.debug("Socket thread started")
@@ -147,6 +146,22 @@ abstract class AbstractSoccerAgent(private var host: InetAddress, private var de
     fun transmit(messages: Array<OutgoingServerMessage>){
         val text = messages.joinToString("") { it.serialise() }
         transmitString(text)
+    }
+
+    /** Adds the specified message to the current message batch */
+    fun addToBatch(message: OutgoingServerMessage){
+        messageBatch.add(message)
+    }
+
+    /** Sends the current batch to the server and clears it for new items */
+    fun deployBatch(){
+        transmit(messageBatch)
+        messageBatch.clear()
+    }
+
+    /** Clears the current message batch */
+    fun clearBatch(){
+        messageBatch.clear()
     }
 
     /**

@@ -76,7 +76,6 @@ data class TurnNeckMessage(var angle: Int = 0): OutgoingServerMessage {
 
 data class SayMessage(var message: String = ""): OutgoingServerMessage {
     override fun serialise(): String {
-        // TODO is the message in quotes or not??
         return "(say \"$message\")"
     }
 }

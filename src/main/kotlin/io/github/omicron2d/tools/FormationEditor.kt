@@ -9,6 +9,7 @@
 
 package io.github.omicron2d.tools
 
+import com.esotericsoftware.yamlbeans.YamlWriter
 import com.google.gson.GsonBuilder
 import io.github.omicron2d.utils.FIELD_LENGTH
 import io.github.omicron2d.utils.FIELD_WIDTH
@@ -35,7 +36,7 @@ import kotlin.system.exitProcess
 
 
 /**
- * Formation Editor applicatio.
+ * Formation Editor application.
  * Not the cleanest code ever, pretty much just hacked together to be usable in a few days.
  * You can use this app to position the field into a formation and save it to a Kryo serialised file.
  * For normal use, only use the left hand side of the field because the agent will automatically mirror the formation
@@ -109,7 +110,7 @@ class FormationEditor : Application() {
             initialDirectory = Paths.get("src/main/resources").toFile()
         }
         fileChooser.extensionFilters.add(FileChooser.ExtensionFilter(
-            "JSON files (*.json)", "*.json"))
+            "YAML files (*.yml)", "*.yml"))
 
         val fileMenu = Menu("File")
         val openFormation = MenuItem("Open formation").apply {
@@ -144,7 +145,7 @@ class FormationEditor : Application() {
             if (selectedFile != null){
                 println("Writing to file: $selectedFile")
                 selectedFile.createNewFile()
-                val writer = FileWriter(selectedFile)
+                val writer = YamlWriter(FileWriter(selectedFile))
 
                 // collect positions
                 val positions = players.map {
@@ -156,9 +157,8 @@ class FormationEditor : Application() {
                     pos
                 }.toTypedArray()
 
-                // serialise to disk with JSON
-                val json = gson.toJson(positions)
-                writer.write(json)
+                // serialise to disk with YAML
+                writer.write(positions)
                 writer.close()
                 println("Written to disk successfully.")
             }

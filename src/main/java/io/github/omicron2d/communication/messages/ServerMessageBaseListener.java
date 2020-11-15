@@ -76,6 +76,18 @@ public class ServerMessageBaseListener implements ServerMessageListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterCapacity(ServerMessageParser.CapacityContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCapacity(ServerMessageParser.CapacityContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterStaminaMsg(ServerMessageParser.StaminaMsgContext ctx) { }
 	/**
 	 * {@inheritDoc}

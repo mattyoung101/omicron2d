@@ -1,5 +1,5 @@
 # General notes
-Mainly contains questions and answers and stuff.
+Contains some notes and information about the RoboCup server and other Omicron2D related stuff.
 
 ## Synch mode?
 Unclear what this is. Nothing in the 2003 manual or the new website. Both librcsc and WrightEagle implement it,

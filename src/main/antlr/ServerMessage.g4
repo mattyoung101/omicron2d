@@ -149,7 +149,7 @@ seeObject
     : LPAREN LPAREN objectName RPAREN objectContents RPAREN ;
 
 seeMessage
-    : LPAREN 'see' time seeObject+ RPAREN EOF ;
+    : LPAREN 'see' time seeObject* RPAREN EOF ;
 
 
 // hear message

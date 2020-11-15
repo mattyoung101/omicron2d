@@ -92,7 +92,7 @@ object ICPLocalisation {
 
         // special reflection case
         if (LUDecomposition(r).determinant < 0){
-            // TODO check correctness
+            // NOTE: this appears to be correct, but I'm not sure, we need to check on this if it acts up
             // python code: Vt[m - 1, :] *= -1
             for (col in 0 until m - 1){
                 for (row in 0 until r.rowDimension - 1){
@@ -113,7 +113,7 @@ object ICPLocalisation {
         val plusCosTerm = r.getEntry(0, 0) // +cos(theta) term in 2D rotation matrix
         val plusSinTerm = r.getEntry(1, 0) // +sin(theta) term in 2D rotation matrix
         val theta = (atan2(plusSinTerm, plusCosTerm) + PI2) % PI2
-        // TODO verify correctness of theta conversion from (-PI,PI) to (0, 2PI) with modulo
+        // TODO consider storing position in degrees instead of radians?
 
         dispatchToDisplayCartesian(observedPointsMap)
         //debugDisplay?.updateChart(MarkerManager.getMarkerPlot())

@@ -9,9 +9,5 @@ trainerPort: 6001
 coachPort: 6002
 timeout: 10000 # milliseconds
 
-# ICP config
-icpMaxIters: 128
-icpTolerance: 0.001
-
 # GUI config
 showDebugDisplay: true

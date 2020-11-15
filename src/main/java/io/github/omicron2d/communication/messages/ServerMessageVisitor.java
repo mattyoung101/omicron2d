@@ -41,6 +41,12 @@ public interface ServerMessageVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitEffort(ServerMessageParser.EffortContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#capacity}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCapacity(ServerMessageParser.CapacityContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link ServerMessageParser#staminaMsg}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

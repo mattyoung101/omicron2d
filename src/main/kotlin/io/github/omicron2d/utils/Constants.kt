@@ -27,7 +27,7 @@ const val OMICRON2D_VERSION = "0.3.0-alpha"
 /** Supported rcssserver protocol version */
 const val SERVER_PROTOCOL_VERSION = "15"
 /** Charset available for the (say) command */
-const val SAY_CHARSET = "1234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM().+*/?<>_ "
+const val SAY_CHARSET = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ().+*/?<>_ "
 /** Charset available for team names, source is rcssserver serverparam.cpp check_teamname_format() */
 const val TEAM_NAME_CHARSET = "+-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 const val DEFAULT_PLAYER_PORT = 6000

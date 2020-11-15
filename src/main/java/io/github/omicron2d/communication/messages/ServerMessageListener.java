@@ -58,6 +58,16 @@ public interface ServerMessageListener extends ParseTreeListener {
 	 */
 	void exitEffort(ServerMessageParser.EffortContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#capacity}.
+	 * @param ctx the parse tree
+	 */
+	void enterCapacity(ServerMessageParser.CapacityContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#capacity}.
+	 * @param ctx the parse tree
+	 */
+	void exitCapacity(ServerMessageParser.CapacityContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ServerMessageParser#staminaMsg}.
 	 * @param ctx the parse tree
 	 */

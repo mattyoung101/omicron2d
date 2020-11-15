@@ -11,7 +11,7 @@ engineer on the RoboCup Jr team). If you feel like getting involved, don't hesit
 Incoming server message parser (now written using ANTLR) is almost complete, just adding support for the sense_body message.
 
 ICP localisation (via the best fit transform) and the debug display have been implemented. I'm just working on testing these
-things now to make sure they're up to scratch, before moving on with designign the rest of the agent.
+things now to make sure they're up to scratch, before moving on with designing the rest of the agent.
 
 ## About the agents
 If you want to know more about our agents, please check out some Markdown files in the docs folder (such as

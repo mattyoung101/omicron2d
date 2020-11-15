@@ -57,6 +57,14 @@ fun angleDistanceRad(a: Double, b: Double): Double {
     return if (phi > PI) PI2 - phi else phi
 }
 
+fun Double.toDegrees(): Double {
+    return this * RAD_DEG
+}
+
+fun Double.toRadians(): Double {
+    return this * DEG_RAD
+}
+
 /**
  * Represents a 2D position and rotation.
  * @param pos position of the agent, measured with (0,0) being centre of field
