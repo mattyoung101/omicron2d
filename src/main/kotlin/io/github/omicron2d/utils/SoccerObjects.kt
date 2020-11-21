@@ -17,18 +17,35 @@ import mikera.vectorz.Vector2
  * Class for players, both us and the opposition
  * @param transform the current transform of this player in field coords, as determined by the localiser
  * @param vel velocity of the player, in (TODO determine units)
- * @param isKnown whether or not the current transform of this player is actually known
+ * @param isKnown true only if the absolute position of the player is known (so the agent must have localised correctly)
+ * @param lastSeen server tick when the object was last visible
+ * @param isSelf true if this PlayerObject represents the current agent
  */
 data class PlayerObject(
     var transform: Transform2D = Transform2D(Vector2(0.0, 0.0), 0.0),
     var vel: Vector2 = Vector2(0.0, 0.0),
     var isKnown: Boolean = false,
-    var unum: Int)
+    var unum: Int = -1,
+    var lastSeen: Int = -1,
+    var isGoalie: Boolean = false,
+    var isSelf: Boolean = false)
 
 /**
  * Class for the ball - the only other moving object other than the players (I think at least).
  * @param pos position of the object, with (0,0) being the centre of the field
  * @param vel velocity of the player, in (TODO determine unit)
+ * @param isKnown true if the absolute position of the ball is known (so the agent must have localised correctly)
+ * @param lastSeen server tick when the object was last visible
  */
-data class BallObject(val pos: Vector2 = Vector2(0.0, 0.0), val vel: Vector2 = Vector2(0.0, 0.0),
-                      var isKnown: Boolean = false)
+data class BallObject(
+    var pos: Vector2 = Vector2(0.0, 0.0),
+    var vel: Vector2 = Vector2(0.0, 0.0),
+    var isKnown: Boolean = false,
+    var lastSeen: Int = -1)
+
+/**
+ * Contains an observation of a soccer object in polar coordinates
+ * @param distance the distance to the object
+ * @param angle must be converted to 0 to 360 (NOT -180 to 180 as is sent by server!!)
+ */
+data class ObjectObservationPolar(val distance: Double, val angle: Double)

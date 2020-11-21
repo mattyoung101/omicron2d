@@ -36,6 +36,7 @@ class Formation(private val name: String) {
      * Legacy function used to bootstrap between Kryo and GSON output
      * @param name file name
      */
+    @Deprecated("No longer used, file format is now YAML")
     fun convertToJson(name: String){
         val file = File(name)
         file.createNewFile()
@@ -47,10 +48,10 @@ class Formation(private val name: String) {
     }
 
     /**
-     * Potential future function to bootstrap between JSON and YAML output
+     * Writes this formation to disk as a YAML file. Not currently used.
      * @param name file name
      */
-    fun convertToYaml(name: String){
+    fun writeToYaml(name: String){
         val file = File(name)
         file.createNewFile()
         val writer = YamlWriter(FileWriter(file))

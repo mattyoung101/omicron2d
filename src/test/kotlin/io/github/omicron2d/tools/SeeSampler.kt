@@ -10,55 +10,50 @@
 package io.github.omicron2d.tools
 
 import com.esotericsoftware.yamlbeans.YamlReader
-import io.github.omicron2d.ai.Formation
-import io.github.omicron2d.communication.LocalisationTesterAgent
+import io.github.omicron2d.ai.testagents.SamplerAgent
 import io.github.omicron2d.communication.messages.OutgoingInitMessage
-import io.github.omicron2d.debug.DebugDisplay
 import io.github.omicron2d.utils.GeneralConfig
 import io.github.omicron2d.utils.OMICRON2D_VERSION
 import io.github.omicron2d.utils.SERVER_PROTOCOL_VERSION
-import io.github.omicron2d.utils.debugDisplay
 import org.tinylog.kotlin.Logger
+import java.io.File
+import java.io.FileOutputStream
 import java.io.FileReader
+import java.io.PrintStream
 import java.net.InetAddress
-import javax.swing.SwingUtilities
 import kotlin.system.exitProcess
 
 /**
- * The LocalisationTester agent moves to a random position on our half of the field and compares the distance from
- * the known random position to the determined localised one
+ * The SeeSampler agent randomly moves around the field and samples messages to generate
+ * an enormous corpus of (see) messages to check the parser with.
  */
-object LocalisationTester {
+object SeeSampler {
+    private val id = System.currentTimeMillis()
+    private val outputPath = "see_sampler/see_sampler_$id.txt"
+
     @JvmStatic
     fun main(args: Array<String>){
-        Logger.info("Omicron2D v$OMICRON2D_VERSION Localisation Tester")
+        Logger.info("Omicron2D v$OMICRON2D_VERSION See Sampler")
+
+        // open log file
+        val logFile = File(outputPath)
+        logFile.createNewFile()
+        val stream = PrintStream(FileOutputStream(logFile, false))
 
         // load config from YAML files
         val yamlReader = YamlReader(FileReader("config_general.yml"))
         val generalConfig = yamlReader.read(GeneralConfig::class.java)
-        generalConfig.teamName = "Omi2DLocaliser"
+        generalConfig.teamName = "Omi2DSeeSampler"
         Logger.debug("General config parsed successfully")
-
-        // show debug UI
-        if (generalConfig.showDebugDisplay){
-            Logger.debug("Starting debug UI")
-            SwingUtilities.invokeLater {
-                val app = DebugDisplay()
-                app.pack()
-                app.setLocationRelativeTo(null)
-                app.isVisible = true
-                debugDisplay = app
-            }
-        }
 
         Logger.info("Connecting to ${generalConfig.serverHost}:${generalConfig.playerPort}")
         val initMessage = OutgoingInitMessage(generalConfig.teamName, SERVER_PROTOCOL_VERSION, false)
 
-        val agent = LocalisationTesterAgent(InetAddress.getByName(generalConfig.serverHost), generalConfig.playerPort)
+        val agent = SamplerAgent(stream, InetAddress.getByName(generalConfig.serverHost), generalConfig.playerPort)
         agent.connect(initMessage)
         agent.run()
 
-        Logger.info("LocalisationTester main finishing")
+        Logger.info("SeeSampler main finishing")
         println("Goodbye!")
         exitProcess(0)
     }

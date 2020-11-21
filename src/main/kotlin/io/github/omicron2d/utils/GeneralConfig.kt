@@ -20,4 +20,6 @@ data class GeneralConfig(
     var coachPort: Int = 0,
     var timeout: Int = 0,
     var showDebugDisplay: Boolean = false,
+    /** initial formation path */
+    var initialFormation: String = "",
 )

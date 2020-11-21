@@ -21,9 +21,10 @@ import kotlin.math.PI
  * 0.0.0-alpha: initial version
  * 0.1.0-alpha: major rewrite and refactor
  * 0.2.0-alpha: rewrite parsers in ANTLR
- * 0.3.0-alpha: (WIP) localisation implemented, more ANTLR parsers, formation manager
+ * 0.3.0-alpha: localisation implemented, more ANTLR parsers, debug UI, storage now in YAML
+ * 0.4.0-alpha: (WIP) formation loading
  */
-const val OMICRON2D_VERSION = "0.3.0-alpha"
+const val OMICRON2D_VERSION = "0.4.0-alpha"
 /** Supported rcssserver protocol version */
 const val SERVER_PROTOCOL_VERSION = "15"
 /** Charset available for the (say) command */
@@ -37,6 +38,8 @@ const val DEG_RAD = 0.017453292519943295
 const val RAD_DEG = 57.29577951308232
 /** PI * 2 **/
 const val PI2 = PI * 2.0
+// TODO this should really be thread local!!
+/** Shared instance of GeneralConfig loaded from YAML at boot. DO NOT MODIFY AFTER DESERIALISATION!!! */
 var currentConfig = GeneralConfig()
 var debugDisplay: DebugDisplay? = null
 val ZERO_VECTOR = Vector2(0.0, 0.0).immutable()

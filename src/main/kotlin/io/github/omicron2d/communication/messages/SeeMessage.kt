@@ -22,6 +22,10 @@ data class SeePlayerInfo(var teamName: String? = null, var unum: Int? = null, va
 
 /**
  * A singular object reported by the see message
+ * @param type what type of object the flag is
+ * @param name the name of the flag, for example `f r t` (TODO does it include brackets?)
+ * @param playerInfo if this is a player, some information about the player, otherwise null
+ * @param isBehind if this flag is a behind flag, which contains minimal useful info
  */
 data class SeeObject(var type: ObjectType = ObjectType.UNKNOWN, var name: String = "",
                      var playerInfo: SeePlayerInfo? = null, var distance: Double = 0.0, var direction: Int = 0,

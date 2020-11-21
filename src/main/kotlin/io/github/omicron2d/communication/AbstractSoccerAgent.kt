@@ -21,7 +21,10 @@ import kotlin.concurrent.thread
 
 /**
  * Abstract class for all intelligent agents on the soccer simulation server, for example, players and coaches.
+ * Also serves as the base for Omicron2D's networking implementation.
+ *
  * The reference for this is page 71 of the manual (section 6)
+ *
  * Also based on AbstractUDPClient from the atan Java rcssserver library
  * @param host IP address of rcssserver
  * @param defaultPort default port of server, will be switched to server assigned one later
@@ -42,14 +45,12 @@ abstract class AbstractSoccerAgent(private var host: InetAddress, private var de
      * `~/workspace/rcssserver-16.0.0$ rg -i only_init_allowed_on_init_port`
      */
     private var respondTo: Int? = null
-    /**
-     * Contains the queue of messages received from the server, that are awaiting processing
-     */
+    /** Contains the queue of messages received from the server, that are awaiting processing */
     val messages = LinkedBlockingQueue<String>()
     /** Queue of individual messages that can be batched together and transmitted as one string to rcsserver */
     private val messageBatch = ConcurrentLinkedQueue<OutgoingServerMessage>()
 
-    private val sockThread = thread(start = false){
+    private val sockThread = thread(start = false, name="ReceiveThread"){
         Logger.debug("Socket thread started")
 
         while (true){
@@ -76,7 +77,7 @@ abstract class AbstractSoccerAgent(private var host: InetAddress, private var de
                 Logger.error("Timeout during receive(), server probably offline:")
                 Logger.error(e)
 
-                // simple teardown routine since calling disconnect() doesn't work
+                // simple teardown routine since calling disconnect() doesn't work in this context
                 isConnected = false
                 respondTo = null
                 socket.close()
@@ -93,7 +94,7 @@ abstract class AbstractSoccerAgent(private var host: InetAddress, private var de
 
             val messageBytes = packet.data.takeWhile { it != 0.toByte() }.toByteArray()
             val messageString = messageBytes.toString(charset = Charset.forName("US-ASCII"))
-            Logger.trace("Inbound message (from ${packet.address}:${packet.port}): $messageString")
+            Logger.trace("Incoming message (from ${packet.address}:${packet.port}): $messageString")
 
             messages.add(messageString)
             //println("Queue size: ${messages.size}")
@@ -113,7 +114,7 @@ abstract class AbstractSoccerAgent(private var host: InetAddress, private var de
         if (!isConnected){
             throw IllegalStateException("Tried to send message on unconnected socket")
         }
-        Logger.trace("Outbound message (to ${host}:${respondTo ?: defaultPort}): $str")
+        Logger.trace("Outgoing message (to ${host}:${respondTo ?: defaultPort}): $str")
 
         // write null terminated string
         // source: https://stackoverflow.com/a/17737242/5007892
@@ -154,7 +155,7 @@ abstract class AbstractSoccerAgent(private var host: InetAddress, private var de
     }
 
     /** Sends the current batch to the server and clears it for new items */
-    fun deployBatch(){
+    fun flushBatch(){
         transmit(messageBatch)
         messageBatch.clear()
     }

@@ -20,11 +20,6 @@ import java.util.*
 import kotlin.math.*
 
 /**
- * @param angle, must be converted to 0 to 360 (NOT -180 to 180 as is sent by server!!)
- */
-data class FlagObservationPolar(val distance: Double, val angle: Double)
-
-/**
  * This class implements localisation by using an element of the iterative closest point (ICP) algorithm, the best
  * fit transform. Typically, we use ICP when we want to align two point sets without any known correspondences. In this
  * case, a K-D tree is used to find nearest neighbour correspondences for each point, and the best fit transform is
@@ -46,10 +41,10 @@ object ICPLocalisation {
     /**
      * Performs the localisation by calculating the best fit transform. May take some time due to expensive matrix operations.
      * This code is a port of the function best_fit_transform in icp.py. See [ICPLocalisation] for more details.
-     * @param observations a hash map of flag names, and their respective angles and distances relative to the player
+     * @param observations a hash map of flag names, and their respective angles (degrees, 0-360) and distances relative to the player
      * @return the estimated transform (position and rotation) of the agent
      */
-    fun performLocalisation(observations: Map<String, FlagObservationPolar>): Transform2D {
+    fun performLocalisation(observations: Map<String, ObjectObservationPolar>): Transform2D {
         // convert polar observations to a list of cartesian observations
         val observedPointsMap = makeCartesian(observations)
 
@@ -127,7 +122,7 @@ object ICPLocalisation {
      * Converts an object in relative polar coordinates to one in absolute cartesian coordinates.
      * @param agent the localised position of the agent, calculated with [performLocalisation]
      */
-    fun correctPolarObservation(observationPolar: FlagObservationPolar, agent: Vector2): Vector2 {
+    fun correctPolarObservation(observationPolar: ObjectObservationPolar, agent: Vector2): Vector2 {
         val out = Vector2(0.0, 0.0)
         out.x = observationPolar.distance * cos(observationPolar.angle * DEG_RAD)
         out.y = observationPolar.distance * sin(observationPolar.angle * DEG_RAD)
@@ -154,7 +149,7 @@ object ICPLocalisation {
      * Converts the map of flags in polar coordinates to relative cartesian coordinates.
      * Returns a sorted map to ensure correlation works correctly for best fit transform
      */
-    private fun makeCartesian(points: Map<String, FlagObservationPolar>): SortedMap<String, Vector2> {
+    private fun makeCartesian(points: Map<String, ObjectObservationPolar>): SortedMap<String, Vector2> {
         val out = sortedMapOf<String, Vector2>()
         for (entry in points){
             val point = entry.value
@@ -178,7 +173,7 @@ object ICPLocalisation {
     }
 
     /** Displays a graph of flag observations in polar form */
-    private fun dispatchToDisplayPolar(observations: Map<String, FlagObservationPolar>){
+    private fun dispatchToDisplayPolar(observations: Map<String, ObjectObservationPolar>){
         val dataset = XYSeriesCollection()
         val series = XYSeries("Flags")
         for (observation in observations){

@@ -7,10 +7,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package io.github.omicron2d.communication
+package io.github.omicron2d.ai.agents
 
 /**
- * The online coach
+ * The trainer, or offline coach
  */
-class OnlineCoachAgent {
+class TrainerAgent {
 }

@@ -7,10 +7,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package io.github.omicron2d.communication
+package io.github.omicron2d.ai.testagents
 
-import io.github.omicron2d.ai.world.FlagObservationPolar
+import io.github.omicron2d.ai.world.ObjectObservationPolar
 import io.github.omicron2d.ai.world.ICPLocalisation
+import io.github.omicron2d.communication.AbstractSoccerAgent
 import io.github.omicron2d.communication.messages.MoveMessage
 import io.github.omicron2d.communication.messages.SeeMessage
 import io.github.omicron2d.communication.messages.TurnMessage
@@ -98,11 +99,11 @@ class LocalisationTesterAgent(host: InetAddress = InetAddress.getLocalHost(), po
                 val flags = see.objects.filter { it.type == ObjectType.FLAG && it.name.isNotEmpty() && !it.isBehind }
 
                 if (flags.isNotEmpty()){
-                    val observations = hashMapOf<String, FlagObservationPolar>()
+                    val observations = hashMapOf<String, ObjectObservationPolar>()
                     for (flag in flags) {
                         // convert angle from -180 to 180 (from server) to 0 to 360
                         val direction = (flag.direction.toDouble() + 360.0) % 360.0
-                        observations[flag.name] = FlagObservationPolar(flag.distance, direction)
+                        observations[flag.name] = ObjectObservationPolar(flag.distance, direction)
                     }
 
                     // and now we perform localisation

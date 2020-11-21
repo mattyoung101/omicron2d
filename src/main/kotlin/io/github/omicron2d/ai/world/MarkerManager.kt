@@ -40,7 +40,7 @@ object MarkerManager {
         Pair("goal_half_w", 18.32 / 2.0),
     )
     /** matrix of absolute marker coordinates, with 2 columns and the number of markers rows */
-    val markerMatrix = MatrixUtils.createRealMatrix(55, 2)
+    val markerMatrix = MatrixUtils.createRealMatrix(55, 2)!!
     // note: if number of markers changes, please update number of rows above
 
     /**

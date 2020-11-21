@@ -11,3 +11,6 @@ timeout: 10000 # milliseconds
 
 # GUI config
 showDebugDisplay: true
+
+# Formations
+initialFormation: formations/starting433.yml

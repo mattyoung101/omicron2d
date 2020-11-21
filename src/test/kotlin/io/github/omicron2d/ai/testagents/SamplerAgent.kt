@@ -7,14 +7,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package io.github.omicron2d.communication
+package io.github.omicron2d.ai.testagents
 
+import io.github.omicron2d.communication.AbstractSoccerAgent
 import io.github.omicron2d.utils.DEFAULT_PLAYER_PORT
 import org.tinylog.kotlin.Logger
 import java.io.PrintStream
 import java.net.InetAddress
-import java.time.LocalDateTime
-import java.time.ZoneOffset
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 

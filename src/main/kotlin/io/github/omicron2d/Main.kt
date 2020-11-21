@@ -9,23 +9,8 @@
 
 package io.github.omicron2d
 
-import com.esotericsoftware.yamlbeans.YamlReader
-import com.esotericsoftware.yamlbeans.YamlWriter
-import com.google.gson.GsonBuilder
-import io.github.omicron2d.communication.PlayerAgent
-import io.github.omicron2d.communication.messages.OutgoingInitMessage
-import io.github.omicron2d.debug.DebugDisplay
 import io.github.omicron2d.utils.*
-import javafx.application.Platform
-import javafx.stage.Stage
 import org.tinylog.kotlin.Logger
-import java.io.FileReader
-import java.io.StringWriter
-import java.net.InetAddress
-import java.time.LocalDateTime
-import java.time.ZoneOffset
-import javax.swing.SwingUtilities
-import kotlin.system.exitProcess
 
 /**
  * Main class for Omicron2D, launches a single PlayerAgent that connects to the server and plays the game
@@ -39,36 +24,8 @@ object Main {
 
         Logger.info("Omicron2D v$OMICRON2D_VERSION: Copyright (c) 2019-2020 Matt Young.")
 
-        // load config from YAML files
-        val yamlReader = YamlReader(FileReader("config_general.yml"))
-        val generalConfig = yamlReader.read(GeneralConfig::class.java)
-        currentConfig = generalConfig
-        Logger.info("General config parsed successfully")
-        Logger.trace(generalConfig)
-
-        // show debug UI
-        if (generalConfig.showDebugDisplay){
-            Logger.debug("Starting debug UI")
-            SwingUtilities.invokeLater {
-                val app = DebugDisplay()
-                app.pack()
-                app.setLocationRelativeTo(null)
-                app.isVisible = true
-                debugDisplay = app
-            }
-        }
-
-        Logger.info("Connecting to ${generalConfig.serverHost}:${generalConfig.playerPort}")
-        val initMessage = OutgoingInitMessage(generalConfig.teamName, SERVER_PROTOCOL_VERSION, false)
-
-        val agent = PlayerAgent(InetAddress.getByName(generalConfig.serverHost), generalConfig.playerPort)
-        agent.connect(initMessage)
-        agent.run() // blocking
-
-        // the above method call will block until a timeout or an error
-        // so, hopefully the agent will have already disconnected itself by here (for example, in a timeout)
-        Logger.info("PlayerAgent.run() has finished, terminating")
-        println("Goodbye!")
-        exitProcess(0)
+        // I have abstracted this out to the AgentLauncher object so that it's easier to launch multiple agents
+        // This method will block until the agent exits (due to the game finishing, an error, a timeout, etc).
+        AgentLauncher.launchPlayerAgent()
     }
 }

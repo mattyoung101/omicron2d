@@ -76,7 +76,7 @@ enum class ViewQuality {
     LOW
 }
 
-// Sourced rcsserver src/types.h PLAYMODE_STRINGS
+// Sourced from rcsserver, src/types.h, variable PLAYMODE_STRINGS
 enum class PlayMode {
     UNKNOWN,
     BEFORE_KICK_OFF,

@@ -8,10 +8,11 @@ Omicron2D, however, is currently just an independent side-project consisting of 
 engineer on the RoboCup Jr team). If you feel like getting involved, don't hesitate to get in touch :)
 
 ## Project status
-Incoming server message parser (now written using ANTLR) is almost complete, just adding support for the sense_body message.
+ICP localisation for both position and orientation have been successfully implemented and tested. See `ICPLocalisationTest`
+in the test folder for results. With this done, I'm implementing backend stuff so that the agent is able to move into
+formations soon.
 
-ICP localisation (via the best fit transform) and the debug display have been implemented. I'm just working on testing these
-things now to make sure they're up to scratch, before moving on with designing the rest of the agent.
+Incoming server message parser (now written using ANTLR) is almost complete, just adding support for the sense_body message.
 
 ## About the agents
 If you want to know more about our agents, please check out some Markdown files in the docs folder (such as
