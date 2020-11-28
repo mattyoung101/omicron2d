@@ -10,7 +10,9 @@
 package io.github.omicron2d.ai.agents
 
 import io.github.omicron2d.ai.Formation
-import io.github.omicron2d.ai.world.*
+import io.github.omicron2d.ai.world.HighLevelWorldModel
+import io.github.omicron2d.ai.world.ICPLocalisation
+import io.github.omicron2d.ai.world.LowLevelWorldModel
 import io.github.omicron2d.communication.AbstractSoccerAgent
 import io.github.omicron2d.communication.messages.*
 import io.github.omicron2d.utils.*
@@ -28,7 +30,7 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
     private val lowModel = LowLevelWorldModel()
     private val highModel = HighLevelWorldModel()
     private var errorCount = 0
-    private val startingFormation = Formation(currentConfig.initialFormation)
+    private val startingFormation = Formation(CURRENT_CONFIG.get().initialFormation)
 
     override fun run() {
         Logger.debug("PlayerAgent main loop started")
@@ -71,23 +73,23 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
                 // calculate absolute positions for other players
                 for (player in lowModel.players){
                     val info = player.playerInfo
+
                     if (info?.unum != null && info.teamName != null){
+                        val id = info.unum!! - 1
                         // we have lots of information: we can find out this player's id, and which team they're on
                         // first figure out which team they're on
-                        if (info.teamName == currentConfig.teamName){
+                        if (info.teamName == CURRENT_CONFIG.get().teamName){
                             // it's our team
-                            // TODO make this code its own method for DRY
-                            highModel.teamPlayers[info.unum!!].isKnown = true
-                            highModel.teamPlayers[info.unum!!].lastSeen = lowModel.time
-                            highModel.teamPlayers[info.unum!!].isGoalie = info.goalie
+                            // note that we use ID here instead of unum since teamPlayers is zero indexed
+                            highModel.teamPlayers[id].isKnown = true
+                            highModel.teamPlayers[id].lastSeen = lowModel.time
+                            highModel.teamPlayers[id].isGoalie = info.goalie
 
-                            val direction = (player.direction.toDouble() % 360.0) % 360.0
-                            val observation = ObjectObservationPolar(player.distance, direction)
-                            val absolute = ICPLocalisation.correctPolarObservation(observation, agentTransform.pos)
-                            highModel.teamPlayers[info.unum!!].transform = Transform2D(absolute, 0.0)
+                            val absolute = calculateAbsolutePosition(player.direction, player.distance, agentTransform)
+                            highModel.teamPlayers[id].transform = Transform2D(absolute, 0.0)
                             // TODO can we calculate the orientation of them as well?
                         } else {
-                            // must be the opposition
+                            // must be the opposition team
                         }
                     } else if (info?.unum != null){
                         // we know this player's id, we might be able to infer which team they're on (if we observe
@@ -99,24 +101,22 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
 
                 // calculate absolute position of the ball
                 if (lowModel.ball != null){
-                    // TODO inline this conversion code into one function for DRY
                     val ball = lowModel.ball!!
-                    val direction = (ball.direction.toDouble() % 360.0) % 360.0
-                    val observation = ObjectObservationPolar(ball.distance, direction)
-                    val absolute = ICPLocalisation.correctPolarObservation(observation, agentTransform.pos)
-
+                    val absolute = calculateAbsolutePosition(ball.direction, ball.distance, agentTransform)
                     highModel.ball.pos = absolute
                     highModel.ball.isKnown = true
                     highModel.ball.lastSeen = lowModel.time
+                    // TODO calculate velocity?
                 } else {
                     highModel.ball.isKnown = false
                 }
 
                 // finally, we update the high level world model for ourselves
-                val self = highModel.selfUnum
+                val self = highModel.selfId
                 highModel.teamPlayers[self].isKnown = true
                 highModel.teamPlayers[self].transform = agentTransform
                 highModel.teamPlayers[self].lastSeen = lowModel.time
+                AGENT_STATS.get().successfulLocalisations++
             } else {
                 // TODO figure out a way to log this without spamming on startup
                 //Logger.warn("Cannot perform localisation, no good flags!")
@@ -137,6 +137,7 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
                     highModel.unknownPlayers[i].isKnown = false
                 }
                 highModel.ball.isKnown = false
+                AGENT_STATS.get().failedLocalisations++
             }
         }
     }
@@ -145,18 +146,31 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
         if (init.playMode != PlayMode.BEFORE_KICK_OFF){
             Logger.warn("Unexpected play mode during init: ${init.playMode} (agent joined late?)")
         }
-        lowModel.selfUnum = init.side
-        lowModel.selfSide = init.unum
-        highModel.selfUnum = init.unum
-        highModel.selfSide = init.side
-        highModel.teamPlayers[init.unum].isSelf = true
-        // FIXME the bloody agent unums are one indexed, so we will have to convert it
-        Logger.info("Init message received: $init")
+        // first, we update our world models
+        lowModel.selfUnum = init.unum
+        lowModel.selfSide = init.side
 
-        // once we have our unum, load the 433 formation and move to our position
-        val pos = startingFormation.getPosition(highModel.selfUnum)
-        transmit(MoveMessage(pos.x, pos.y))
-        Logger.debug("Moved to initial position $pos for unum ${highModel.selfUnum}")
+        highModel.selfId = init.unum - 1 // note: id is zero indexed, unum is one indexed
+        highModel.selfSide = init.side
+        highModel.teamPlayers[highModel.selfId].isSelf = true
+        Logger.info("Init message received: $init (ID is ${highModel.selfId})")
+
+        // now, we send back stuff to the server, setting up our agents settings basically
+        // Okay! So, for whatever idiot reason, the server (for the move command) actually considers right-side
+        // coordinates as exactly the same as left side coordinates. So, instead of moving to (20, 0) for example,
+        // the ACTUAL position... we move to (-20, 0) - the same as the left side. This means that no coordinate
+        // adjustment is actually required.
+        // once we have our unum, load the specified formation and move to our position
+        val pos = startingFormation.getPosition(highModel.selfId)
+        Logger.debug("Moving to initial position $pos for formation ${startingFormation.name}")
+        pushBatch(MoveMessage(pos))
+
+        // we also disable hearing the opposition since we don't care about that
+        // this was found by looking at the logs for FRA-UNited
+        pushBatch(EarMessage(status = true, us = true))
+        pushBatch(EarMessage(status = CURRENT_CONFIG.get().listenToOpposition, us = false))
+
+        flushBatch()
     }
 
     override fun handleSeeMessage(see: SeeMessage){
@@ -186,6 +200,7 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
     }
 
     override fun handleAnyMessage() {
+        // reset errors once we've gotten a good message
         errorCount = 0
     }
 

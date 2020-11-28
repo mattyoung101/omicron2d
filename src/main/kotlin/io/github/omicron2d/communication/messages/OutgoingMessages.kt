@@ -12,9 +12,12 @@ package io.github.omicron2d.communication.messages
 import io.github.omicron2d.utils.SERVER_PROTOCOL_VERSION
 import io.github.omicron2d.utils.ViewMode
 import io.github.omicron2d.utils.ViewQuality
+import mikera.vectorz.Vector2
 
 // Source for all protocol information: https://rcsoccersim.github.io/manual/soccerserver.html#protocols
 // Should support around about protocol version 15
+// Note: for most of the floats before, I would string format using "%.2f" but according to the logs I've looked at,
+// the server supports weird formats like even "1e+06" so we should be fine to send that
 
 /** Client to server init message */
 data class OutgoingInitMessage(var teamName: String = "", var version: String = SERVER_PROTOCOL_VERSION,
@@ -27,8 +30,7 @@ data class OutgoingInitMessage(var teamName: String = "", var version: String = 
 /** Catch message for goalie */
 data class CatchMessage(val direction: Double): OutgoingServerMessage {
     override fun serialise(): String {
-        val str = "%.2f".format(direction)
-        return "(catch $str)"
+        return "(catch $direction)"
     }
 }
 
@@ -41,27 +43,35 @@ data class ChangeViewMessage(var width: ViewMode = ViewMode.UNKNOWN,
 
 data class DashMessage(var power: Double = 0.0): OutgoingServerMessage {
     override fun serialise(): String {
-        val str = "%.2f".format(power)
-        return "(dash $str)"
+        return "(dash $power)"
     }
 }
 
 /**
- * @param angle -180 to 180 (TODO check this)
+ * @param angle -180 to 180
  */
-data class TurnMessage(var angle: Int = 0): OutgoingServerMessage {
+data class TurnMessage(var angle: Double = 0.0): OutgoingServerMessage {
     override fun serialise(): String {
-        // TODO can angle be a double?
         return "(turn $angle)"
     }
 }
 
 /** Move message, for use during initial setup */
 data class MoveMessage(var x: Double = 0.0, var y: Double = 0.0): OutgoingServerMessage {
+    constructor(pos: Vector2) : this(pos.x, pos.y)
+
     override fun serialise(): String {
-        val xstr = "%.2f".format(x)
-        val ystr = "%.2f".format(y)
-        return "(move $xstr $ystr)"
+        return "(move $x $y)"
+    }
+}
+
+/**
+ * @param status true if on, false if off
+ * @param us true if us, false if opposition
+ */
+data class EarMessage(val status: Boolean, val us: Boolean): OutgoingServerMessage {
+    override fun serialise(): String {
+        return "(ear (${if (status) "on" else "off"} ${if (us) "our" else "opp"}))"
     }
 }
 

@@ -22,4 +22,7 @@ data class GeneralConfig(
     var showDebugDisplay: Boolean = false,
     /** initial formation path */
     var initialFormation: String = "",
+    var fieldLength: Double = 0.0,
+    var fieldWidth: Double = 0.0,
+    var listenToOpposition: Boolean = false,
 )

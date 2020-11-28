@@ -16,7 +16,7 @@ import io.github.omicron2d.debug.DebugDisplay
 import io.github.omicron2d.utils.GeneralConfig
 import io.github.omicron2d.utils.OMICRON2D_VERSION
 import io.github.omicron2d.utils.SERVER_PROTOCOL_VERSION
-import io.github.omicron2d.utils.debugDisplay
+import io.github.omicron2d.utils.DEBUG_DISPLAY
 import org.tinylog.kotlin.Logger
 import java.io.FileReader
 import java.net.InetAddress
@@ -46,7 +46,7 @@ object LocalisationTester {
                 app.pack()
                 app.setLocationRelativeTo(null)
                 app.isVisible = true
-                debugDisplay = app
+                DEBUG_DISPLAY = app
             }
         }
 

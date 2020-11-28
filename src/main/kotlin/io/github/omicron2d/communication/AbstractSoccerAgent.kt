@@ -11,7 +11,7 @@ package io.github.omicron2d.communication
 
 import io.github.omicron2d.communication.messages.OutgoingInitMessage
 import io.github.omicron2d.communication.messages.OutgoingServerMessage
-import io.github.omicron2d.utils.currentConfig
+import io.github.omicron2d.utils.CURRENT_CONFIG
 import org.tinylog.kotlin.Logger
 import java.net.*
 import java.nio.charset.Charset
@@ -33,7 +33,7 @@ abstract class AbstractSoccerAgent(private var host: InetAddress, private var de
     private var isConnected = false
     private val socket = DatagramSocket().apply {
         // 10 second timer to ensure the socket stays connected (inherited from atan)
-        soTimeout = currentConfig.timeout
+        soTimeout = CURRENT_CONFIG.get().timeout
     }
     /**
      * Port to respond to, instead of the default port (init port), once we've received a response from rcssserver.
@@ -150,7 +150,7 @@ abstract class AbstractSoccerAgent(private var host: InetAddress, private var de
     }
 
     /** Adds the specified message to the current message batch */
-    fun addToBatch(message: OutgoingServerMessage){
+    fun pushBatch(message: OutgoingServerMessage){
         messageBatch.add(message)
     }
 
@@ -167,10 +167,12 @@ abstract class AbstractSoccerAgent(private var host: InetAddress, private var de
 
     /**
      * Starts socket thread and sends init message to server
+     * @param uselessMode special parameter for test usage, if true, does not start socket thread
      */
-    fun connect(initMessage: OutgoingInitMessage){
+    fun connect(initMessage: OutgoingInitMessage, uselessMode: Boolean = false){
         isConnected = true
         transmit(initMessage)
+        if (uselessMode) return
         sockThread.start()
 
         Runtime.getRuntime().addShutdownHook(thread(start=false){

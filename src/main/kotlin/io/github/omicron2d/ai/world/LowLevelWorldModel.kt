@@ -13,23 +13,26 @@ import io.github.omicron2d.communication.messages.SeeObject
 import io.github.omicron2d.utils.PlayMode
 import io.github.omicron2d.utils.Side
 
-// TODO update docs to be @param
-
 /**
  * The LowLevel world model contains information directly received from the server and parsed from messages, for example,
  * a list of flags rather than the agent's position.
+ * @param selfSide which side this agent is on
+ * @param selfUnum the uniform number of ourselves, as received by the server. This is one indexed, unlike ID in
+ * HighLevelWorldModel.
+ * @param selfIsGoalie true if we are the goalie
+ * @param goodFlags list of flags we can actually feed to the localiser, excluding all the weird ones (behind, etc)
+ * @param allFlags all flags, including bad/weird ones AND ones that we give to the localiser
+ * @param players list of seen objects who are players (regardless of info)
+ * @param ball the ball if we see it, otherwise null
+ * @param time server time as received by a few messages
  */
 data class LowLevelWorldModel(
-    var selfSide: Int = -1,
-    var selfUnum: Side = Side.UNKNOWN,
-    /** true if we are the goalie */
+    var selfSide: Side = Side.UNKNOWN,
+    var selfUnum: Int = -1,
     var selfIsGoalie: Boolean = false,
-    /** list of flags we can actually feed to the localiser, basically excludes all the weird ones */
     var goodFlags: List<SeeObject> = listOf(),
-    /** all flags, including bad ones AND ones that we give to the localiser */
     var allFlags: List<SeeObject> = listOf(),
     var players: List<SeeObject> = listOf(),
     var ball: SeeObject? = null,
-    /** server time as received by a few messages */
     var time: Int = -1
 ) : WorldModel

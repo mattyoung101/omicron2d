@@ -9,6 +9,7 @@
 
 package io.github.omicron2d.utils
 
+import io.github.omicron2d.ai.world.ICPLocalisation
 import mikera.vectorz.Vector2
 import org.apache.commons.math3.linear.*
 import kotlin.math.PI
@@ -63,6 +64,19 @@ fun Double.toDegrees(): Double {
 
 fun Double.toRadians(): Double {
     return this * DEG_RAD
+}
+
+/**
+ * Wrapper around [ICPLocalisation.correctPolarObservation] for easier use in agents
+ * @param angle angle to the object, -180 to 180 (this is raw server format, NOT processed 0-360)
+ * @param distance distance to the object
+ * @param transform localised agent transform
+ * @return absolute cartesian coordinates of this object
+ */
+fun calculateAbsolutePosition(angle: Int, distance: Double, transform: Transform2D): Vector2 {
+    val direction = (angle.toDouble() % 360.0) % 360.0
+    val observation = ObjectObservationPolar(distance, direction)
+    return ICPLocalisation.correctPolarObservation(observation, transform.pos)
 }
 
 /**

@@ -25,12 +25,13 @@ import kotlin.system.exitProcess
 object AgentLauncher {
     /**
      * Starts and connects an agent to the server. This method blocks until the agent exits.
+     * @param teamLaunch if this agent is being launched as part of a team, disables debug UI (and other things)
      */
     fun launchPlayerAgent(isGoalie: Boolean = false, teamLaunch: Boolean = false){
         // load config from YAML files
         val yamlReader = YamlReader(FileReader("config_general.yml"))
         val generalConfig = yamlReader.read(GeneralConfig::class.java)
-        currentConfig = generalConfig
+        CURRENT_CONFIG.set(generalConfig)
         Logger.info("General config parsed successfully")
         Logger.trace(generalConfig)
 
@@ -42,15 +43,16 @@ object AgentLauncher {
                 app.pack()
                 app.setLocationRelativeTo(null)
                 app.isVisible = true
-                debugDisplay = app
+                DEBUG_DISPLAY = app
             }
         } else if (teamLaunch){
             // otherwise there would be way too many windows everywhere
-            Logger.warn("Running the debug UI is not supported in team launch mode")
+            Logger.debug("Running the debug UI is not supported in team launch mode")
         }
 
         Logger.info("Connecting to ${generalConfig.serverHost}:${generalConfig.playerPort}")
-        val initMessage = OutgoingInitMessage(generalConfig.teamName, SERVER_PROTOCOL_VERSION, false)
+        val initMessage = OutgoingInitMessage(generalConfig.teamName, SERVER_PROTOCOL_VERSION, isGoalie)
+        // TODO we need to forward to the PlayerAgent whether or not its a goalie!
 
         val agent = PlayerAgent(InetAddress.getByName(generalConfig.serverHost), generalConfig.playerPort)
         agent.connect(initMessage)

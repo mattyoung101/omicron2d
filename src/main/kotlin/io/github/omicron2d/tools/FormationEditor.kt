@@ -42,6 +42,7 @@ import kotlin.system.exitProcess
  * For normal use, only use the left hand side of the field because the agent will automatically mirror the formation
  * if it starts on the west side.
  * Note that because the image is a screencap from rcssmonitor (not an actual render), positions aren't 100% accurate.
+ * Note also that the goalie is the LAST agent (unum 11, id 10)
  *
  * TODO:
  *  - add support for opening formations
@@ -68,7 +69,8 @@ class FormationEditor : Application() {
         for (i in 0..10){
             val circle = Circle().apply {
                 radius = 16.0
-                fill = if (i == 0) Color.CYAN else Color.YELLOW
+                // last agent is goalie (coloured cyan)
+                fill = if (i == 10) Color.CYAN else Color.YELLOW
                 stroke = Color.BLACK
             }
             val text = Text(i.toString()).apply {
@@ -209,7 +211,7 @@ class FormationEditor : Application() {
         // print position of goalie to console for debugging unit conversions
         scene.setOnKeyPressed {
             if (it.code == KeyCode.SPACE){
-                val goalie = players[0]
+                val goalie = players.last()
                 val pos = Vector2.of(goalie.layoutX, goalie.layoutY).apply {
                     divide(fieldScale)
                     sub(FIELD_CENTRE)

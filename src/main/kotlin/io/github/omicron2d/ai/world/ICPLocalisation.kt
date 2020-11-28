@@ -17,15 +17,18 @@ import org.jfree.data.xy.XYSeries
 import org.jfree.data.xy.XYSeriesCollection
 import org.tinylog.kotlin.Logger
 import java.util.*
-import kotlin.math.*
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
 
 /**
  * This class implements localisation by using an element of the iterative closest point (ICP) algorithm, the best
  * fit transform. Typically, we use ICP when we want to align two point sets without any known correspondences. In this
  * case, a K-D tree is used to find nearest neighbour correspondences for each point, and the best fit transform is
- * run iteratively. However, because in soccer2d each marker has an ID, we actually have known correspondences, and thus
- * can skip the nearest neighbour search entirely. This means we can also skip the iteration, and use the best fit transform
- * directly. Thus, we calculate the (x,y,theta) transform of our robot.
+ * run iteratively. However, because in soccer2d each marker has an ID, we actually have known correspondences (we know
+ * say that observed marker `f r t` corresponds to the known position of the marker `f r t`), and thus
+ * can skip the nearest neighbour search entirely. This means we can also skip the iteration, and use the best fit
+ * transform directly. Thus, we calculate the (x,y,theta) transform of our robot.
  *
  * To elaborate more, when we see flag `f r t` at an observed angle and distance, we can convert this from relative polar
  * to relative Cartesian. After that, we can look up its known absolute position [MarkerManager.markers], and doing this
@@ -87,8 +90,8 @@ object ICPLocalisation {
 
         // special reflection case
         if (LUDecomposition(r).determinant < 0){
-            // NOTE: this appears to be correct, but I'm not sure, we need to check on this if it acts up
-            // python code: Vt[m - 1, :] *= -1
+            // omicron2d note: this appears to be correct, but I'm not sure, we need to check on this if it acts up
+            // python code was: Vt[m - 1, :] *= -1
             for (col in 0 until m - 1){
                 for (row in 0 until r.rowDimension - 1){
                     vt.multiplyEntry(row, col, -1.0)
@@ -111,6 +114,7 @@ object ICPLocalisation {
         // TODO consider storing position in degrees instead of radians?
 
         dispatchToDisplayCartesian(observedPointsMap)
+        // uncomment to display original points:
         //debugDisplay?.updateChart(MarkerManager.getMarkerPlot())
 
         val x = t.getEntry(0, 0)
@@ -181,7 +185,7 @@ object ICPLocalisation {
         }
         dataset.addSeries(series)
         val chart = ChartFactory.createPolarChart("Flag Observations", dataset, false, false, false)
-        debugDisplay?.updateChart(chart)
+        DEBUG_DISPLAY?.updateChart(chart)
     }
 
     /** Displays a graph of flag observations in cartesian form */
@@ -195,6 +199,6 @@ object ICPLocalisation {
         val chart = ChartFactory.createScatterPlot("Flag Observations", "X", "Y", dataset)
         chart.xyPlot.domainAxis.setRange(-5.0, 100.0)
         chart.xyPlot.rangeAxis.setRange(-100.0, 100.0)
-        debugDisplay?.updateChart(chart)
+        DEBUG_DISPLAY?.updateChart(chart)
     }
 }

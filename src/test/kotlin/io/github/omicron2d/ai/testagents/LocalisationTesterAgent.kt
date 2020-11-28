@@ -9,7 +9,6 @@
 
 package io.github.omicron2d.ai.testagents
 
-import io.github.omicron2d.ai.world.ObjectObservationPolar
 import io.github.omicron2d.ai.world.ICPLocalisation
 import io.github.omicron2d.communication.AbstractSoccerAgent
 import io.github.omicron2d.communication.messages.MoveMessage
@@ -62,7 +61,7 @@ class LocalisationTesterAgent(host: InetAddress = InetAddress.getLocalHost(), po
         } else {
             // turn fixed amount of degrees per tick
             val degrees = 10.0
-            transmit(TurnMessage(degrees.toInt()))
+            transmit(TurnMessage(degrees))
             currentAngle += degrees * DEG_RAD
             currentAngle %= PI2
         }

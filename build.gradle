@@ -12,8 +12,19 @@ apply plugin: 'antlr'
 
 sourceCompatibility = 1.8
 
+// fix to stop gradle from nuking my source code due to some random bug
+// NOTE: inherited from our last Kotlin project, Omicontrol, since this *lovely* IDE (IntelliJ) is doing it again.
+// WHEN WILL THIS BE FIXED??? AM I DOING SOMETHING WRONG??? WHY JETBRAINS? WHY? GRADLE? WHO IS IT?????
+apply plugin: 'idea'
+idea {
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+    }
+}
+
 repositories {
-    mavenLocal()
+    //mavenLocal()
     mavenCentral()
     jcenter()
     google()
@@ -27,7 +38,7 @@ dependencies {
     implementation 'org.tinylog:tinylog-api-kotlin:2.0.0'
     implementation 'org.tinylog:tinylog-impl:2.0.0'
     implementation group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: '1.4.10'
-    implementation group: 'com.esotericsoftware', name: 'kryo', version: '5.0.0-RC4' // TODO REMOVE?
+    // implementation group: 'com.esotericsoftware', name: 'kryo', version: '5.0.0-RC4'
     implementation 'com.github.ajalt:clikt:2.1.0'
     implementation group: 'net.mikera', name: 'vectorz', version: '0.67.0'
     implementation group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'

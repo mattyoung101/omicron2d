@@ -11,9 +11,10 @@ package io.github.omicron2d
 
 import io.github.omicron2d.utils.*
 import org.tinylog.kotlin.Logger
+import java.security.SecureRandom
 
 /**
- * Main class for Omicron2D, launches a single PlayerAgent that connects to the server and plays the game
+ * Launches a single PlayerAgent that connects to the server and plays the game
  */
 object Main {
     @JvmStatic

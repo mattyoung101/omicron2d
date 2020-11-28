@@ -21,10 +21,12 @@ import java.io.FileWriter
 import java.nio.file.Paths
 
 /**
- * Loads a formation file created with the Formation Editor (FormationEditor.kt)
+ * Loads a formation file created with the Formation Editor (FormationEditor.kt).
+ * The positions array is zero indexed, you must use ID (not unum).
+ * Note that the last agent (id 10) is considered the goalie.
  * @param name the name of the file to load, with extension
  */
-class Formation(private val name: String) {
+class Formation(val name: String) {
     private val positions: Array<Vector2>
 
     init {
@@ -61,6 +63,8 @@ class Formation(private val name: String) {
     }
 
     /**
+     * Locates the position for the given agent
+     * @param agent the ID of the agent (zero indexed, NOT unum!)
      * @return the position, in rcssserver coordinates, for the given agent in the formation
      */
     fun getPosition(agent: Int): Vector2 {

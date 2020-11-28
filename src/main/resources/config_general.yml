@@ -14,3 +14,11 @@ showDebugDisplay: true
 
 # Formations
 initialFormation: formations/starting433.yml
+
+# Agent AI config
+listenToOpposition: false
+
+# Field definitions
+# Source: https://github.com/rcsoccersim/rcssserver/blob/master/src/serverparam.cpp#L130
+fieldLength: 105
+fieldWidth: 68

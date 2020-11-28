@@ -38,13 +38,20 @@ const val DEG_RAD = 0.017453292519943295
 const val RAD_DEG = 57.29577951308232
 /** PI * 2 **/
 const val PI2 = PI * 2.0
-// TODO this should really be thread local!!
-/** Shared instance of GeneralConfig loaded from YAML at boot. DO NOT MODIFY AFTER DESERIALISATION!!! */
-var currentConfig = GeneralConfig()
-var debugDisplay: DebugDisplay? = null
 val ZERO_VECTOR = Vector2(0.0, 0.0).immutable()
 
 // Source: https://github.com/rcsoccersim/rcssserver/blob/master/src/serverparam.cpp
-// TODO remove and change back to original names
+@Deprecated("Please read from currentConfig instead")
 const val FIELD_LENGTH = 105.0
+@Deprecated("Please read from currentConfig instead")
 const val FIELD_WIDTH = 68.0
+
+// THREAD LOCAL VARIABLES
+/**
+ * Shared instance of GeneralConfig loaded from YAML at boot. DO NOT MODIFY AFTER DESERIALISATION!!!
+ * When doing multi agent execution with TeamMain, each thread has its own copy of this.
+ */
+var CURRENT_CONFIG = ThreadLocal.withInitial { GeneralConfig() }!!
+/** Shared debug display for writing. Disabled during multi agent execution with TeamMain */
+var DEBUG_DISPLAY: DebugDisplay? = null
+var AGENT_STATS = ThreadLocal.withInitial { AgentStats() }!!

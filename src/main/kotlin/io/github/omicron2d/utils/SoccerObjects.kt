@@ -15,7 +15,7 @@ import mikera.vectorz.Vector2
 
 /**
  * Class for players, both us and the opposition
- * @param transform the current transform of this player in field coords, as determined by the localiser
+ * @param transform the current transform (absolute position) of this player in field coords, as determined by the localiser
  * @param vel velocity of the player, in (TODO determine units)
  * @param isKnown true only if the absolute position of the player is known (so the agent must have localised correctly)
  * @param lastSeen server tick when the object was last visible
