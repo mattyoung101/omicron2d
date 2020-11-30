@@ -28,8 +28,9 @@ import io.github.omicron2d.utils.Side
  */
 data class HighLevelWorldModel(
     var ball: BallObject = BallObject(),
-    val teamPlayers: Array<PlayerObject> = Array(11) { PlayerObject(unum=it) },
-    val opponentPlayers: Array<PlayerObject> = Array(11) { PlayerObject(unum=it) },
+    // note here that unum = index + 1 because unum is one indexed
+    val teamPlayers: Array<PlayerObject> = Array(11) { PlayerObject(unum=it + 1, id=it) },
+    val opponentPlayers: Array<PlayerObject> = Array(11) { PlayerObject(unum=it + 1, id=it) },
     val unknownTeamPlayers: MutableList<PlayerObject> = mutableListOf(),
     val unknownPlayers: MutableList<PlayerObject> = mutableListOf(),
     var selfId: Int = -1,

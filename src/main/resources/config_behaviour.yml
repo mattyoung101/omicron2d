@@ -1,0 +1,10 @@
+# This file is part of the Omicron2D RoboCup 2D Soccer Simulation team.
+# Config file for agent behaviour (GOAP)
+
+- name: TestTask
+  cost: 3
+  preConditions:
+    - Condition1: true
+    - Condition2: true
+  postConditions:
+    - Condition1: false

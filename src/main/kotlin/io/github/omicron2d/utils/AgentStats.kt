@@ -11,5 +11,10 @@ package io.github.omicron2d.utils
 
 /**
  * Instance to hold statistics about the agent
+ * @param unrecognisedMessages messages we received that had no parser
  */
-data class AgentStats(var successfulLocalisations: Int = 0, var failedLocalisations: Int = 0)
+data class AgentStats(
+    var successfulLocalisations: Int = 0,
+    var failedLocalisations: Int = 0,
+    var unrecognisedMessages: MutableSet<String> = mutableSetOf()
+)

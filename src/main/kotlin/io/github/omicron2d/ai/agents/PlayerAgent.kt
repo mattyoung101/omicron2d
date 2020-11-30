@@ -58,7 +58,7 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
 
             // First we convert our messy flag data into polar flag observations that the localiser requires
             if (lowModel.goodFlags.isNotEmpty()) {
-                val observations = hashMapOf<String, ObjectObservationPolar>()
+                val observations = mutableMapOf<String, ObjectObservationPolar>()
                 // convert each flag's angle from -180 to 180 (from server) to 0 to 360 (for localiser)
                 for (flag in lowModel.goodFlags) {
                     val direction = (flag.direction.toDouble() + 360.0) % 360.0
@@ -75,27 +75,54 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
                     val info = player.playerInfo
 
                     if (info?.unum != null && info.teamName != null){
-                        val id = info.unum!! - 1
                         // we have lots of information: we can find out this player's id, and which team they're on
                         // first figure out which team they're on
+                        val id = info.unum!! - 1
                         if (info.teamName == CURRENT_CONFIG.get().teamName){
                             // it's our team
                             // note that we use ID here instead of unum since teamPlayers is zero indexed
                             highModel.teamPlayers[id].isKnown = true
                             highModel.teamPlayers[id].lastSeen = lowModel.time
                             highModel.teamPlayers[id].isGoalie = info.goalie
-
                             val absolute = calculateAbsolutePosition(player.direction, player.distance, agentTransform)
                             highModel.teamPlayers[id].transform = Transform2D(absolute, 0.0)
                             // TODO can we calculate the orientation of them as well?
                         } else {
                             // must be the opposition team
+                            highModel.opponentPlayers[id].isKnown = true
+                            highModel.opponentPlayers[id].lastSeen = lowModel.time
+                            highModel.opponentPlayers[id].isGoalie = info.goalie
+                            val absolute = calculateAbsolutePosition(player.direction, player.distance, agentTransform)
+                            highModel.teamPlayers[id].transform = Transform2D(absolute, 0.0)
                         }
                     } else if (info?.unum != null){
-                        // we know this player's id, we might be able to infer which team they're on (if we observe
-                        // all the players on our team for example)
+                        // we know this player's id, we might be able to infer which team they're on
+                        // TODO work out a way to infer team - in the mean time we're just dumping them in unknowns
+                        // we could even calculate percentage chances of which player is which (e.g. 50-50 chance it's id 2 or 3)
+
+                        val absolute = calculateAbsolutePosition(player.direction, player.distance, agentTransform)
+                        val transform = Transform2D(absolute, 0.0)
+                        // TODO calculate orientation as well
+
+                        val obj = PlayerObject().apply {
+                            this.transform = transform
+                            isKnown = true
+                            unum = info.unum!!
+                            id = info.unum!! - 1
+                            isGoalie = info.goalie
+                        }
+                        highModel.unknownTeamPlayers.add(obj)
                     } else {
                         // we don't know anything about this player, but still set them up for obstacle avoidance
+                        val absolute = calculateAbsolutePosition(player.direction, player.distance, agentTransform)
+                        val transform = Transform2D(absolute, 0.0)
+                        // TODO calculate orientation as well
+
+                        val obj = PlayerObject().apply {
+                            this.transform = transform
+                            isKnown = true
+                        }
+                        highModel.unknownPlayers.add(obj)
                     }
                 }
 
@@ -106,7 +133,7 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
                     highModel.ball.pos = absolute
                     highModel.ball.isKnown = true
                     highModel.ball.lastSeen = lowModel.time
-                    // TODO calculate velocity?
+                    // TODO calculate velocity vector?
                 } else {
                     highModel.ball.isKnown = false
                 }
@@ -116,7 +143,7 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
                 highModel.teamPlayers[self].isKnown = true
                 highModel.teamPlayers[self].transform = agentTransform
                 highModel.teamPlayers[self].lastSeen = lowModel.time
-                AGENT_STATS.get().successfulLocalisations++
+                CURRENT_STATS.get().successfulLocalisations++
             } else {
                 // TODO figure out a way to log this without spamming on startup
                 //Logger.warn("Cannot perform localisation, no good flags!")
@@ -137,7 +164,7 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
                     highModel.unknownPlayers[i].isKnown = false
                 }
                 highModel.ball.isKnown = false
-                AGENT_STATS.get().failedLocalisations++
+                CURRENT_STATS.get().failedLocalisations++
             }
         }
     }
@@ -153,7 +180,7 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
         highModel.selfId = init.unum - 1 // note: id is zero indexed, unum is one indexed
         highModel.selfSide = init.side
         highModel.teamPlayers[highModel.selfId].isSelf = true
-        Logger.info("Init message received: $init (ID is ${highModel.selfId})")
+        Logger.info("Init message received: $init (self ID: ${highModel.selfId})")
 
         // now, we send back stuff to the server, setting up our agents settings basically
         // Okay! So, for whatever idiot reason, the server (for the move command) actually considers right-side
@@ -167,8 +194,9 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
 
         // we also disable hearing the opposition since we don't care about that
         // this was found by looking at the logs for FRA-UNited
-        pushBatch(EarMessage(status = true, us = true))
         pushBatch(EarMessage(status = CURRENT_CONFIG.get().listenToOpposition, us = false))
+        pushBatch(SynchSeeMessage())
+        // TODO decide if we actually want to send synch see message? what does it do?
 
         flushBatch()
     }
@@ -187,6 +215,13 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
     override fun handleHearMessage(hear: HearMessage){
         Logger.debug("Received hear message: $hear")
         lowModel.time = hear.time
+
+        if (hear.sender == MessageSender.REFEREE){
+            // it's a playmode change, we need to update our behaviour
+        } else if (hear.direction != null){
+            // it's sent by another player
+        }
+        // currently all other conditions are ignored
     }
 
     override fun handleErrorMessage(error: ErrorMessage){
@@ -200,8 +235,11 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
     }
 
     override fun handleAnyMessage() {
-        // reset errors once we've gotten a good message
-        errorCount = 0
+        // decrease our error count, don't set to zero in case we get spaced out errors
+        // (we still need to do the emergency exit then)
+        if (errorCount > 0){
+            errorCount--
+        }
     }
 
     override fun handleWarningMessage(warning: WarningMessage) {

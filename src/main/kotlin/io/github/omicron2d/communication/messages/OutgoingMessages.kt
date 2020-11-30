@@ -75,6 +75,12 @@ data class EarMessage(val status: Boolean, val us: Boolean): OutgoingServerMessa
     }
 }
 
+class SynchSeeMessage: OutgoingServerMessage {
+    override fun serialise(): String {
+        return "(synch_see)"
+    }
+}
+
 /**
  * @param angle -180 to 180
  */

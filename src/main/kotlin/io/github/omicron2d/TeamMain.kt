@@ -28,7 +28,7 @@ object TeamMain {
         Logger.info("Omicron2D v$OMICRON2D_VERSION: Copyright (c) 2019-2020 Matt Young.")
 
         // ----- note: only for testing
-        UselessAgent.runUselessAgent()
+        UselessAgent.launch()
         Thread.sleep(500)
 
         // launch the entire team

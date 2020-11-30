@@ -22,16 +22,18 @@ import kotlin.math.PI
  * 0.1.0-alpha: major rewrite and refactor
  * 0.2.0-alpha: rewrite parsers in ANTLR
  * 0.3.0-alpha: localisation implemented, more ANTLR parsers, debug UI, storage now in YAML
- * 0.4.0-alpha: (WIP) formation loading
+ * 0.4.0-alpha: (WIP) formation loading, high level world model
  */
 const val OMICRON2D_VERSION = "0.4.0-alpha"
 /** Supported rcssserver protocol version */
 const val SERVER_PROTOCOL_VERSION = "15"
 /** Charset available for the (say) command */
-const val SAY_CHARSET = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ().+*/?<>_ "
+const val SAY_CHARSET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890().+*/?<>_ "
 /** Charset available for team names, source is rcssserver serverparam.cpp check_teamname_format() */
-const val TEAM_NAME_CHARSET = "+-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+const val TEAM_NAME_CHARSET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-_"
+/** Mainly used for agent constructors, default port to connect to rcssserver with */
 const val DEFAULT_PLAYER_PORT = 6000
+
 /** Multiply to convert degrees to radians */
 const val DEG_RAD = 0.017453292519943295
 /** Multiply to convert radians to degrees */
@@ -54,4 +56,4 @@ const val FIELD_WIDTH = 68.0
 var CURRENT_CONFIG = ThreadLocal.withInitial { GeneralConfig() }!!
 /** Shared debug display for writing. Disabled during multi agent execution with TeamMain */
 var DEBUG_DISPLAY: DebugDisplay? = null
-var AGENT_STATS = ThreadLocal.withInitial { AgentStats() }!!
+var CURRENT_STATS = ThreadLocal.withInitial { AgentStats() }!!

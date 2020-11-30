@@ -11,8 +11,6 @@ package io.github.omicron2d.utils
 
 import io.github.omicron2d.communication.AbstractSoccerAgent
 import io.github.omicron2d.communication.messages.OutgoingInitMessage
-import io.github.omicron2d.utils.DEFAULT_PLAYER_PORT
-import io.github.omicron2d.utils.SERVER_PROTOCOL_VERSION
 import java.net.InetAddress
 
 /**
@@ -30,7 +28,7 @@ class UselessAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = D
         /**
          * Starts the useless agent and does nothing.
          */
-        fun runUselessAgent(){
+        fun launch(){
             val initMessage = OutgoingInitMessage("Useless2D", SERVER_PROTOCOL_VERSION, false)
             val agent = UselessAgent()
             agent.connect(initMessage, true)
@@ -40,5 +38,5 @@ class UselessAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = D
 }
 
 fun main(args: Array<String>){
-    UselessAgent.runUselessAgent()
+    UselessAgent.launch()
 }

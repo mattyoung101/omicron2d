@@ -16,6 +16,8 @@ showDebugDisplay: true
 initialFormation: formations/starting433.yml
 
 # Agent AI config
+# There's currently no good reason to listen to the opposition, but in future it would be interesting to
+# intercept agent2d messages and attempt to decode them
 listenToOpposition: false
 
 # Field definitions

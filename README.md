@@ -8,11 +8,11 @@ Omicron2D, however, is currently just an independent side-project consisting of 
 engineer on the RoboCup Jr team). If you feel like getting involved, don't hesitate to get in touch :)
 
 ## Project status
-ICP localisation for both position and orientation have been successfully implemented and tested. See `ICPLocalisationTest`
-in the test folder for results. With this done, I'm implementing backend stuff so that the agent is able to move into
-formations soon.
+Updated: 1 December 2020
 
-Incoming server message parser (now written using ANTLR) is almost complete, just adding support for the sense_body message.
+The agent can localise its position and orientation to high levels of accuracy. An entire team of Omicron2D agents can
+be launched, who align themselves in a formation (which can be generated using a graphical editor). With that done,
+I'm now planning out the full AI infrastructure for movement and planning, and finishing off world modelling code.
 
 ## About the agents
 If you want to know more about our agents, please check out some Markdown files in the docs folder (such as

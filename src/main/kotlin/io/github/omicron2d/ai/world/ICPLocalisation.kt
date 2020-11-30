@@ -42,7 +42,7 @@ object ICPLocalisation {
     private val formatter = RealMatrixFormat("[", "]", "[", "]", ", \n", ", ")
 
     /**
-     * Performs the localisation by calculating the best fit transform. May take some time due to expensive matrix operations.
+     * Performs the localisation by calculating the best fit transform.
      * This code is a port of the function best_fit_transform in icp.py. See [ICPLocalisation] for more details.
      * @param observations a hash map of flag names, and their respective angles (degrees, 0-360) and distances relative to the player
      * @return the estimated transform (position and rotation) of the agent
@@ -78,8 +78,6 @@ object ICPLocalisation {
         // to confirm this, in numpy execute: np.broadcast_to(centroid_A, A.shape)
         val aa = observedPoints.subtract(matrixBroadcast(centroidA, observedPoints.rowDimension))
         val bb = correlatedPoints.subtract(matrixBroadcast(centroidB, correlatedPoints.rowDimension))
-        //println("Matrix AA:\n${formatter.format(aa)} (${aa.rowDimension} x ${aa.columnDimension})")
-        //println("Matrix BB:\n${formatter.format(bb)} (${bb.rowDimension} x ${bb.rowDimension})")
 
         // rotation matrix
         val h = aa.transpose().multiply(bb)
@@ -104,6 +102,7 @@ object ICPLocalisation {
         val t = centroidB.transpose().subtract(r.multiply(centroidA.transpose()))
         // omicron2d note: don't bother calculating homogenous transform matrix, we don't use it
 
+        // all omicron2d code follows:
         // we've got the whole rotation matrix, but we just want the angle. seems as though there's many ways of doing this
         // source for this implementation: https://math.stackexchange.com/a/301335
         // [cos, -sin],
@@ -111,7 +110,6 @@ object ICPLocalisation {
         val plusCosTerm = r.getEntry(0, 0) // +cos(theta) term in 2D rotation matrix
         val plusSinTerm = r.getEntry(1, 0) // +sin(theta) term in 2D rotation matrix
         val theta = (atan2(plusSinTerm, plusCosTerm) + PI2) % PI2
-        // TODO consider storing position in degrees instead of radians?
 
         dispatchToDisplayCartesian(observedPointsMap)
         // uncomment to display original points:

@@ -11,7 +11,7 @@
 
 package io.github.omicron2d.communication.messages
 
-import io.github.omicron2d.utils.PlayMode
+import io.github.omicron2d.utils.CURRENT_STATS
 import org.tinylog.kotlin.Logger
 
 /**
@@ -32,6 +32,7 @@ interface MessageHandler {
     /** Called if there is no parser registered for the given message. Default behaviour just logs. */
     fun handleUnknownMessage(msg: String){
         Logger.trace("No parser for message received by player: $msg")
+        CURRENT_STATS.get().unrecognisedMessages.add(msg)
     }
 
     /** Called if the given message cannot be parsed. Default behaviour is to log. */

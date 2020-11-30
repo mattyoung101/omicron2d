@@ -18,6 +18,8 @@ import mikera.vectorz.Vector2
  * @param transform the current transform (absolute position) of this player in field coords, as determined by the localiser
  * @param vel velocity of the player, in (TODO determine units)
  * @param isKnown true only if the absolute position of the player is known (so the agent must have localised correctly)
+ * @param unum uniform number, one indexed
+ * @param id ID, zero indexed
  * @param lastSeen server tick when the object was last visible
  * @param isSelf true if this PlayerObject represents the current agent
  */
@@ -26,6 +28,7 @@ data class PlayerObject(
     var vel: Vector2 = Vector2(0.0, 0.0),
     var isKnown: Boolean = false,
     var unum: Int = -1,
+    var id: Int = -1,
     var lastSeen: Int = -1,
     var isGoalie: Boolean = false,
     var isSelf: Boolean = false)

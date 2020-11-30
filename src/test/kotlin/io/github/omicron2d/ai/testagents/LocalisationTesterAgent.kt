@@ -98,7 +98,7 @@ class LocalisationTesterAgent(host: InetAddress = InetAddress.getLocalHost(), po
                 val flags = see.objects.filter { it.type == ObjectType.FLAG && it.name.isNotEmpty() && !it.isBehind }
 
                 if (flags.isNotEmpty()){
-                    val observations = hashMapOf<String, ObjectObservationPolar>()
+                    val observations = mutableMapOf<String, ObjectObservationPolar>()
                     for (flag in flags) {
                         // convert angle from -180 to 180 (from server) to 0 to 360
                         val direction = (flag.direction.toDouble() + 360.0) % 360.0
