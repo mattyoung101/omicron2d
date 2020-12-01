@@ -95,14 +95,20 @@ class LocalisationTesterAgent(host: InetAddress = InetAddress.getLocalHost(), po
             } else if (msg.startsWith("(see")){
                 // parse see message
                 val see = SeeMessage.deserialise(msg)
-                val flags = see.objects.filter { it.type == ObjectType.FLAG && it.name.isNotEmpty() && !it.isBehind }
+                val flags = see.objects.filter { it.type == ObjectType.FLAG }
+                val goodFlags = flags.filter {
+                    // valid name, not behind flag (no info), distance and direction exist
+                    it.name.isNotEmpty() && !it.isBehind && it.direction != null && it.distance != null
+                }
 
-                if (flags.isNotEmpty()){
+                if (goodFlags.isNotEmpty()){
                     val observations = mutableMapOf<String, ObjectObservationPolar>()
-                    for (flag in flags) {
-                        // convert angle from -180 to 180 (from server) to 0 to 360
-                        val direction = (flag.direction.toDouble() + 360.0) % 360.0
-                        observations[flag.name] = ObjectObservationPolar(flag.distance, direction)
+                    // convert each flag's angle from -180 to 180 (from server) to 0 to 360 (for localiser)
+                    // Note that we can be assured that distance and direction are NOT null, because flags missing those
+                    // are filtered out for goodFlags in handleSeeMessage below
+                    for (flag in goodFlags) {
+                        val direction = (flag.direction!!.toDouble() + 360.0) % 360.0
+                        observations[flag.name] = ObjectObservationPolar(flag.distance!!, direction)
                     }
 
                     // and now we perform localisation

@@ -1,0 +1,14 @@
+Note: borrowed from Omicron RoboCup Jr
+
+## Workflow on robot
+- Set goal state in setup
+- Loop:
+    - Collect sensor data
+    - Update GOAP current state with new data
+    - Is current GOAP state different?
+        - Yes: generate new plan. Old plan would now probably be invalid.
+    - Is current action complete?
+        - Yes: did this action fail?
+            - Yes: generate new plan from current world state
+            - No: continue to next action in plan if not last action
+        - No: continue executing current action

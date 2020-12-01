@@ -35,7 +35,7 @@ object SayEncoder {
     /** Each char in [ASCII85_ONLY_CHARS] has a double char replacement in this map for sending with the `say` command. */
     private val REPLACEMENTS = mutableMapOf<String, String>()
     /** Character used to escape replacements that appear naturally in the Ascii85 message */
-    private const val ESCAPE_CHAR = "ESCAPE"
+    private const val ESCAPE_CHAR = "\$\$ESCAPE\$\$"
 
     init {
         // initialise the replacements map
@@ -103,5 +103,38 @@ object SayEncoder {
             msg = msg.replace(value, key)
         }
         return Ascii85.decode(msg)
+    }
+
+    /**
+     * Method that librcsc uses to encode int64 to str:
+     * `AudioCodec::encodeInt64ToStr`, line 102 of common/audio_codec.cpp
+     */
+    fun rcscInt64ToStr(number: Long, len: Int): String {
+        val charSet = SAY_CHARSET
+        val charSize = SAY_CHARSET.length
+        var out = ""
+
+        val remainderValues = mutableListOf<Long>()
+        var divided = number
+        for (i in 0 until len - 1){
+            remainderValues.add(divided % charSize)
+            divided /= charSize
+        }
+
+        if (divided >= charSize){
+            throw IllegalArgumentException("Illegal value")
+        }
+        remainderValues.add(divided)
+
+        try {
+            for (value in remainderValues){
+                out += charSet[value.toInt()]
+            }
+        } catch (e: Exception){
+            throw IllegalArgumentException(e)
+        }
+
+        Logger.debug("Encoded number $number length $len to: $out")
+        return out
     }
 }

@@ -5,6 +5,24 @@
   cost: 3
   preConditions:
     - Condition1: true
-    - Condition2: true
+      Condition2: true
   postConditions:
     - Condition1: false
+
+- name: WorldScanNormal
+  cost: 3
+  preConditions:
+    - LowInfo: true
+      MustQuickScan: false
+  postConditions:
+    - LowInfo: false
+  movement:
+    - clazz: WorldScanMovementBehaviour # instantiate this class
+      isFastScan: false # pass this argument to the constructor
+      numScans: 3
+  orientation:
+    - clazz: WorldScanOrientationBehaviour
+      speed: normal
+  communication:
+    - clazz: BallInfoCommsBehaviour
+    # no arg constructor

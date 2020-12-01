@@ -28,7 +28,7 @@ data class SeePlayerInfo(var teamName: String? = null, var unum: Int? = null, va
  * @param isBehind if this flag is a behind flag, which contains minimal useful info
  */
 data class SeeObject(var type: ObjectType = ObjectType.UNKNOWN, var name: String = "",
-                     var playerInfo: SeePlayerInfo? = null, var distance: Double = 0.0, var direction: Int = 0,
+                     var playerInfo: SeePlayerInfo? = null, var distance: Double? = 0.0, var direction: Int? = 0,
                      var distChange: Double? = null, var dirChange: Double? = null, var headFaceDir: Int? = null,
                      var bodyFaceDir: Int? = null, var isBehind: Boolean = false)
 

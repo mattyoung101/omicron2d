@@ -32,6 +32,16 @@ class SayEncoderTest {
     }
 
     @Test
+    fun testLibRcsc(){
+        val rand = Random(10242048)
+
+        for (i in 0 until 32){
+            val number = rand.nextLong(0, 1024)
+            SayEncoder.rcscInt64ToStr(number, 5)
+        }
+    }
+
+    @Test
     fun testRoundTrip(){
         val rand = Random(10242048)
 

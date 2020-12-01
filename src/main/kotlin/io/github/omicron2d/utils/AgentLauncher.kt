@@ -25,6 +25,7 @@ import kotlin.system.exitProcess
 object AgentLauncher {
     /**
      * Starts and connects an agent to the server. This method blocks until the agent exits.
+     * @param isGoalie if the agent should join as a goalie
      * @param teamLaunch if this agent is being launched as part of a team, disables debug UI (and other things)
      */
     fun launchPlayerAgent(isGoalie: Boolean = false, teamLaunch: Boolean = false){
@@ -54,7 +55,7 @@ object AgentLauncher {
         val initMessage = OutgoingInitMessage(generalConfig.teamName, SERVER_PROTOCOL_VERSION, isGoalie)
         // TODO we need to forward to the PlayerAgent whether or not its a goalie!
 
-        val agent = PlayerAgent(InetAddress.getByName(generalConfig.serverHost), generalConfig.playerPort)
+        val agent = PlayerAgent(InetAddress.getByName(generalConfig.serverHost), generalConfig.playerPort, isGoalie)
         agent.connect(initMessage)
         agent.run() // blocking
 
@@ -64,4 +65,6 @@ object AgentLauncher {
         println("Goodbye!")
         exitProcess(0)
     }
+
+    fun launchCoachAgent(){}
 }

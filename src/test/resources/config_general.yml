@@ -1,0 +1,27 @@
+######## NOTE: THIS IS A COPY OF THE ORIGINAL YAML ONLY FOR TESTING! DO NOT USE! ########
+# This file is part of the Omicron2D RoboCup 2D Soccer Simulation team.
+# General config file. Loaded by the Omicron2D client to run basic setup
+
+# Networking config
+teamName: Omicron2D
+serverHost: localhost
+playerPort: 6000
+trainerPort: 6001
+coachPort: 6002
+timeout: 10000 # milliseconds
+
+# GUI config
+showDebugDisplay: true
+
+# Formations
+initialFormation: formations/starting433.yml
+
+# Agent AI config
+# There's currently no good reason to listen to the opposition, but in future it would be interesting to
+# intercept agent2d messages and attempt to decode them
+listenToOpposition: false
+
+# Field definitions
+# Source: https://github.com/rcsoccersim/rcssserver/blob/master/src/serverparam.cpp#L130
+fieldLength: 105
+fieldWidth: 68

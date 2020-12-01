@@ -10,7 +10,12 @@
 package io.github.omicron2d.ai.testagents
 
 import io.github.omicron2d.communication.AbstractSoccerAgent
+import io.github.omicron2d.communication.messages.ChangeViewMessage
+import io.github.omicron2d.communication.messages.MoveMessage
+import io.github.omicron2d.communication.messages.TurnNeckMessage
 import io.github.omicron2d.utils.DEFAULT_PLAYER_PORT
+import io.github.omicron2d.utils.ViewMode
+import io.github.omicron2d.utils.ViewQuality
 import org.tinylog.kotlin.Logger
 import java.io.PrintStream
 import java.net.InetAddress
@@ -22,6 +27,7 @@ import kotlin.random.Random
  * (as long as the server is in BEFORE_KICK_OFF) and writes the data it sees to disk.
  *
  * TODO allow specifying which message we are looking to record
+ * TODO add support for launching an entire team of these!
  */
 class SamplerAgent(private val stream: PrintStream,
                    host: InetAddress = InetAddress.getLocalHost(),
@@ -37,12 +43,15 @@ class SamplerAgent(private val stream: PrintStream,
         val x = Random.nextDouble(-xRange, xRange)
         val y = Random.nextDouble(-yRange, yRange)
         val angle = Random.nextInt(-angleRange, angleRange)
-        val xstr = String.format("%.2f", x)
-        val ystr = String.format("%.2f", y)
-        Logger.debug("Moving to ($xstr, $ystr), turning to $angle")
+
+        val mode = arrayOf(ViewMode.NARROW, ViewMode.NORMAL, ViewMode.WIDE).random()
+        val quality = arrayOf(ViewQuality.HIGH, ViewQuality.LOW).random()
 
         // move to random position and turn head to random angle
-        transmitString("(move $xstr $ystr)(turn_neck $angle)")
+        pushBatch(MoveMessage(x, y))
+        pushBatch(TurnNeckMessage(angle))
+        pushBatch(ChangeViewMessage(mode, quality))
+        flushBatch()
     }
 
     override fun run() {

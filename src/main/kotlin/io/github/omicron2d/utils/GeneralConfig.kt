@@ -10,7 +10,8 @@
 package io.github.omicron2d.utils
 
 /**
- * Deserialised by YAMLBeans, loaded from config_general.yml
+ * Deserialised by YAMLBeans, loaded from config_general.yml.
+ * This is better documented in the YAML file itself.
  */
 data class GeneralConfig(
     var teamName: String = "",

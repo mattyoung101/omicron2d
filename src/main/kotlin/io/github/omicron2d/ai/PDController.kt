@@ -28,15 +28,13 @@ class PDController(var kp: Double, var kd: Double, var min: Double = Double.MIN_
      * @return correction to apply to system
      */
     fun update(input: Double, setPoint: Double): Double {
-        val derivative: Double
-        val error = setPoint - input
-
         val currentTime = System.nanoTime()
         val elapsedTime = (currentTime - lastTime) / 1e+9
         lastTime = currentTime
         lastInput = input
-
-        derivative = (input - lastInput) / elapsedTime
+        
+        val error = setPoint - input
+        val derivative = (input - lastInput) / elapsedTime
         val correction = (kp * error) + (kd * derivative)
         return correction.coerceIn(min, max)
     }

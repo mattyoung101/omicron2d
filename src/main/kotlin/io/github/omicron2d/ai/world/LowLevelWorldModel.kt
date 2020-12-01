@@ -10,7 +10,6 @@
 package io.github.omicron2d.ai.world
 
 import io.github.omicron2d.communication.messages.SeeObject
-import io.github.omicron2d.utils.PlayMode
 import io.github.omicron2d.utils.Side
 
 /**
@@ -35,4 +34,13 @@ data class LowLevelWorldModel(
     var players: List<SeeObject> = listOf(),
     var ball: SeeObject? = null,
     var time: Int = -1
-) : WorldModel
+) : WorldModel {
+
+    /**
+     * Sets the low model time to the specified new time, unless the new time is before the current time
+     * This means we don't accidentally go back in time
+     */
+    fun updateTime(newTime: Int){
+        time = time.coerceAtLeast(newTime)
+    }
+}

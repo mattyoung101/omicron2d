@@ -35,11 +35,6 @@ object SeeSampler {
     fun main(args: Array<String>){
         Logger.info("Omicron2D v$OMICRON2D_VERSION See Sampler")
 
-        // open log file
-        val logFile = File(outputPath)
-        logFile.createNewFile()
-        val stream = PrintStream(FileOutputStream(logFile, false))
-
         // load config from YAML files
         val yamlReader = YamlReader(FileReader("config_general.yml"))
         val generalConfig = yamlReader.read(GeneralConfig::class.java)
@@ -48,6 +43,12 @@ object SeeSampler {
 
         Logger.info("Connecting to ${generalConfig.serverHost}:${generalConfig.playerPort}")
         val initMessage = OutgoingInitMessage(generalConfig.teamName, SERVER_PROTOCOL_VERSION, false)
+
+        // open log file
+        val logFile = File(outputPath)
+        logFile.createNewFile()
+        val stream = PrintStream(FileOutputStream(logFile, false))
+        Logger.debug("Writing to file: $logFile")
 
         val agent = SamplerAgent(stream, InetAddress.getByName(generalConfig.serverHost), generalConfig.playerPort)
         agent.connect(initMessage)

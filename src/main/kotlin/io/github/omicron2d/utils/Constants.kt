@@ -12,6 +12,7 @@ package io.github.omicron2d.utils
 import io.github.omicron2d.debug.DebugDisplay
 import mikera.vectorz.Vector2
 import kotlin.math.PI
+import kotlin.random.Random
 
 // This file holds constant, compile time defines that will not be edited
 // General config should be stored in the *.properties files in the resources folder
@@ -56,4 +57,6 @@ const val FIELD_WIDTH = 68.0
 var CURRENT_CONFIG = ThreadLocal.withInitial { GeneralConfig() }!!
 /** Shared debug display for writing. Disabled during multi agent execution with TeamMain */
 var DEBUG_DISPLAY: DebugDisplay? = null
-var CURRENT_STATS = ThreadLocal.withInitial { AgentStats() }!!
+val AGENT_STATS = ThreadLocal.withInitial { AgentStats() }!!
+/** This is sort of a very hacky ThreadLocalRandom which gives each threaded a seeded Kotlin random for reproducibility */
+val RAND = ThreadLocal.withInitial { Random(10242048) }!!

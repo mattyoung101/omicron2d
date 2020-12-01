@@ -9,12 +9,16 @@
 
 package io.github.omicron2d.utils
 
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
+
 /**
  * Instance to hold statistics about the agent
  * @param unrecognisedMessages messages we received that had no parser
+ * @param goodFlagsRate percentage of good flags in messages
  */
 data class AgentStats(
     var successfulLocalisations: Int = 0,
     var failedLocalisations: Int = 0,
-    var unrecognisedMessages: MutableSet<String> = mutableSetOf()
+    val unrecognisedMessages: MutableSet<String> = mutableSetOf(),
+    val goodFlagsRate: DescriptiveStatistics = DescriptiveStatistics()
 )

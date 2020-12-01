@@ -143,7 +143,7 @@ objectName
     | playerBehind ;
 
 objectContents
-    : distance direction distChange? dirChange? headFaceDir? bodyFaceDir?  ;
+    : distance direction? distChange? dirChange? headFaceDir? bodyFaceDir?  ;
 
 seeObject
     : LPAREN LPAREN objectName RPAREN objectContents RPAREN ;

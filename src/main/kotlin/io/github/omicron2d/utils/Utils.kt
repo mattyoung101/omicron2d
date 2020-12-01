@@ -9,6 +9,8 @@
 
 package io.github.omicron2d.utils
 
+import io.github.omicron2d.ai.behaviours.Behaviour
+import io.github.omicron2d.ai.world.HighLevelWorldModel
 import io.github.omicron2d.ai.world.ICPLocalisation
 import mikera.vectorz.Vector2
 import org.apache.commons.math3.linear.*
@@ -68,20 +70,26 @@ fun Double.toRadians(): Double {
 
 /**
  * Wrapper around [ICPLocalisation.correctPolarObservation] for easier use in agents
- * @param angle angle to the object, -180 to 180 (this is raw server format, NOT processed 0-360)
+ * @param direction angle to the object, -180 to 180 (this is raw server format, NOT processed 0-360)
  * @param distance distance to the object
  * @param transform localised agent transform
  * @return absolute cartesian coordinates of this object
  */
-fun calculateAbsolutePosition(angle: Int, distance: Double, transform: Transform2D): Vector2 {
-    val direction = (angle.toDouble() % 360.0) % 360.0
-    val observation = ObjectObservationPolar(distance, direction)
+fun calculateAbsolutePosition(direction: Int, distance: Double, transform: Transform2D): Vector2 {
+    // localiser needs 0-360
+    val fixedDirection = (direction.toDouble() % 360.0) % 360.0
+    val observation = ObjectObservationPolar(distance, fixedDirection)
     return ICPLocalisation.correctPolarObservation(observation, transform.pos)
 }
 
 /**
  * Represents a 2D position and rotation.
  * @param pos position of the agent, measured with (0,0) being centre of field
- * @param theta angle in radians, counter-clockwise (standard trig format)
+ * @param theta angle **in radians**, counter-clockwise (standard trig format)
  */
 data class Transform2D(val pos: Vector2 = Vector2(0.0, 0.0), val theta: Double = 0.0)
+
+/**
+ * Data class that holds the context that something, usually a [Behaviour], is executing in.
+ */
+data class AgentContext(val world: HighLevelWorldModel, val time: Int)
