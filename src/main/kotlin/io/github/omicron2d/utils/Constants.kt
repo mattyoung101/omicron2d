@@ -55,7 +55,7 @@ const val FIELD_WIDTH = 68.0
  * When doing multi agent execution with TeamMain, each thread has its own copy of this.
  */
 var CURRENT_CONFIG = ThreadLocal.withInitial { GeneralConfig() }!!
-/** Shared debug display for writing. Disabled during multi agent execution with TeamMain */
+/** Shared debug display. Disabled during multi agent execution with TeamMain. MAY BE NULL!! BE CAREFUL! */
 var DEBUG_DISPLAY: DebugDisplay? = null
 val AGENT_STATS = ThreadLocal.withInitial { AgentStats() }!!
 /** This is sort of a very hacky ThreadLocalRandom which gives each threaded a seeded Kotlin random for reproducibility */

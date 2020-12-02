@@ -15,7 +15,6 @@ import io.github.omicron2d.utils.ObjectType
 import org.junit.Assert.*
 import org.junit.Test
 import java.io.File
-import java.nio.file.Paths
 import kotlin.system.measureTimeMillis
 
 class SeeMessageTest {
@@ -69,6 +68,7 @@ class SeeMessageTest {
             for ((i, msg) in corpus.withIndex()){
                 // println("Parsing message $i/${corpus.size}")
                 val deserialised = SeeMessage.deserialise(msg)
+                //println(deserialised) // so that it doesn't optimise out this
             }
         }.toDouble() / corpus.size
         println("All messages deserialised successfully")

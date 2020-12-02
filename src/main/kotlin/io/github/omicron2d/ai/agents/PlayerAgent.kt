@@ -180,8 +180,7 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
 
             // TODO temporary just for fun
             val mode = arrayOf(ViewMode.NARROW, ViewMode.NORMAL, ViewMode.WIDE).random()
-            val quality = arrayOf(ViewQuality.HIGH, ViewQuality.LOW).random()
-            transmit(arrayOf(TurnMessage(30.0), ChangeViewMessage(mode, ViewQuality.HIGH)))
+            transmit(arrayOf(TurnMessage(20.0), ChangeViewMessage(mode)))
         }
     }
 
@@ -212,8 +211,10 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
         // we also disable hearing the opposition since we don't care about that
         // this was found by looking at the logs for FRA-UNited
         pushBatch(EarMessage(status = CURRENT_CONFIG.get().listenToOpposition, us = false))
-        //pushBatch(SynchSeeMessage())
-        // TODO decide if we actually want to send synch see message? what does it do?
+        // send synch_see which disables low quality mode (for TODO what tradeoff do we get back?)
+        // this is because most teams do this, and also I literally cannot find any use for low quality vision,
+        // it is objectively trash
+        pushBatch(SyncSeeMessage())
         flushBatch()
     }
 

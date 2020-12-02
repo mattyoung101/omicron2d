@@ -47,16 +47,15 @@ class HearMessageTest {
         // sample of real ref calls to make sure it can parse those
         val msg = HearMessage.deserialise("(hear 0 referee drop_ball)")
         val msg2 = HearMessage.deserialise("(hear 137 referee yellow_card_l_1)")
-        // TODO test msg2
 
-        assertEquals(msg.sender, MessageSender.REFEREE)
-        assertEquals(msg.message, "drop_ball")
+        assertEquals(MessageSender.REFEREE, msg.sender)
+        assertEquals("drop_ball", msg.message)
         assertEquals("yellow_card_l_1", msg2.message)
     }
 
     @Test(expected = MessageParseException::class)
     fun testParseError(){
-        val msg = "(hear 129837 -1.0.0.0.0 \"invalid)"
+        val msg = "(hear 129837 -1.0.0.0.0 \"invali!!!d)"
         HearMessage.deserialise(msg)
     }
 
@@ -95,13 +94,13 @@ class HearMessageTest {
         // time deserialisation
         val time = measureTimeMillis {
             for (entry in testMessages){
-                //println("message: $entry")
                 val result = HearMessage.deserialise(entry)
+                //println(result) // do something to prevent optimisation
             }
         }.toDouble() / MESSAGE_DESERIALISATION_COUNT
 
         // check the time to deserialise
-        println("Average IncomingHearMessage deserialise time: $time ms")
+        println("Average HearMessage deserialise time: $time ms")
         assertTrue(time <= MESSAGE_DESERIALISATION_TIME)
     }
 }

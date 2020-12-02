@@ -292,6 +292,30 @@ public class ServerMessageBaseListener implements ServerMessageListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterPointDir(ServerMessageParser.PointDirContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPointDir(ServerMessageParser.PointDirContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterUnknownThing(ServerMessageParser.UnknownThingContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUnknownThing(ServerMessageParser.UnknownThingContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterFlagName(ServerMessageParser.FlagNameContext ctx) { }
 	/**
 	 * {@inheritDoc}

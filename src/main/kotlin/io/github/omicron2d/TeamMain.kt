@@ -11,7 +11,6 @@ package io.github.omicron2d
 
 import io.github.omicron2d.utils.AgentLauncher
 import io.github.omicron2d.utils.OMICRON2D_VERSION
-import io.github.omicron2d.utils.UselessAgent
 import org.tinylog.kotlin.Logger
 import kotlin.concurrent.thread
 
@@ -28,8 +27,8 @@ object TeamMain {
         Logger.info("Omicron2D v$OMICRON2D_VERSION: Copyright (c) 2019-2020 Matt Young.")
 
         // ----- note: only for testing
-        UselessAgent.launch()
-        Thread.sleep(500)
+//        UselessAgent.launch()
+//        Thread.sleep(500)
 
         // launch the entire team
         for (i in 0 until 11){

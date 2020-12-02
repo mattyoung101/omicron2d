@@ -238,6 +238,26 @@ public interface ServerMessageListener extends ParseTreeListener {
 	 */
 	void exitBodyFaceDir(ServerMessageParser.BodyFaceDirContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#pointDir}.
+	 * @param ctx the parse tree
+	 */
+	void enterPointDir(ServerMessageParser.PointDirContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#pointDir}.
+	 * @param ctx the parse tree
+	 */
+	void exitPointDir(ServerMessageParser.PointDirContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ServerMessageParser#unknownThing}.
+	 * @param ctx the parse tree
+	 */
+	void enterUnknownThing(ServerMessageParser.UnknownThingContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ServerMessageParser#unknownThing}.
+	 * @param ctx the parse tree
+	 */
+	void exitUnknownThing(ServerMessageParser.UnknownThingContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ServerMessageParser#flagName}.
 	 * @param ctx the parse tree
 	 */

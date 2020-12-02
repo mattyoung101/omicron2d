@@ -149,6 +149,18 @@ public interface ServerMessageVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitBodyFaceDir(ServerMessageParser.BodyFaceDirContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#pointDir}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPointDir(ServerMessageParser.PointDirContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ServerMessageParser#unknownThing}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitUnknownThing(ServerMessageParser.UnknownThingContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link ServerMessageParser#flagName}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

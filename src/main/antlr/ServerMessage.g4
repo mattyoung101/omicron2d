@@ -11,6 +11,7 @@ grammar ServerMessage;
 // ANTLR grammar for messages received from rcssserver
 // Most of this is based on the RoboCup 2D Soccer Simulation manual dated 2003 (available in the docs folder) and
 // also the incomplete but more up to date docs available at https://rcsoccersim.github.io/manual/soccerserver.html
+// (especially for the see command since new stuff was added)
 
 // SYMBOL TABLE
 // space = sequence
@@ -73,6 +74,7 @@ useless
 
 // note: the sense_body documentation in the 2003 manual is out of date, you need to use the online docs instead!
 // (one of the rare instances they're actually up to date)
+// FIXME finish this
 senseBodyMessage
     : LPAREN 'sense_body' time viewModeMsg staminaMsg speedMsg headAngleMsg useless* RPAREN EOF ;
 
@@ -110,6 +112,17 @@ bodyFaceDir
     : INTEGER
     | FLOAT ;
 
+// apparently this is a new thing added in more recent rcssserver versions
+pointDir
+    : INTEGER
+    | FLOAT ;
+
+// no idea what this is, apparently it's a new thing since it's not in the 2003 manual.
+// TODO find out what this thing is: https://github.com/rcsoccersim/manual/issues/43
+unknownThing
+    : 't'
+    | 'k' ;
+
 flagName
     : FLAG_NAME ;
 
@@ -143,7 +156,7 @@ objectName
     | playerBehind ;
 
 objectContents
-    : distance direction? distChange? dirChange? headFaceDir? bodyFaceDir?  ;
+    : distance? direction? distChange? dirChange? headFaceDir? bodyFaceDir? pointDir? unknownThing? unknownThing? ;
 
 seeObject
     : LPAREN LPAREN objectName RPAREN objectContents RPAREN ;

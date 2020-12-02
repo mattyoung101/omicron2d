@@ -24,8 +24,8 @@ class IncomingInitMessageTest {
     fun testBasic(){
         val msg1 = IncomingInitMessage(side = Side.LEFT, unum = 12, playMode = PlayMode.PLAY_ON)
 
-        assertEquals(msg1.side, Side.LEFT)
-        assertEquals(msg1.unum, 12)
+        assertEquals(Side.LEFT, msg1.side)
+        assertEquals(12, msg1.unum)
 
         val copy = msg1.copy()
         assertEquals(msg1, copy)
@@ -46,8 +46,8 @@ class IncomingInitMessageTest {
             for (i in 0 until MESSAGE_DESERIALISATION_COUNT) {
                 // generate a semi random message
                 val testInitMessage = "(init ${if (Random.nextBoolean()) "l" else "r"} ${Random.nextInt(1, 11)} goal_kick_l)"
-
                 val msg = IncomingInitMessage.deserialise(testInitMessage)
+                //println(msg) // do something with msg to prevent optimisation
             }
         }.toDouble() / MESSAGE_DESERIALISATION_COUNT
 

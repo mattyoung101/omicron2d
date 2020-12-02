@@ -34,10 +34,14 @@ data class CatchMessage(val direction: Double): OutgoingServerMessage {
     }
 }
 
-data class ChangeViewMessage(var width: ViewMode = ViewMode.UNKNOWN,
-                             val quality: ViewQuality = ViewQuality.UNKNOWN) : OutgoingServerMessage {
+/**
+ * Note that in synch_see mode, which is enabled, high quality vision is the only possible mode. Changing to low
+ * quality will probably cause a server error.
+ */
+data class ChangeViewMessage(var mode: ViewMode = ViewMode.UNKNOWN,
+                             val quality: ViewQuality = ViewQuality.HIGH) : OutgoingServerMessage {
     override fun serialise(): String {
-        return "(change_view ${width.toString().toLowerCase()} ${quality.toString().toLowerCase()})"
+        return "(change_view ${mode.toString().toLowerCase()} ${quality.toString().toLowerCase()})"
     }
 }
 
@@ -75,8 +79,9 @@ data class EarMessage(val status: Boolean, val us: Boolean): OutgoingServerMessa
     }
 }
 
-class SynchSeeMessage: OutgoingServerMessage {
+class SyncSeeMessage: OutgoingServerMessage {
     override fun serialise(): String {
+        // synch [sic], the server uses that spelling
         return "(synch_see)"
     }
 }

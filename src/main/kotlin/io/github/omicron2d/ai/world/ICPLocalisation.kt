@@ -64,8 +64,6 @@ object ICPLocalisation {
         // convert both to matrices
         val observedPoints = makeMatrix(observedPointsMap.values) // "A"
         val correlatedPoints = makeMatrix(correlatedPointsMap.values) // "B"
-        //println(format.format(observedPoints))
-        //println(format.format(correlatedPoints))
 
         // get number of dimensions (omicron2d note: should always be 2)
         val m = observedPoints.columnDimension
@@ -111,13 +109,15 @@ object ICPLocalisation {
         val plusSinTerm = r.getEntry(1, 0) // +sin(theta) term in 2D rotation matrix
         val theta = (atan2(plusSinTerm, plusCosTerm) + PI2) % PI2
 
-        dispatchToDisplayCartesian(observedPointsMap)
+        //dispatchToDisplayCartesian(observedPointsMap)
         // uncomment to display original points:
         //debugDisplay?.updateChart(MarkerManager.getMarkerPlot())
 
         val x = t.getEntry(0, 0)
         val y = t.getEntry(1, 0)
-        return Transform2D(Vector2(x, y), theta)
+        val transform = Transform2D(Vector2(x, y), theta)
+        displayAgentTransform(transform)
+        return transform
     }
 
     /**
@@ -175,7 +175,7 @@ object ICPLocalisation {
     }
 
     /** Displays a graph of flag observations in polar form */
-    private fun dispatchToDisplayPolar(observations: Map<String, ObjectObservationPolar>){
+    private fun displayPolarFlags(observations: Map<String, ObjectObservationPolar>){
         val dataset = XYSeriesCollection()
         val series = XYSeries("Flags")
         for (observation in observations){
@@ -186,8 +186,21 @@ object ICPLocalisation {
         DEBUG_DISPLAY?.updateChart(chart)
     }
 
+    /** Displays the position and orientation of a single agent on the debug display */
+    private fun displayAgentTransform(transform: Transform2D){
+        val dataset = XYSeriesCollection()
+        val series = XYSeries("Agent")
+        series.add(transform.pos.x, transform.pos.y)
+        dataset.addSeries(series)
+        val chart = ChartFactory.createScatterPlot("Agent Pos (angle=${transform.theta * RAD_DEG} deg)",
+            "X", "Y", dataset)
+        chart.xyPlot.domainAxis.setRange(-52.0, 52.0)
+        chart.xyPlot.rangeAxis.setRange(-34.0, 34.0)
+        DEBUG_DISPLAY?.updateChart(chart)
+    }
+
     /** Displays a graph of flag observations in cartesian form */
-    private fun dispatchToDisplayCartesian(observations: Map<String, Vector2>){
+    private fun displayCartesianFlags(observations: Map<String, Vector2>){
         val dataset = XYSeriesCollection()
         val series = XYSeries("Flags")
         for (observation in observations){
