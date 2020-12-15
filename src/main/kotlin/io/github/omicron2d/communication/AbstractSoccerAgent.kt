@@ -50,7 +50,7 @@ abstract class AbstractSoccerAgent(private var host: InetAddress, private var de
     /** Queue of individual messages that can be batched together and transmitted as one string to rcsserver */
     private val messageBatch = ConcurrentLinkedQueue<OutgoingServerMessage>()
 
-    private val sockThread = thread(start = false, name="ReceiveThread"){
+    private val sockThread = thread(start=false, name="ReceiveThread"){
         Logger.debug("Socket thread started")
 
         while (true){
@@ -80,6 +80,7 @@ abstract class AbstractSoccerAgent(private var host: InetAddress, private var de
                 // simple teardown routine since calling disconnect() doesn't work in this context
                 isConnected = false
                 respondTo = null
+                teardown()
                 socket.close()
                 messages.add("INTERNAL_TIMED_OUT")
                 println("Socket thread finished due to timeout")
@@ -105,6 +106,11 @@ abstract class AbstractSoccerAgent(private var host: InetAddress, private var de
      * Main loop of agent, usually should wait for a message to become available in the queue and then process it
      */
     abstract fun run()
+
+    /**
+     * Called when the agent is being shutdown. May be called more than once. Default implementation does nothing.
+     */
+    open fun teardown(){}
 
     /**
      * Internal method to transmit a string to the remote server over UDP with ASCII encoding. Generally you want to use
@@ -195,6 +201,7 @@ abstract class AbstractSoccerAgent(private var host: InetAddress, private var de
         // tell the server we're disconnecting (attempt to shut down gracefully)
         println("Disconnecting agent")
         transmitString("(bye)")
+        teardown()
         Thread.sleep(100) // wait for transmission
 
         // close down the socket

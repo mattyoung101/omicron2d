@@ -45,6 +45,7 @@ data class ChangeViewMessage(var mode: ViewMode = ViewMode.UNKNOWN,
     }
 }
 
+// TODO add support for direction!
 data class DashMessage(var power: Double = 0.0): OutgoingServerMessage {
     override fun serialise(): String {
         return "(dash $power)"
@@ -79,9 +80,9 @@ data class EarMessage(val status: Boolean, val us: Boolean): OutgoingServerMessa
     }
 }
 
+/** Note: server uses the spelling `synch` instead. */
 class SyncSeeMessage: OutgoingServerMessage {
     override fun serialise(): String {
-        // synch [sic], the server uses that spelling
         return "(synch_see)"
     }
 }

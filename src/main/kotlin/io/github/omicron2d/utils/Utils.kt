@@ -85,7 +85,7 @@ fun calculateAbsolutePosition(direction: Int, distance: Double, transform: Trans
 /**
  * Represents a 2D position and rotation.
  * @param pos position of the agent, measured with (0,0) being centre of field
- * @param theta angle **in radians**, counter-clockwise (standard trig format)
+ * @param theta angle **in radians**, counter-clockwise (standard trig format). If exactly -1.0, it is not known.
  */
 data class Transform2D(val pos: Vector2 = Vector2(0.0, 0.0), val theta: Double = 0.0)
 

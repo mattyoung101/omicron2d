@@ -11,22 +11,18 @@ package io.github.omicron2d.utils
 
 /**
  * Field positions in the 4-3-3 formation. This will be used by the behaviour and movement planners.
- * The keeper is not included because it's a separate agent. This is only for _player_ positions.
  * Sources:
  * - https://www.liveabout.com/offensive-the-4-3-3-formation-3557643
  * - http://www.soccercoachingpro.com/4-3-3-formation/
  * - https://www.active.com/soccer/articles/4-3-3-team
  * - https://en.wikipedia.org/wiki/Formation_(association_football)#4%E2%80%933%E2%80%933
  **/
-enum class PlayerRoles {
-    // Goal keeper
-    KEEPER, // 0
-
+enum class Roles433 {
     // Defence
-    CENTRE_BACK_LEFT, // 1
-    CENTRE_BACK_RIGHT, // 2
-    FULL_BACK_LEFT, // 3
-    FULL_BACK_RIGHT, // 4
+    LEFT_BACK, // 1
+    CENTRE_BACK_LEFT, // 2
+    CENTRE_BACK_RIGHT, // 3
+    RIGHT_BACK, // 4
 
     // Centre
     CENTRE_MID_LEFT, // 5
@@ -36,7 +32,19 @@ enum class PlayerRoles {
     // Attack
     STRIKER, // 8, aka centre forward
     LEFT_WING, // 9
-    RIGHT_WING, // 10
+    RIGHT_WING, // 10,
+
+    // Goal keeper
+    KEEPER, // 11
+}
+
+enum class PlayerRoles {
+    DEFENDER,
+    CENTRE_MID,
+    STRIKER,
+    LEFT_WING,
+    RIGHT_WING,
+    KEEPER
 }
 
 enum class Side {

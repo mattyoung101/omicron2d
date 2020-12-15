@@ -16,6 +16,7 @@
       MustQuickScan: false
   postConditions:
     - LowInfo: false
+  # this part declares how to actually execute the behaviour
   movement:
     - clazz: WorldScanMovementBehaviour # instantiate this class
       isFastScan: false # pass this argument to the constructor
@@ -24,5 +25,5 @@
     - clazz: WorldScanOrientationBehaviour
       speed: normal
   communication:
-    - clazz: BallInfoCommsBehaviour
+    - clazz: SmartCommsBehaviour # be sensible, send default info
     # no arg constructor

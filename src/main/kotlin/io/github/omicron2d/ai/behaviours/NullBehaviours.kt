@@ -7,10 +7,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package io.github.omicron2d.ai.agents
+package io.github.omicron2d.ai.behaviours
 
-import io.github.omicron2d.ai.behaviours.HeadBehaviour
-import io.github.omicron2d.ai.behaviours.MovementBehaviour
 import io.github.omicron2d.utils.AgentContext
 
 /**

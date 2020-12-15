@@ -18,6 +18,7 @@ import io.github.omicron2d.communication.messages.*
 import io.github.omicron2d.utils.*
 import org.tinylog.kotlin.Logger
 import java.net.InetAddress
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.system.exitProcess
 
@@ -27,11 +28,29 @@ import kotlin.system.exitProcess
  * @param isGoalie if the agent joined as a goalie
  */
 class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DEFAULT_PLAYER_PORT,
-        private val isGoalie: Boolean = false) : AbstractSoccerAgent(host, port), PlayerMessageHandler {
+    private val isGoalie: Boolean = false) : AbstractSoccerAgent(host, port), PlayerMessageHandler {
+
     private val lowModel = LowLevelWorldModel()
     private val highModel = HighLevelWorldModel()
     private var errorCount = 0
     private val startingFormation = Formation(CURRENT_CONFIG.get().initialFormation)
+    // we use this instead of timer, see https://stackoverflow.com/a/409993/5007892
+    private val thinkTimer = Executors.newSingleThreadScheduledExecutor()
+    private var haveReceivedMsg = false
+
+    /**
+     * This function is intermittently called every 99ms, to send data to the server, since our message receive rate
+     * does not equal how often we should be sending messages. (We leave 1ms for transport to the server).
+     *
+     * TODO:
+     * - rewrite AbstractSoccerAgent to include this?
+     * - cancel timer on app teardown
+     */
+    private fun think(){
+        // TODO temporary just for fun
+        val mode = arrayOf(ViewMode.NARROW, ViewMode.NORMAL, ViewMode.WIDE).random()
+        transmit(arrayOf(TurnMessage(20.0), ChangeViewMessage(mode)))
+    }
 
     override fun run() {
         Logger.debug("PlayerAgent main loop started")
@@ -50,6 +69,14 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
             // Dispatch message to handlers for data processing. Runs in same thread, no need to worry about data races
             dispatchMessage(msgStr)
             // after this: all handlers have been called, low level world model is setup, high level needs processing
+
+            // If we've received the first packet (and thus have switched ports), start the think timer to send
+            // commands back
+            if (!haveReceivedMsg){
+                Logger.debug("First message received, starting think timer")
+                thinkTimer.scheduleAtFixedRate({ think() }, 0, 99, TimeUnit.MILLISECONDS)
+                haveReceivedMsg = true
+            }
 
             // check to make sure we have enough flags to perform a decent localisation with, about three should
             // be fine - I can't imagine it would work with any less
@@ -91,8 +118,9 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
                             highModel.teamPlayers[id].lastSeen = lowModel.time
                             highModel.teamPlayers[id].isGoalie = info.goalie
                             val absolute = calculateAbsolutePosition(dir, dist, agentTransform)
-                            highModel.teamPlayers[id].transform = Transform2D(absolute, 0.0)
-                            // TODO calculate their orientation if available
+                            // calculate body orientation in radians if available
+                            val bodyDirection = calcBodyFaceDir(player.bodyFaceDir)
+                            highModel.teamPlayers[id].transform = Transform2D(absolute, bodyDirection)
                         } else {
                             // it's the opposition team
                             highModel.opponentPlayers[id].isKnown = true
@@ -100,15 +128,18 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
                             highModel.opponentPlayers[id].isGoalie = info.goalie
                             val absolute = calculateAbsolutePosition(dir, dist, agentTransform)
                             highModel.teamPlayers[id].transform = Transform2D(absolute, 0.0)
-                            // TODO calculate their orientation if available
+                            // calculate body orientation in radians if available
+                            val bodyDirection = calcBodyFaceDir(player.bodyFaceDir)
+                            highModel.teamPlayers[id].transform = Transform2D(absolute, bodyDirection)
                         }
                     } else if (info?.unum != null){
                         // we know this player's id, we might be able to infer which team they're on
                         // TODO work out a way to infer team for certain players
                         // we could even calculate chances of which player is which (e.g. 50-50 chance it's id 2 or 3)
                         val absolute = calculateAbsolutePosition(dir, dist, agentTransform)
-                        val transform = Transform2D(absolute, 0.0)
-                        // TODO calculate their orientation if available
+                        // calculate body orientation in radians if available
+                        val bodyDirection = calcBodyFaceDir(player.bodyFaceDir)
+                        val transform = Transform2D(absolute, bodyDirection)
 
                         val obj = PlayerObject().apply {
                             this.transform = transform
@@ -121,8 +152,9 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
                     } else {
                         // we don't know anything about this player, but still set them up for obstacle avoidance
                         val absolute = calculateAbsolutePosition(dir, dist, agentTransform)
-                        val transform = Transform2D(absolute, 0.0)
-                        // TODO calculate orientation as well
+                        // body orientation is very likely NOT available, but try anyways
+                        val bodyDirection = calcBodyFaceDir(player.bodyFaceDir)
+                        val transform = Transform2D(absolute, bodyDirection)
 
                         val obj = PlayerObject().apply {
                             this.transform = transform
@@ -159,14 +191,13 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
                 // only log if game has started to reduce spam
                 Logger.trace("Cannot perform localisation, no good flags! all flags = ${lowModel.allFlags}")
 
-                // because we couldn't localise, this means that the positions of all our localised objects are
+                // because we couldn't localise, this means that the positions of ALL of our localised objects are
                 // now unknown. so go and update them here
                 for (i in highModel.teamPlayers.indices){
                     highModel.teamPlayers[i].isKnown = false
                     highModel.opponentPlayers[i].isKnown = false
                 }
                 // we don't clear out unknown player data if we have no flags, since we might want to work with it later
-                // (just being aware that we will have to extrapolate their positions based on velocity)
                 for (i in highModel.unknownTeamPlayers.indices){
                     highModel.unknownTeamPlayers[i].isKnown = false
                 }
@@ -177,11 +208,26 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
 
                 AGENT_STATS.get().failedLocalisations++
             }
-
-            // TODO temporary just for fun
-            val mode = arrayOf(ViewMode.NARROW, ViewMode.NORMAL, ViewMode.WIDE).random()
-            transmit(arrayOf(TurnMessage(20.0), ChangeViewMessage(mode)))
         }
+    }
+
+    /**
+     * Calculates the body face direction of a player from the see message.
+     * If faceDir is null, returns -1.0 since it is therefore not known.
+     * TODO check correctness.
+     */
+    private fun calcBodyFaceDir(faceDir: Int?): Double {
+        return if (faceDir != null){
+            ((faceDir + 360.0) % 360.0) * DEG_RAD
+        } else {
+            -1.0
+        }
+    }
+
+    override fun teardown() {
+        println("PlayerAgent teardown() running")
+        thinkTimer.shutdownNow()
+        thinkTimer.awaitTermination(256, TimeUnit.MILLISECONDS)
     }
 
     override fun handleInitMessage(init: IncomingInitMessage){
@@ -198,7 +244,6 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
         highModel.teamPlayers[highModel.selfId].isGoalie = isGoalie
         Logger.info("Init message received: $init (self ID: ${highModel.selfId})")
 
-        // now, we send back stuff to the server, setting up our agents settings basically
         // Okay! So, for whatever idiot reason, the server (for the move command) actually considers right-side
         // coordinates as exactly the same as left side coordinates. So, instead of moving to (20, 0) for example,
         // the ACTUAL position... we move to (-20, 0) - the same as the left side. This means that no coordinate
@@ -213,7 +258,7 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
         pushBatch(EarMessage(status = CURRENT_CONFIG.get().listenToOpposition, us = false))
         // send synch_see which disables low quality mode (for TODO what tradeoff do we get back?)
         // this is because most teams do this, and also I literally cannot find any use for low quality vision,
-        // it is objectively trash
+        // it is objectively trash and doesn't work with the localiser
         pushBatch(SyncSeeMessage())
         flushBatch()
     }

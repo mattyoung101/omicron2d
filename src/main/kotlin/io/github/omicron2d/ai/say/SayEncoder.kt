@@ -62,6 +62,13 @@ object SayEncoder {
         return out
     }
 
+    /*
+     * References for message framing (will need to implement this):
+     * - https://eli.thegreenplace.net/2009/08/12/framing-in-serial-communications
+     * - http://www.ece.ubc.ca/~edc/3525.jan2015/lectures/lec8.pdf
+     * - https://www.net.t-labs.tu-berlin.de/teaching/computer_networking/05.08.htm
+     */
+
     /**
      * Encodes a byte array to a series of characters that can be sent using the say command.
      * Works by using Ascii85 and substituting out non-say charset characters with double characters of ones in the say
