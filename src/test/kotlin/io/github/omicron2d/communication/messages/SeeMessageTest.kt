@@ -77,6 +77,12 @@ class SeeMessageTest {
         assertTrue(avgTime <= MESSAGE_DESERIALISATION_TIME)
     }
 
+    @Test
+    fun testEmptyMessage(){
+        // yes, the server can really send this
+        val msg = SeeMessage.deserialise("(see 25 )")
+    }
+
     @Test(expected = MessageParseException::class)
     fun errorTest(){
         val msg = "(see 0 ((f q z) --21.1 8 0 0)"

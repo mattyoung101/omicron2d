@@ -1,14 +1,6 @@
 # This file is part of the Omicron2D RoboCup 2D Soccer Simulation team.
 # Config file for agent behaviour (GOAP)
 
-- name: TestTask
-  cost: 3
-  preConditions:
-    - Condition1: true
-      Condition2: true
-  postConditions:
-    - Condition1: false
-
 - name: WorldScanNormal
   cost: 3
   preConditions:
@@ -18,12 +10,12 @@
     - LowInfo: false
   # this part declares how to actually execute the behaviour
   movement:
-    - clazz: WorldScanMovementBehaviour # instantiate this class
+    - class: WorldScanMovementBehaviour # instantiate this class
       isFastScan: false # pass this argument to the constructor
       numScans: 3
   orientation:
-    - clazz: WorldScanOrientationBehaviour
+    - class: WorldScanOrientationBehaviour
       speed: normal
   communication:
-    - clazz: SmartCommsBehaviour # be sensible, send default info
+    - class: SmartCommsBehaviour # be sensible, send default info
     # no arg constructor

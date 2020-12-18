@@ -89,7 +89,6 @@ object SayEncoder {
                 msg = msg.substring(0, index) + ESCAPE_CHAR + msg.substring(index, msg.length)
             }
         }
-        Logger.debug("Message after: $msg")
 
         // substitute out special chars with replacements for sending with say message
         for ((key, value) in REPLACEMENTS){

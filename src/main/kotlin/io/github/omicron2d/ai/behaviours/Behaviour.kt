@@ -11,6 +11,8 @@ package io.github.omicron2d.ai.behaviours
 
 import io.github.omicron2d.utils.AgentContext
 
+// FIXME rename this class and package to "skills"
+
 /*
  * Problems with this approach:
  * - one server action, like (turn) corresponds to both MovementBehaviour AND OrientationBehaviour, so which behaviour
@@ -24,9 +26,12 @@ import io.github.omicron2d.utils.AgentContext
 /**
  * Root class for all behaviours. A behaviour is essentially what the robot "does".
  *
- * A GOAP action/task will control which behaviours the robot is executing. The robot can generally have and execute
- * one behaviour for each of its models. In other words, we have one emovement behaviour, one orientation and one
- * communication behaviour executing at a time.
+ * The GOAP planner will choose what behaviours we should execute in which order to succeed at our goal. We will
+ * probably give the planner access to all behaviours, low level ones such as ScanWorld and high level ones such as
+ * DefendGoal. We hope that the planner is smart enough to figure everything out by itself.
+ *
+ * The robot can generally have and execute one behaviour for each of its models.
+ * In other words, we have one movement behaviour, one orientation and one communication behaviour executing at a time.
  */
 interface Behaviour {
     /** Called when the behaviour is started. Default method does nothing. */

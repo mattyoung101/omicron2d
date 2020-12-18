@@ -7,11 +7,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package io.github.omicron2d.ai.actions
+package io.github.omicron2d.ai.behaviours
 
 /**
- * Interface represents a GOAP action. Instances of these classes will be instantiated by reflection once
- * config_behaviour.yml is loaded, so it's abstract so there is guaranteed no-arg constructor.
+ * This class manages behaviours and planning.
+ * @param yamlPath path to config_behaviours.yml, **including extension**. Will be parsed on class initialisation.
  */
-abstract class Action() {
+class BehaviourManager(private val yamlPath: String) {
+    init {
+        // parse yaml
+    }
 }
