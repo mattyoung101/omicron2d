@@ -1,6 +1,8 @@
 # This file is part of the Omicron2D RoboCup 2D Soccer Simulation team.
 # Config file for agent behaviour (GOAP)
 
+# DEPRECATED: replaced by *.omplan files
+
 - name: WorldScanNormal
   cost: 3
   preConditions:

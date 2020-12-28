@@ -11,9 +11,8 @@ package io.github.omicron2d.communication.messages
 
 import io.github.omicron2d.utils.PlayMode
 import io.github.omicron2d.utils.Side
-import org.antlr.v4.runtime.*
-import org.antlr.v4.runtime.misc.ParseCancellationException
-import org.antlr.v4.runtime.tree.ParseTree
+import org.antlr.v4.runtime.CharStreams
+import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.tree.ParseTreeWalker
 
 /**
@@ -29,13 +28,13 @@ data class IncomingInitMessage(var side: Side = Side.LEFT, var unum: Int = 0,
             // lexer stage
             val lexer = ServerMessageLexer(CharStreams.fromString(input))
             lexer.removeErrorListeners()
-            lexer.addErrorListener(ErrorListener)
+            lexer.addErrorListener(MessageErrorListener)
             val tokens = CommonTokenStream(lexer)
 
             // parser stage
             val parser = ServerMessageParser(tokens)
             parser.removeErrorListeners()
-            parser.addErrorListener(ErrorListener)
+            parser.addErrorListener(MessageErrorListener)
             val tree = parser.initMessage()
 
             // walk the parse tree, generate the message

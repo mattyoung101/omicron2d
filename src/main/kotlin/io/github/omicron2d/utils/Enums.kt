@@ -84,6 +84,15 @@ enum class ViewQuality {
     LOW
 }
 
+/** Status for behaviour tree tasks */
+enum class TaskStatus {
+    NOT_STARTED,
+    RUNNING,
+    FINISHED,
+    FAILED,
+    CANCELLED
+}
+
 // Sourced from rcsserver, src/types.h, variable PLAYMODE_STRINGS
 enum class PlayMode {
     UNKNOWN,

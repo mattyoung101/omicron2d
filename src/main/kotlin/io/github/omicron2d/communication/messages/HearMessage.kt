@@ -25,13 +25,13 @@ data class HearMessage(var time: Int = 0, var sender: MessageSender? = null, var
             // lexer stage
             val lexer = ServerMessageLexer(CharStreams.fromString(input))
             lexer.removeErrorListeners()
-            lexer.addErrorListener(ErrorListener)
+            lexer.addErrorListener(MessageErrorListener)
             val tokens = CommonTokenStream(lexer)
 
             // parser stage
             val parser = ServerMessageParser(tokens)
             parser.removeErrorListeners()
-            parser.addErrorListener(ErrorListener)
+            parser.addErrorListener(MessageErrorListener)
             val tree = parser.hearMessage()
 
             // walk the parse tree, generate the message

@@ -42,13 +42,13 @@ data class SeeMessage(var time: Int = 0, var objects: MutableList<SeeObject> = m
             // lexer stage
             val lexer = ServerMessageLexer(CharStreams.fromString(input))
             lexer.removeErrorListeners()
-            lexer.addErrorListener(ErrorListener)
+            lexer.addErrorListener(MessageErrorListener)
             val tokens = CommonTokenStream(lexer)
 
             // parser stage
             val parser = ServerMessageParser(tokens)
             parser.removeErrorListeners()
-            parser.addErrorListener(ErrorListener)
+            parser.addErrorListener(MessageErrorListener)
             val tree = parser.seeMessage()
 
             // walk the parse tree, generate the message

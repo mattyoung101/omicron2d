@@ -43,6 +43,16 @@
           <option name="language" value="Java" />
           <option name="generateVisitor" value="true" />
         </PerGrammarGenerationSettings>
+        <PerGrammarGenerationSettings>
+          <option name="fileName" value="$PROJECT_DIR$/src/main/antlr/PlannerConfig.g4" />
+          <option name="autoGen" value="true" />
+          <option name="outputDir" value="$PROJECT_DIR$/src/main/java" />
+          <option name="libDir" value="$PROJECT_DIR$/src/main/antlr" />
+          <option name="encoding" value="" />
+          <option name="pkg" value="io.github.omicron2d.ai.planning" />
+          <option name="language" value="Java" />
+          <option name="generateVisitor" value="true" />
+        </PerGrammarGenerationSettings>
       </list>
     </option>
   </component>

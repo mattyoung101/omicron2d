@@ -29,7 +29,7 @@ Novel features of Omicron2D plan to be:
 ## Building/running
 **To build:**
 
-TBA: basically clone the project, open in IntelliJ and run Main.kt
+TBA: basically clone the project, open in IntelliJ and run TeamMain.kt (for the whole team) or Main.kt (for one agent).
 
 TBA: also cover instructions on how to build dist version (for comp).
 

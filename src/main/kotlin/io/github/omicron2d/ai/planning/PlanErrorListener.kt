@@ -7,16 +7,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package io.github.omicron2d.communication.messages
+package io.github.omicron2d.ai.planning
 
-import org.antlr.v4.runtime.*
-import org.antlr.v4.runtime.atn.ATNConfigSet
-import org.antlr.v4.runtime.dfa.DFA
-import org.tinylog.kotlin.Logger
-import java.util.*
+import org.antlr.v4.runtime.BaseErrorListener
+import org.antlr.v4.runtime.RecognitionException
+import org.antlr.v4.runtime.Recognizer
 
-/** Used to log ANTLR parse errors */
-object ErrorListener : BaseErrorListener() {
+/** Used to log ANTLR parse errors in planner config files */
+object PlanErrorListener : BaseErrorListener() {
     override fun syntaxError(
         recognizer: Recognizer<*, *>?,
         offendingSymbol: Any?,
@@ -25,6 +23,6 @@ object ErrorListener : BaseErrorListener() {
         msg: String?,
         e: RecognitionException?
     ) {
-        throw MessageParseException("Syntax error at position $charPositionInLine: $msg")
+        throw PlanConfigParseException("Syntax error at position $charPositionInLine: $msg")
     }
 }

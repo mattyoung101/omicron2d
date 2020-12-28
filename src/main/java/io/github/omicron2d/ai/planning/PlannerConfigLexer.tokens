@@ -1,0 +1,17 @@
+T__0=1
+COLON=2
+LBRACKET=3
+RBRACKET=4
+SEMICOLON=5
+ARROW=6
+NOT=7
+LITERAL=8
+WS=9
+COMMENT=10
+'action'=1
+':'=2
+'['=3
+']'=4
+';'=5
+'->'=6
+'!'=7
