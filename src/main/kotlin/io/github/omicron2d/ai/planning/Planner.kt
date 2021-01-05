@@ -11,10 +11,13 @@ package io.github.omicron2d.ai.planning
 
 import java.util.*
 
+typealias MutableWorldState = MutableMap<String, Boolean>
+typealias ImmutableWorldState = Map<String, Boolean>
+
 /**
  * Interface for various planning algorithms.
  *
- * Nomenclature for this is from: https://en.wikipedia.org/wiki/Stanford_Research_Institute_Problem_Solver
+ * Nomenclature for this is from: [https://en.wikipedia.org/wiki/Stanford_Research_Institute_Problem_Solver]
  */
 interface Planner {
     /**
@@ -25,8 +28,8 @@ interface Planner {
      * @return the plan, an ordered queue of actions the agent must complete
      */
     fun calculatePlan(
-        initialState: Map<String, Boolean>,
-        targetState: Map<String, Boolean>,
+        initialState: ImmutableWorldState,
+        targetState: ImmutableWorldState,
         actions: List<PlanAction>
     ): Queue<PlanAction>
 }

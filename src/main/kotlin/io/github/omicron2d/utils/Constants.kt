@@ -23,9 +23,10 @@ import kotlin.random.Random
  * 0.1.0-alpha: major rewrite and refactor
  * 0.2.0-alpha: rewrite parsers in ANTLR
  * 0.3.0-alpha: localisation implemented, more ANTLR parsers, debug UI, storage now in YAML
- * 0.4.0-alpha: (WIP) formation loading, high level world model
+ * 0.4.0-alpha: formation loading, high level world model
+ * 0.5.0-alpha: (WIP) basic planning and movement
  */
-const val OMICRON2D_VERSION = "0.4.0-alpha"
+const val OMICRON2D_VERSION = "0.5.0-alpha"
 /** Supported rcssserver protocol version */
 const val SERVER_PROTOCOL_VERSION = "15"
 /** Charset available for the (say) command */
