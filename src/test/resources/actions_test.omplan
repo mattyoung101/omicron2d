@@ -1,0 +1,14 @@
+// This file is part of the Omicron2D RoboCup 2D Soccer Simulation team.
+// Implements a simple test of our STRIPS planning system using our custom planner config language (OMGCfg)
+
+action Action1
+    : []
+    -> [A1Done];
+
+action Action2
+    : [A1Done IsEpic]
+    -> [A2Done] ;
+
+action Action3 // comments should be allowed here
+    : [A1Done A2Done IsEpic !IsBad]
+    -> [A3Done];

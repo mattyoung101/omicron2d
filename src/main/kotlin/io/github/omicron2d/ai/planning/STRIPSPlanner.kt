@@ -19,16 +19,14 @@ import java.util.*
  * This code is ported and slightly improved from my GOAP implementation called goaplite, originally written in C:
  * [https://github.com/mattyoung101/goaplite/blob/master/goap.c]
  *
- * This is not an HTN planner, so it's quite simple and not so "smart". I believe it should suffice for the time being.
- *
- * Also note that we used a breadth-first search as our algorithm, nothing smart like A* because we currently have no
+ * Note that we used a breadth-first search as our algorithm, nothing smart like A* because we currently have no
  * costs on our actions (and also BFS is simple to implement).
  */
 class STRIPSPlanner : Planner {
     override fun calculatePlan(initialState: ImmutableWorldState, targetState: ImmutableWorldState, actions: List<PlanAction>): Queue<PlanAction> {
         // check if we're already at the goal state for some reason
         if (compareWorldState(initialState, targetState)){
-            Logger.warn("Goal state is already satisfied, no planning required??")
+            Logger.warn("Goal state is already satisfied, no planning required!")
             return LinkedList()
         }
 
@@ -52,7 +50,7 @@ class STRIPSPlanner : Planner {
             if (node.parents.isNotEmpty()){
                 println("Parents are:\n${dumpActionList(node.parents)}")
             }
-            println("World state of this node is:\n${node.worldState}")
+            println("World state of this node is:\n${dumpWorldState(node.worldState)}")
 
             // let's see what actions we can execute in the current world state of the node
             val neighbours = findExecutableActions(node, actions)

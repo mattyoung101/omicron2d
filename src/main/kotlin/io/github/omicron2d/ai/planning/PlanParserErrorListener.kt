@@ -14,7 +14,7 @@ import org.antlr.v4.runtime.RecognitionException
 import org.antlr.v4.runtime.Recognizer
 
 /** Used to log ANTLR parse errors in planner config files */
-object PlanErrorListener : BaseErrorListener() {
+object PlanParserErrorListener : BaseErrorListener() {
     override fun syntaxError(
         recognizer: Recognizer<*, *>?,
         offendingSymbol: Any?,
@@ -23,6 +23,6 @@ object PlanErrorListener : BaseErrorListener() {
         msg: String?,
         e: RecognitionException?
     ) {
-        throw PlanConfigParseException("Syntax error at position $charPositionInLine: $msg")
+        throw PlanParseException("Syntax error on line $line:$charPositionInLine: $msg")
     }
 }

@@ -1,4 +1,4 @@
-// Generated from /home/matt/workspace/omicron2d/src/main/antlr/ServerMessage.g4 by ANTLR 4.8
+// Generated from /home/matt/workspace/omicron2d/src/main/antlr/ServerMessage.g4 by ANTLR 4.9
 package io.github.omicron2d.communication.messages;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 

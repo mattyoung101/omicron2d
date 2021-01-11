@@ -14,7 +14,7 @@ grammar PlannerConfig;
 // Also: the reason why this was created, compared to using something like YAML is to provide a syntax that I like
 // and isn't too verbose. Plus, as you can see by the grammar, it's really not a complicated language at all :)
 
-// TODO add support for describing cost (optional)
+// TODO add support for describing cost
 
 /*
 Code example:

@@ -54,8 +54,8 @@ dependencies {
     implementation group: 'org.jfree', name: 'jfreechart-fx', version: '1.0.1'
     implementation 'com.github.fzakaria:ascii85:1.2'
 
-    antlr "org.antlr:antlr4:4.8"
-    implementation "org.antlr:antlr4-runtime:4.8"
+    antlr "org.antlr:antlr4:4.9"
+    implementation "org.antlr:antlr4-runtime:4.9"
 
     testImplementation group: 'junit', name: 'junit', version: '4.12'
 }

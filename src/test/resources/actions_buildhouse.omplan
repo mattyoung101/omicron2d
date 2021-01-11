@@ -1,0 +1,36 @@
+// This file is part of the Omicron2D RoboCup 2D Soccer Simulation team.
+// Implements a more complex of the action planning system (both planner and parser).
+// This plan file is ported from a test file from goaplite (my previous planning project):
+// https://github.com/mattyoung101/goaplite/blob/master/test_data/actions_buildhouse.json
+
+action FindAxe
+    : []
+    -> [HaveAxe] ;
+
+action CollectLog
+    : [HaveAxe]
+    -> [HaveWood] ;
+
+action ChopLog
+    : [HaveWood]
+    -> [HaveTimber] ;
+
+action CollectStone
+    : []
+    -> [HaveStone] ;
+
+action MakeConcrete
+    : [HaveStone]
+    -> [HaveConcrete] ;
+
+action BuildFoundation
+    : [HaveConcrete]
+    -> [BuiltFoundation] ;
+
+action BuildWalls
+    : [HaveTimber BuiltFoundation]
+    -> [BuiltWalls] ;
+
+action BuildRoof
+    : [HaveTimber BuiltWalls BuiltFoundation]
+    -> [BuiltHouse] ;

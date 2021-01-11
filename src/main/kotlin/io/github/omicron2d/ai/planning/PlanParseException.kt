@@ -12,5 +12,5 @@ package io.github.omicron2d.ai.planning
 /**
  * Indicates that a plan configuration could not be parsed and deserialised
  */
-class PlanConfigParseException(reason: String = "") : RuntimeException(reason) {
+class PlanParseException(reason: String = "") : RuntimeException(reason) {
 }
