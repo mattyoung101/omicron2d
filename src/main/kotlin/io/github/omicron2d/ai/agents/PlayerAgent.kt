@@ -44,10 +44,8 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
      *
      * TODO:
      * - rewrite AbstractSoccerAgent to include this?
-     * - cancel timer on app teardown
      */
     private fun think(){
-        // TODO temporary just for fun
         val mode = arrayOf(ViewMode.NARROW, ViewMode.NORMAL, ViewMode.WIDE).random()
         transmit(arrayOf(TurnMessage(20.0), ChangeViewMessage(mode)))
     }
@@ -55,13 +53,13 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
     override fun run() {
         Logger.debug("PlayerAgent main loop started")
 
-        while (true){
+        while (true) {
             // Receive message from server and parse
             val msgStr = messages.poll(30, TimeUnit.SECONDS)
-            if (msgStr == null){
+            if (msgStr == null) {
                 Logger.warn("Unexpected null message from message queue, server dead? Terminating!")
                 break
-            } else if (msgStr == "INTERNAL_TIMED_OUT"){
+            } else if (msgStr == "INTERNAL_TIMED_OUT") {
                 Logger.warn("Received server timeout message, terminating PlayerAgent!")
                 break
             }
@@ -72,141 +70,10 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
 
             // If we've received the first packet (and thus have switched ports), start the think timer to send
             // commands back
-            if (!haveReceivedMsg){
+            if (!haveReceivedMsg) {
                 Logger.debug("First message received, starting think timer")
                 thinkTimer.scheduleAtFixedRate({ think() }, 0, 99, TimeUnit.MILLISECONDS)
                 haveReceivedMsg = true
-            }
-
-            // check to make sure we have enough flags to perform a decent localisation with, about three should
-            // be fine - I can't imagine it would work with any less
-            if (lowModel.goodFlags.size >= 3) {
-                // first we convert our messy flag data into polar flag observations that the localiser requires
-                // which is 0-360 instead of -180-180
-                val observations = mutableMapOf<String, ObjectObservationPolar>()
-                // NOTE that we can be assured that distance and direction are NOT null, because flags missing those
-                // are filtered out for goodFlags in handleSeeMessage below
-                for (flag in lowModel.goodFlags) {
-                    val direction = (flag.direction!!.toDouble() + 360.0) % 360.0
-                    observations[flag.name] = ObjectObservationPolar(flag.distance!!, direction)
-                }
-                val agentTransform = ICPLocalisation.performLocalisation(observations)
-
-                // reset previously recorded information about unknown players since we have data
-                highModel.unknownTeamPlayers.clear()
-                highModel.unknownPlayers.clear()
-
-                // big world model update section
-                // calculate absolute positions for other players
-                for (player in lowModel.players){
-                    val info = player.playerInfo
-                    val dist = player.distance
-                    val dir = player.direction
-                    // in future we could perhaps do something if dist or direction were null, currently we ignore
-                    if (dist == null || dir == null){
-                        Logger.trace("Player $player has no useful information, skipping")
-                        continue
-                    }
-
-                    if (info?.unum != null && info.teamName != null){
-                        // we have lots of information: we can find out this player's id, and which team they're on
-                        val id = info.unum!! - 1
-                        if (info.teamName == CURRENT_CONFIG.get().teamName){
-                            // it's our team
-                            // note that we use ID here instead of unum since teamPlayers is zero indexed
-                            highModel.teamPlayers[id].isKnown = true
-                            highModel.teamPlayers[id].lastSeen = lowModel.time
-                            highModel.teamPlayers[id].isGoalie = info.goalie
-                            val absolute = calculateAbsolutePosition(dir, dist, agentTransform)
-                            // calculate body orientation in radians if available
-                            val bodyDirection = calcBodyFaceDir(player.bodyFaceDir)
-                            highModel.teamPlayers[id].transform = Transform2D(absolute, bodyDirection)
-                        } else {
-                            // it's the opposition team
-                            highModel.opponentPlayers[id].isKnown = true
-                            highModel.opponentPlayers[id].lastSeen = lowModel.time
-                            highModel.opponentPlayers[id].isGoalie = info.goalie
-                            val absolute = calculateAbsolutePosition(dir, dist, agentTransform)
-                            highModel.teamPlayers[id].transform = Transform2D(absolute, 0.0)
-                            // calculate body orientation in radians if available
-                            val bodyDirection = calcBodyFaceDir(player.bodyFaceDir)
-                            highModel.teamPlayers[id].transform = Transform2D(absolute, bodyDirection)
-                        }
-                    } else if (info?.unum != null){
-                        // we know this player's id, we might be able to infer which team they're on
-                        // TODO work out a way to infer team for certain players
-                        // we could even calculate chances of which player is which (e.g. 50-50 chance it's id 2 or 3)
-                        val absolute = calculateAbsolutePosition(dir, dist, agentTransform)
-                        // calculate body orientation in radians if available
-                        val bodyDirection = calcBodyFaceDir(player.bodyFaceDir)
-                        val transform = Transform2D(absolute, bodyDirection)
-
-                        val obj = PlayerObject().apply {
-                            this.transform = transform
-                            isKnown = true
-                            unum = info.unum!!
-                            id = info.unum!! - 1
-                            isGoalie = info.goalie
-                        }
-                        highModel.unknownTeamPlayers.add(obj)
-                    } else {
-                        // we don't know anything about this player, but still set them up for obstacle avoidance
-                        val absolute = calculateAbsolutePosition(dir, dist, agentTransform)
-                        // body orientation is very likely NOT available, but try anyways
-                        val bodyDirection = calcBodyFaceDir(player.bodyFaceDir)
-                        val transform = Transform2D(absolute, bodyDirection)
-
-                        val obj = PlayerObject().apply {
-                            this.transform = transform
-                            isKnown = true
-                        }
-                        highModel.unknownPlayers.add(obj)
-                    }
-                }
-
-                // calculate absolute position of the ball
-                if (lowModel.ball != null){
-                    val ball = lowModel.ball!!
-                    if (ball.direction == null || ball.distance == null){
-                        Logger.warn("Cannot localise ball, distance or direction is null: $ball")
-                        // here we may want to ask our friends for help
-                    } else {
-                        val absolute = calculateAbsolutePosition(ball.direction!!, ball.distance!!, agentTransform)
-                        highModel.ball.pos = absolute
-                        highModel.ball.isKnown = true
-                        highModel.ball.lastSeen = lowModel.time
-                        // TODO calculate velocity vector?
-                    }
-                } else {
-                    highModel.ball.isKnown = false
-                }
-
-                // finally, we update the high level world model for ourselves
-                val self = highModel.selfId
-                highModel.teamPlayers[self].isKnown = true
-                highModel.teamPlayers[self].transform = agentTransform
-                highModel.teamPlayers[self].lastSeen = lowModel.time
-                AGENT_STATS.get().successfulLocalisations++
-            } else {
-                // only log if game has started to reduce spam
-                Logger.trace("Cannot perform localisation, no good flags! all flags = ${lowModel.allFlags}")
-
-                // because we couldn't localise, this means that the positions of ALL of our localised objects are
-                // now unknown. so go and update them here
-                for (i in highModel.teamPlayers.indices){
-                    highModel.teamPlayers[i].isKnown = false
-                    highModel.opponentPlayers[i].isKnown = false
-                }
-                // we don't clear out unknown player data if we have no flags, since we might want to work with it later
-                for (i in highModel.unknownTeamPlayers.indices){
-                    highModel.unknownTeamPlayers[i].isKnown = false
-                }
-                for (i in highModel.unknownPlayers.indices){
-                    highModel.unknownPlayers[i].isKnown = false
-                }
-                highModel.ball.isKnown = false
-
-                AGENT_STATS.get().failedLocalisations++
             }
         }
     }
@@ -244,7 +111,7 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
         highModel.teamPlayers[highModel.selfId].isGoalie = isGoalie
         Logger.info("Init message received: $init (self ID: ${highModel.selfId})")
 
-        // Okay! So, for whatever idiot reason, the server (for the move command) actually considers right-side
+        // info: the server (for the move command) actually considers right-side
         // coordinates as exactly the same as left side coordinates. So, instead of moving to (20, 0) for example,
         // the ACTUAL position... we move to (-20, 0) - the same as the left side. This means that no coordinate
         // adjustment is actually required.
@@ -264,6 +131,7 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
     }
 
     override fun handleSeeMessage(see: SeeMessage){
+        // first, setup our low level world model
         val flags = see.objects.filter { it.type == ObjectType.FLAG }
         // good flags are the ones we use to localise
         lowModel.goodFlags = flags.filter {
@@ -274,6 +142,135 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
         lowModel.ball = see.objects.firstOrNull { it.type == ObjectType.BALL }
         lowModel.updateTime(see.time)
         Logger.trace("Received see message: $see")
+
+        // check to make sure we have enough flags to perform a decent localisation with, about three should
+        // be fine - I can't imagine it would work with any less
+        if (lowModel.goodFlags.size >= 3) {
+            // first we convert our messy flag data into polar flag observations that the localiser requires
+            // which is 0-360 instead of -180-180
+            val observations = mutableMapOf<String, ObjectObservationPolar>()
+            // NOTE that we can be assured that distance and direction are NOT null, because flags missing those
+            // are filtered out for goodFlags in handleSeeMessage below
+            for (flag in lowModel.goodFlags) {
+                val direction = (flag.direction!!.toDouble() + 360.0) % 360.0
+                observations[flag.name] = ObjectObservationPolar(flag.distance!!, direction)
+            }
+            val agentTransform = ICPLocalisation.performLocalisation(observations)
+
+            // reset previously recorded information about unknown players since we have data
+            highModel.unknownTeamPlayers.clear()
+            highModel.unknownPlayers.clear()
+
+            // big world model update section
+            // calculate absolute positions for other players
+            for (player in lowModel.players){
+                val info = player.playerInfo
+                val dist = player.distance
+                val dir = player.direction
+                // in future we could perhaps do something if dist or direction were null, currently we ignore
+                if (dist == null || dir == null){
+                    Logger.trace("Player $player has no useful information, skipping")
+                    continue
+                }
+
+                if (info?.unum != null && info.teamName != null){
+                    // we have lots of information: we can find out this player's id, and which team they're on
+                    val id = info.unum!! - 1
+                    if (info.teamName == CURRENT_CONFIG.get().teamName){
+                        // it's our team
+                        // note that we use ID here instead of unum since teamPlayers is zero indexed
+                        highModel.teamPlayers[id].isKnown = true
+                        highModel.teamPlayers[id].lastSeen = lowModel.time
+                        highModel.teamPlayers[id].isGoalie = info.goalie
+                        val absolute = calculateAbsolutePosition(dir, dist, agentTransform)
+                        // calculate body orientation in radians if available
+                        val bodyDirection = calcBodyFaceDir(player.bodyFaceDir)
+                        highModel.teamPlayers[id].transform = Transform2D(absolute, bodyDirection)
+                    } else {
+                        // it's the opposition team
+                        highModel.opponentPlayers[id].isKnown = true
+                        highModel.opponentPlayers[id].lastSeen = lowModel.time
+                        highModel.opponentPlayers[id].isGoalie = info.goalie
+                        val absolute = calculateAbsolutePosition(dir, dist, agentTransform)
+                        highModel.teamPlayers[id].transform = Transform2D(absolute, 0.0)
+                        // calculate body orientation in radians if available
+                        val bodyDirection = calcBodyFaceDir(player.bodyFaceDir)
+                        highModel.teamPlayers[id].transform = Transform2D(absolute, bodyDirection)
+                    }
+                } else if (info?.unum != null){
+                    // we know this player's id, we might be able to infer which team they're on
+                    // TODO work out a way to infer team for certain players
+                    // we could even calculate chances of which player is which (e.g. 50-50 chance it's id 2 or 3)
+                    val absolute = calculateAbsolutePosition(dir, dist, agentTransform)
+                    // calculate body orientation in radians if available
+                    val bodyDirection = calcBodyFaceDir(player.bodyFaceDir)
+                    val transform = Transform2D(absolute, bodyDirection)
+
+                    val obj = PlayerObject().apply {
+                        this.transform = transform
+                        isKnown = true
+                        unum = info.unum!!
+                        id = info.unum!! - 1
+                        isGoalie = info.goalie
+                    }
+                    highModel.unknownTeamPlayers.add(obj)
+                } else {
+                    // we don't know anything about this player, but still set them up for obstacle avoidance
+                    val absolute = calculateAbsolutePosition(dir, dist, agentTransform)
+                    // body orientation is very likely NOT available, but try anyways
+                    val bodyDirection = calcBodyFaceDir(player.bodyFaceDir)
+                    val transform = Transform2D(absolute, bodyDirection)
+
+                    val obj = PlayerObject().apply {
+                        this.transform = transform
+                        isKnown = true
+                    }
+                    highModel.unknownPlayers.add(obj)
+                }
+            }
+
+            // calculate absolute position of the ball
+            if (lowModel.ball != null){
+                val ball = lowModel.ball!!
+                if (ball.direction == null || ball.distance == null){
+                    Logger.warn("Cannot localise ball, distance or direction is null: $ball")
+                    // here we may want to ask our teammates for help
+                } else {
+                    val absolute = calculateAbsolutePosition(ball.direction!!, ball.distance!!, agentTransform)
+                    highModel.ball.pos = absolute
+                    highModel.ball.isKnown = true
+                    highModel.ball.lastSeen = lowModel.time
+                    // TODO calculate velocity vector?
+                }
+            } else {
+                highModel.ball.isKnown = false
+            }
+
+            // finally, we update the high level world model for ourselves
+            val self = highModel.selfId
+            highModel.teamPlayers[self].isKnown = true
+            highModel.teamPlayers[self].transform = agentTransform
+            highModel.teamPlayers[self].lastSeen = lowModel.time
+            AGENT_STATS.get().successfulLocalisations++
+        } else {
+            //Logger.debug("Cannot perform localisation, no good flags! all flags = ${lowModel.allFlags}")
+            // because we couldn't localise, this means that the positions of ALL of our localised objects are
+            // now unknown. so go and update them here
+            for (i in highModel.teamPlayers.indices){
+                highModel.teamPlayers[i].isKnown = false
+                highModel.opponentPlayers[i].isKnown = false
+            }
+            // we don't clear out unknown player data if we have no flags, since we might want to work with it later
+            for (i in highModel.unknownTeamPlayers.indices){
+                highModel.unknownTeamPlayers[i].isKnown = false
+            }
+            for (i in highModel.unknownPlayers.indices){
+                highModel.unknownPlayers[i].isKnown = false
+            }
+            highModel.ball.isKnown = false
+
+            AGENT_STATS.get().failedLocalisations++
+        }
 
         AGENT_STATS.get().goodFlagsRate.addValue(lowModel.goodFlags.size.toDouble() / lowModel.allFlags.size.toDouble())
     }
@@ -309,9 +306,9 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
     override fun handleAnyMessage() {
         // decrease our error count, don't set to zero in case we get spaced out errors
         // (we still need to do the emergency exit then)
-//        if (errorCount > 0){
-//            errorCount--
-//        }
+        if (errorCount > 0){
+            errorCount--
+        }
     }
 
     override fun handleWarningMessage(warning: WarningMessage) {
