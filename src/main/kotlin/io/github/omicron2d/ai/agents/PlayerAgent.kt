@@ -9,9 +9,11 @@
 
 package io.github.omicron2d.ai.agents
 
+import io.github.omicron2d.ai.EventState
 import io.github.omicron2d.ai.Formation
 import io.github.omicron2d.ai.behaviours.BehaviourManager
 import io.github.omicron2d.ai.behaviours.lowlevel.MoveToPoint
+import io.github.omicron2d.ai.behaviours.lowlevel.Sit
 import io.github.omicron2d.ai.world.HighLevelWorldModel
 import io.github.omicron2d.ai.world.ICPLocalisation
 import io.github.omicron2d.ai.world.LowLevelWorldModel
@@ -19,6 +21,7 @@ import io.github.omicron2d.communication.AbstractSoccerAgent
 import io.github.omicron2d.communication.messages.*
 import io.github.omicron2d.utils.*
 import mikera.vectorz.Vector2
+import org.apache.commons.lang3.concurrent.BasicThreadFactory
 import org.tinylog.kotlin.Logger
 import java.net.InetAddress
 import java.util.concurrent.Executors
@@ -39,8 +42,8 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
     private var errorCount = 0
     private val startingFormation = Formation(CURRENT_CONFIG.get().initialFormation)
     // we use this instead of timer, see https://stackoverflow.com/a/409993/5007892
-    private val thinkTimer = Executors.newSingleThreadScheduledExecutor()
-    private var haveReceivedMsg = false
+    private val thinkTimer = Executors.newSingleThreadScheduledExecutor(namedThreadFactory)
+    private val eventState = EventState()
 
     /**
      * This function is intermittently called every 99ms, to send data to the server, since our message receive rate
@@ -50,29 +53,29 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
      * - rewrite AbstractSoccerAgent to include this by default?
      */
     private fun think(){
-        val mode = arrayOf(ViewMode.NARROW, ViewMode.NORMAL, ViewMode.WIDE).random()
-        //transmit(arrayOf(TurnMessage(20.0), ChangeViewMessage(mode)))
-        //transmit(arrayOf(DashMessage(65.0, 0.0), TurnMessage(10.0)))
-        //transmit(TurnMessage(10.0))
-
-        // TODO only move if current play mode is play on!
-        // TODO add lock movement to high level world model?
         val ctx = AgentContext(highModel, lowModel.time)
+        val movement = behaviourManager.updateMovement(ctx)
+        val comms = behaviourManager.updateCommunications(ctx)
 
         // update agent movement
-        // alternatively the behaviour itself can check if we should be braking and return zero
-        val movement = behaviourManager.updateMovement(ctx)
-        if (movement.dash != null){
+        // if the dash power here is too small, don't bother sending the message to the server to reduce spam
+        if (movement.dash != null && movement.dash.x >= EPSILON){
             // convert radians to degrees, then 0-360 degrees to -180 to +180 degrees
             val dashDirDegrees = movement.dash.y.toDegrees()
             val dashDir = if (dashDirDegrees > 180.0) dashDirDegrees - 360.0 else dashDirDegrees
-            transmit(DashMessage(movement.dash.x, dashDir))
+
+            // only transmit dash after kickoff, don't spam the server during setup
+            if (eventState.hasKickedOff) {
+                transmit(DashMessage(movement.dash.x, dashDir))
+            }
         } else if (movement.turn != null){
-            // we've got a turn behaviour on our hands
             transmit(TurnMessage(movement.turn))
         }
 
         // update agent communications
+        if (comms.isNotEmpty()){
+
+        }
     }
 
     override fun run() {
@@ -83,10 +86,10 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
             val msgStr = messages.poll(30, TimeUnit.SECONDS)
             if (msgStr == null) {
                 Logger.warn("Unexpected null message from message queue, server dead? Terminating!")
-                break
+                return
             } else if (msgStr == "INTERNAL_TIMED_OUT") {
                 Logger.warn("Received server timeout message, terminating PlayerAgent!")
-                break
+                return
             }
 
             // Dispatch message to handlers for data processing. Runs in same thread, no need to worry about data races
@@ -94,41 +97,42 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
 
             // If we've received the first packet (and thus have switched ports), start the think timer to send
             // commands back
-            if (!haveReceivedMsg) {
+            if (!eventState.hasReceivedMessage) {
                 Logger.debug("First message received, starting think timer")
                 thinkTimer.scheduleAtFixedRate({ think() }, 0, 99, TimeUnit.MILLISECONDS)
-                haveReceivedMsg = true
-
-                // TODO just for testing
-                val ctx = AgentContext(highModel, lowModel.time)
-                behaviourManager.changeMovementBehaviour(MoveToPoint(Vector2(-9.10, -0.5), 75.0), ctx)
+                eventState.hasReceivedMessage = true
             }
         }
     }
 
-    /**
-     * Calculates the body face direction of a player from the see message.
-     * If faceDir is null, returns -1.0 since it is therefore not known.
-     * TODO check correctness.
-     */
-    private fun calcBodyFaceDir(faceDir: Int?): Double {
-        return if (faceDir != null){
-            ((faceDir + 360.0) % 360.0) * DEG_RAD
-        } else {
-            -1.0
-        }
-    }
+    /** Event listener called when playmode is changed */
+    private fun onPlayModeChange(newMode: PlayMode){
+        highModel.playMode = newMode
 
-    override fun teardown() {
-        println("PlayerAgent teardown() running")
-        thinkTimer.shutdownNow()
-        thinkTimer.awaitTermination(256, TimeUnit.MILLISECONDS)
+        // check for kickoff
+        if (highModel.playMode == PlayMode.PLAY_ON && !eventState.hasKickedOff){
+            Logger.debug("First PLAY_ON, starting kick off behaviours")
+            eventState.hasKickedOff = true
+
+            // just for testing
+            val coords = listOf(Vector2(-50.0, 32.0), Vector2(-50.0, -32.0), Vector2(45.0, -32.0),
+                    Vector2(51.36, 32.31))
+//            val coords = listOf(Vector2(-7.0, -6.0), Vector2(-6.0, -6.0), Vector2(5.0, -7.0),
+//                    Vector2(7.0, 5.0), Vector2(-7.0, -6.0))
+
+            for (coord in coords){
+                behaviourManager.movementQueue.add(MoveToPoint(coord, 100.0))
+                behaviourManager.movementQueue.add(Sit(10000))
+            }
+        }
     }
 
     override fun handleInitMessage(init: IncomingInitMessage){
         if (init.playMode != PlayMode.BEFORE_KICK_OFF){
             Logger.warn("Unexpected play mode during init: ${init.playMode} (agent joined late?)")
+            onPlayModeChange(init.playMode)
         }
+
         // first, we update our world models
         lowModel.selfUnum = init.unum
         lowModel.selfSide = init.side
@@ -147,7 +151,6 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
         val pos = startingFormation.getPosition(highModel.selfId)
         Logger.debug("Moving to initial position $pos for formation ${startingFormation.name}")
         pushBatch(MoveMessage(pos))
-
         // usually we won't listen to the opposition - can be changed in YAML config though
         pushBatch(EarMessage(status = CURRENT_CONFIG.get().listenToOpposition, us = false))
         // send synch_see which disables low quality mode
@@ -204,6 +207,7 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
                 if (info?.unum != null && info.teamName != null){
                     // we have lots of information: we can find out this player's id, and which team they're on
                     val id = info.unum!! - 1
+                    // TODO can we DRY this?
                     if (info.teamName == CURRENT_CONFIG.get().teamName){
                         // it's our team
                         // note that we use ID here instead of unum since teamPlayers is zero indexed
@@ -230,7 +234,6 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
                     // TODO work out a way to infer team for certain players
                     // we could even calculate chances of which player is which (e.g. 50-50 chance it's id 2 or 3)
                     val absolute = calculateAbsolutePosition(dir, dist, agentTransform)
-                    // calculate body orientation in radians if available
                     val bodyDirection = calcBodyFaceDir(player.bodyFaceDir)
                     val transform = Transform2D(absolute, bodyDirection)
 
@@ -310,7 +313,13 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
 
         when {
             hear.sender == MessageSender.REFEREE -> {
-                // it's from the ref, either playmode change or we have fouled or something
+                // first check if the message is a play mode change
+                val playModes = PlayMode.values().map { it.toString() }
+                if (hear.message.toUpperCase() in playModes){
+                    val newPlayMode = PlayMode.valueOf(hear.message.toUpperCase())
+                    Logger.debug("Referee changing play mode to: $newPlayMode")
+                    onPlayModeChange(newPlayMode)
+                }
             }
             hear.sender == MessageSender.COACH || hear.sender == ourCoach -> {
                 // it's a coach, listen to what they've got to say
@@ -343,5 +352,32 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
 
     override fun handleWarningMessage(warning: WarningMessage) {
         Logger.warn("Received server warning: ${warning.message}")
+    }
+
+    override fun teardown() {
+        println("PlayerAgent teardown() running")
+        thinkTimer.shutdownNow()
+        thinkTimer.awaitTermination(255, TimeUnit.MILLISECONDS)
+    }
+
+    /**
+     * Calculates the body face direction of a player from the see message.
+     * If faceDir is null, returns -1.0 since it is therefore not known.
+     * TODO check correctness.
+     */
+    private fun calcBodyFaceDir(faceDir: Int?): Double {
+        return if (faceDir != null){
+            ((faceDir + 360.0) % 360.0) * DEG_RAD
+        } else {
+            -1.0
+        }
+    }
+
+    companion object {
+        // similar to: https://stackoverflow.com/a/9748697/5007892
+        private val namedThreadFactory = BasicThreadFactory.Builder()
+            .namingPattern("Think-%d")
+            .daemon(true)
+            .build()
     }
 }

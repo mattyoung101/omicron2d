@@ -9,13 +9,13 @@
 
 package io.github.omicron2d.ai.behaviours.lowlevel
 
-import io.github.omicron2d.ai.AngularPDController
 import io.github.omicron2d.ai.PDController
 import io.github.omicron2d.ai.behaviours.MovementBehaviour
 import io.github.omicron2d.utils.AgentContext
 import io.github.omicron2d.utils.CURRENT_CONFIG
-import io.github.omicron2d.utils.PI2
 import mikera.vectorz.Vector2
+import org.tinylog.kotlin.Logger
+import kotlin.math.atan2
 
 /**
  * Behaviour which moves the agent to a given point using a PD controller.
@@ -23,8 +23,8 @@ import mikera.vectorz.Vector2
  * @param maxPower maximum amount of power that can be used in any one dash command (this is NOT total stamina used)
  */
 class MoveToPoint(private val targetPoint: Vector2, private val maxPower: Double) : MovementBehaviour {
-    private val speedPD = PDController(CURRENT_CONFIG.get().moveSpeedKp, CURRENT_CONFIG.get().moveSpeedKd, -maxPower, maxPower)
-    private val anglePD = AngularPDController(CURRENT_CONFIG.get().moveAngleKp, CURRENT_CONFIG.get().moveAngleKd, -PI2, PI2)
+    private val xPD = PDController(CURRENT_CONFIG.get().moveKp, CURRENT_CONFIG.get().moveKd, -maxPower, maxPower)
+    private val yPD = PDController(CURRENT_CONFIG.get().moveKp, CURRENT_CONFIG.get().moveKd, -maxPower, maxPower)
     private val threshold = CURRENT_CONFIG.get().movePointReachedThresh
 
     override fun onEnter(ctx: AgentContext) {
@@ -37,28 +37,30 @@ class MoveToPoint(private val targetPoint: Vector2, private val maxPower: Double
     }
 
     override fun calculateSteering(ctx: AgentContext): Vector2 {
-        // first check if we know our position, if not, bail
+        // can't do much if we don't know anything about ourselves (words of wisdom right there!)
         if (!ctx.world.getSelfPlayer().isKnown){
-            println("MoveToPoint position unknown")
+            Logger.warn("Self position unknown!")
+            // FIXME come up with a better way to handle this
+            // (either ask our friends for help, or move back to a previous pos?)
             return Vector2(0.0, 0.0)
         }
 
+        // apply PD controller in cartesian first
         val myPos = ctx.world.getSelfPlayer().transform.pos
-        val currentAngle = ctx.world.getSelfPlayer().transform.theta // radians
-        val currentDist = myPos.distance(targetPoint)
-        val angleToTarget = myPos.angle(targetPoint) // radians
+        val xCorrection = xPD.update(myPos.x, targetPoint.x)
+        val yCorrection = yPD.update(myPos.y, targetPoint.y)
 
-        val angleCorrection = anglePD.update(currentAngle, angleToTarget) // radians
-        // stop just inside threshold circle
-        // FIXME why is this negative????? it doesn't work :/
-        val speedCorrection = speedPD.update(currentDist, threshold - 1.0)
+        // convert our relative cartesian correction vector into polar for the server
+        val movementCart = Vector2(xCorrection, yCorrection)
+        val r = movementCart.magnitude()
+        val theta = atan2(movementCart.y, movementCart.x)
 
-        // final angle is indeed still in radians, it is converted just before being sent to the server
-        return Vector2(speedCorrection, angleCorrection)
+        // note that the final output is still in radians
+        return Vector2(r, theta)
     }
 
     override fun calculateTurn(ctx: AgentContext): Double {
-        // no contribution to turn angle
+        // use omnidirectional dash instead of turn
         return 0.0
     }
 }

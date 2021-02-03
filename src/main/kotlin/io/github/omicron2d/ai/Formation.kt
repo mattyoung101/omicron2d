@@ -15,10 +15,8 @@ import com.google.gson.GsonBuilder
 import mikera.vectorz.Vector2
 import org.tinylog.kotlin.Logger
 import java.io.File
-import java.io.FileInputStream
 import java.io.FileReader
 import java.io.FileWriter
-import java.nio.file.Paths
 
 /**
  * Loads a formation file created with the Formation Editor (FormationEditor.kt).
@@ -30,6 +28,7 @@ class Formation(val name: String) {
     private val positions: Array<Vector2>
 
     init {
+        Logger.debug("Loading formation: $name")
         val reader = YamlReader(FileReader(name))
         positions = reader.read(Array<Vector2>::class.java)
     }

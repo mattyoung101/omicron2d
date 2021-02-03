@@ -43,7 +43,7 @@ const val RAD_DEG = 57.29577951308232
 /** PI * 2 **/
 const val PI2 = PI * 2.0
 /** Used for floating point comparisons */
-const val EPSILON = 0.001
+const val EPSILON = 0.0001
 val ZERO_VECTOR = Vector2(0.0, 0.0)
 
 // THREAD LOCAL VARIABLES

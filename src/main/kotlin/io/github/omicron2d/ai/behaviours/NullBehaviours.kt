@@ -25,11 +25,7 @@ class NullMovementBehaviour : MovementBehaviour {
 }
 
 class NullCommunicationBehaviour : CommunicationBehaviour {
-    override fun getBytes(ctx: AgentContext): ByteArray {
-        return byteArrayOf()
-    }
+    override fun getBytes(ctx: AgentContext): ByteArray = byteArrayOf()
 
-    override fun isDone(ctx: AgentContext): Boolean {
-        return false
-    }
+    override fun isDone(ctx: AgentContext): Boolean = false
 }

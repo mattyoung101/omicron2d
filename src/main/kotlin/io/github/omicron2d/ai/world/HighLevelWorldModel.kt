@@ -12,6 +12,7 @@
 package io.github.omicron2d.ai.world
 
 import io.github.omicron2d.utils.BallObject
+import io.github.omicron2d.utils.PlayMode
 import io.github.omicron2d.utils.PlayerObject
 import io.github.omicron2d.utils.Side
 
@@ -25,6 +26,7 @@ import io.github.omicron2d.utils.Side
  * @param unknownPlayers List of players who we can see, but we don't know the team name NOR unum of
  * @param selfId The ID of ourselves. ID is the same as unum, but zero indexed (so just -1 on the unum)
  * @param selfSide Our side
+ * @param playMode current play mode
  */
 data class HighLevelWorldModel(
     var ball: BallObject = BallObject(),
@@ -34,7 +36,8 @@ data class HighLevelWorldModel(
     val unknownTeamPlayers: MutableList<PlayerObject> = mutableListOf(),
     val unknownPlayers: MutableList<PlayerObject> = mutableListOf(),
     var selfId: Int = -1,
-    var selfSide: Side = Side.UNKNOWN
+    var selfSide: Side = Side.UNKNOWN,
+    var playMode: PlayMode = PlayMode.UNKNOWN
 ) : WorldModel {
     fun getSelfPlayer(): PlayerObject {
         if (selfId == -1) throw IllegalStateException("Self ID is not currently known!")

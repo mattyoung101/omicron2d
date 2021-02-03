@@ -14,9 +14,11 @@ or assistance is welcomed (just open a GitHub issue).
 
 ## Project status
 
-Updated: 3 February 2021
+Updated: 4 February 2021
 
-Currently working on movement behaviours like MoveToPoint to get the robot moving.
+Agents can now move around properly using a MoveToPoint behaviour! This internally uses a PD (proportional derivative)
+controller to smooth out movements. Working on adding some more basic movement behaviours, then will work on higher
+level ones in the future.
 
 Previously:
 

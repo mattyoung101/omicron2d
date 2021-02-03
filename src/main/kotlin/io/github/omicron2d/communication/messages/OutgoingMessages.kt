@@ -48,7 +48,6 @@ data class ChangeViewMessage(var mode: ViewMode = ViewMode.UNKNOWN,
 data class DashMessage(var power: Double = 0.0, var direction: Double? = null): OutgoingServerMessage {
     override fun serialise(): String {
         return if (direction != null){
-            println("Transmitting dash command (dash $power $direction)")
             "(dash $power $direction)"
         } else {
             "(dash $power)"
@@ -83,7 +82,7 @@ data class EarMessage(val status: Boolean, val us: Boolean): OutgoingServerMessa
     }
 }
 
-/** Note: server uses the spelling `synch` instead. */
+/** Note: server uses the spelling "synch" instead. */
 class SyncSeeMessage: OutgoingServerMessage {
     override fun serialise(): String {
         return "(synch_see)"
