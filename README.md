@@ -9,18 +9,21 @@ RoboCup Jr Open Soccer Internationals in Bordeaux, France in 2020. Unfortunately
 pandemic. Other than the name and developer, this project has no similarity or relation to Team Omicron.
 
 Omicron2D is currently an independent project consisting of only one developer: me, Matt Young (previously
-software engineer on the RoboCup Jr team). This means development will likely be very slow! However, any assistance
-or feedback is welcomed :)
+software engineer on the RoboCup Jr team). This means development will likely be very slow! However, any feedback
+or assistance is welcomed (just open a GitHub issue).
 
 ## Project status
 
-Updated: 11 January 2021
+Updated: 3 February 2021
 
-A simple STRIPS-like planning algorithm and parser for a custom plan definition DSL has been implemented. Shouldn't be
-too long before the agents can move around semi-intelligently!
+Currently working on movement behaviours like MoveToPoint to get the robot moving.
 
-The agent can localise its position and orientation to high levels of accuracy. An entire team of Omicron2D agents can
-be launched, who align themselves in a formation (which can be generated using a graphical editor).
+Previously:
+
+- STRIPS planner and custom plan definition DSL mostly implemented
+- Agent can localise its position with high accuracy
+- All team members can join and align themselves in formation
+- Basic stuff like parser, networking, all works
 
 ## About the agents
 

@@ -10,24 +10,26 @@
 package io.github.omicron2d.ai.behaviours
 
 import io.github.omicron2d.utils.AgentContext
+import mikera.vectorz.Vector2
 
 /**
  * Movement behaviour which does nothing.
  */
 class NullMovementBehaviour : MovementBehaviour {
-    override fun getDashVelocity(): Double = 0.0
+    override fun calculateSteering(ctx: AgentContext): Vector2 = Vector2(0.0, 0.0)
 
-    override fun getTurnVelocity(): Double = 0.0
+    override fun calculateTurn(ctx: AgentContext): Double = 0.0
 
     // we are always willing to accept a new behaviour, so return that we are done
-    override fun isDone(ctx: AgentContext): Boolean = true
+    override fun isDone(ctx: AgentContext): Boolean = false
 }
 
-/**
- * Head behaviour which does nothing
- */
-class NullHeadBehaviour : HeadBehaviour {
-    override fun getHeadVelocity(): Double = 0.0
+class NullCommunicationBehaviour : CommunicationBehaviour {
+    override fun getBytes(ctx: AgentContext): ByteArray {
+        return byteArrayOf()
+    }
 
-    override fun isDone(ctx: AgentContext): Boolean = true
+    override fun isDone(ctx: AgentContext): Boolean {
+        return false
+    }
 }

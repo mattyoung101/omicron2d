@@ -1,0 +1,16 @@
+// This file is part of the Omicron2D RoboCup 2D Soccer Simulation team.
+// Implements (currently simple) agent action list in our custom planner configuration language
+
+// Playing = match in progress
+// Stationary = roughly stationary
+// InPriority = if we are in a priority action like save the ball
+
+action WorldScanDetailed
+    : [InfoOutdated Stationary !InPriority Playing]
+    -> [!InfoOutdated] ;
+
+// TODO WorldScanQuick
+
+action MarkPlayer
+    : [!InfoOutdated HaveAggressiveEnemyNearby]
+    -> [MarkingPlayer] ;

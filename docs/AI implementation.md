@@ -1,4 +1,22 @@
 # AI implementation
+## Notes Jan 2021 (most up to date)
+Think I've come up with a (simple) potential solution:
+
+Planner -> High level actions (InterceptBall) -> Movement planner -> Low level actions (MoveToPoint) -> Soccer sim commands
+
+## Notes 18 Dec 2020
+I'm thinking something like this:
+
+1. Planner decides what actions/behaviours to do, to achieve our goal (i.e. score a goal, defend our goal)
+2. Planner assembles a list of tasks/skills that are hardcoded by us (e.g. MoveToPoint)
+3. We execute those skills
+
+So basically we need the planner to be able to decompose tasks well. Maybe, we could dump all our tasks on it,
+and hope it's good enough to just "figure out" what it has to do. Thogh this might not be possible.
+
+Look into using the JSHOP2 HTN planner.
+
+## Old undated
 How we're going to implement agent behaviour.
 
 Our agent is made up of a bunch of facets, or strategies. The GOAP system decides **what** we want to do, and then
@@ -13,19 +31,7 @@ YAML.
 So for example, the GetBall task will choose a MovementStrategy and a HeadingStrategy. Where we want to go, and where
 we want to look. And maybe also a NetworkingStrategy for communication.
 
-## Notes 18 Dec 2020
-I'm thinking something like this:
-
-1. Planner decides what actions/behaviours to do, to achieve our goal (i.e. score a goal, defend our goal)
-2. Planner assembles a list of tasks/skills that are hardcoded by us (e.g. MoveToPoint)
-3. We execute those skills
-
-So basically we need the planner to be able to decompose tasks well. Maybe, we could dump all our tasks on it,
-and hope it's good enough to just "figure out" what it has to do. Thogh this might not be possible.
-
-Look into using the JSHOP2 HTN planner.
-
-### How do we model our robot?
+## How do we model our robot?
 Since omni-directional dash has been added, let's model our robot as an omni-directional drive robot like in
 RoboCup.
 
@@ -33,7 +39,7 @@ We can drive in any direction at any time. We can turn our head +-180 degrees fr
 It might be sensible to model this as "we can turn to any angle", and have the code automatically calculate the most
 optimal body angle and worry about the head the most. We can't see all of the field at once, we must scan.
 
-### Final thoughts
+## Final thoughts
 - Skills will execute actions on the field
-- Skill output is passed to a SkillExecutor which will actually generate the commandss
+- Skill output is passed to a SkillExecutor which will actually generate the commands
 - Pluggable planning infrastructure: support HTN planners (JSHOP2), HFSM, behaviour tree and machine learning all in one.

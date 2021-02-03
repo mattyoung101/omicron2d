@@ -23,7 +23,7 @@ object Main {
         System.setProperty("tinylog.configuration", "tinylog.properties")
         System.setProperty("kryo.unsafe", "false")
 
-        Logger.info("Omicron2D v$OMICRON2D_VERSION: Copyright (c) 2019-2020 Matt Young.")
+        Logger.info("Omicron2D v$OMICRON2D_VERSION: Copyright (c) 2019-2021 Matt Young.")
 
 //        println("Message w/ librcsc encoder: ${SayEncoder.rcscInt64ToStr(64271744, 8)}")
 //        val bytes = byteArrayOf(0x03, 0xD4.toByte(), 0xB5.toByte(), 0x80.toByte())

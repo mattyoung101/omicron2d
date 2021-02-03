@@ -26,4 +26,9 @@ data class GeneralConfig(
     var fieldLength: Double = 0.0,
     var fieldWidth: Double = 0.0,
     var listenToOpposition: Boolean = false,
+    var moveSpeedKp: Double = 0.0,
+    var moveSpeedKd: Double = 0.0,
+    var moveAngleKp: Double = 0.0,
+    var moveAngleKd: Double = 0.0,
+    var movePointReachedThresh: Double = 0.0,
 )

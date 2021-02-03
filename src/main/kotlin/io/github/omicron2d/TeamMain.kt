@@ -24,7 +24,7 @@ object TeamMain {
     fun main(args: Array<String>){
         System.setProperty("log4j.configuration", "log4j.properties")
         System.setProperty("tinylog.configuration", "tinylog.properties")
-        Logger.info("Omicron2D v$OMICRON2D_VERSION: Copyright (c) 2019-2020 Matt Young.")
+        Logger.info("Omicron2D v$OMICRON2D_VERSION: Copyright (c) 2019-2021 Matt Young.")
 
         // ----- note: only for testing
 //        UselessAgent.launch()

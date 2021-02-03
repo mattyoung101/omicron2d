@@ -10,12 +10,15 @@
 package io.github.omicron2d.ai.agents
 
 import io.github.omicron2d.ai.Formation
+import io.github.omicron2d.ai.behaviours.BehaviourManager
+import io.github.omicron2d.ai.behaviours.lowlevel.MoveToPoint
 import io.github.omicron2d.ai.world.HighLevelWorldModel
 import io.github.omicron2d.ai.world.ICPLocalisation
 import io.github.omicron2d.ai.world.LowLevelWorldModel
 import io.github.omicron2d.communication.AbstractSoccerAgent
 import io.github.omicron2d.communication.messages.*
 import io.github.omicron2d.utils.*
+import mikera.vectorz.Vector2
 import org.tinylog.kotlin.Logger
 import java.net.InetAddress
 import java.util.concurrent.Executors
@@ -32,6 +35,7 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
 
     private val lowModel = LowLevelWorldModel()
     private val highModel = HighLevelWorldModel()
+    private val behaviourManager = BehaviourManager()
     private var errorCount = 0
     private val startingFormation = Formation(CURRENT_CONFIG.get().initialFormation)
     // we use this instead of timer, see https://stackoverflow.com/a/409993/5007892
@@ -43,11 +47,32 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
      * does not equal how often we should be sending messages. (We leave 1ms for transport to the server).
      *
      * TODO:
-     * - rewrite AbstractSoccerAgent to include this?
+     * - rewrite AbstractSoccerAgent to include this by default?
      */
     private fun think(){
         val mode = arrayOf(ViewMode.NARROW, ViewMode.NORMAL, ViewMode.WIDE).random()
-        transmit(arrayOf(TurnMessage(20.0), ChangeViewMessage(mode)))
+        //transmit(arrayOf(TurnMessage(20.0), ChangeViewMessage(mode)))
+        //transmit(arrayOf(DashMessage(65.0, 0.0), TurnMessage(10.0)))
+        //transmit(TurnMessage(10.0))
+
+        // TODO only move if current play mode is play on!
+        // TODO add lock movement to high level world model?
+        val ctx = AgentContext(highModel, lowModel.time)
+
+        // update agent movement
+        // alternatively the behaviour itself can check if we should be braking and return zero
+        val movement = behaviourManager.updateMovement(ctx)
+        if (movement.dash != null){
+            // convert radians to degrees, then 0-360 degrees to -180 to +180 degrees
+            val dashDirDegrees = movement.dash.y.toDegrees()
+            val dashDir = if (dashDirDegrees > 180.0) dashDirDegrees - 360.0 else dashDirDegrees
+            transmit(DashMessage(movement.dash.x, dashDir))
+        } else if (movement.turn != null){
+            // we've got a turn behaviour on our hands
+            transmit(TurnMessage(movement.turn))
+        }
+
+        // update agent communications
     }
 
     override fun run() {
@@ -66,7 +91,6 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
 
             // Dispatch message to handlers for data processing. Runs in same thread, no need to worry about data races
             dispatchMessage(msgStr)
-            // after this: all handlers have been called, low level world model is setup, high level needs processing
 
             // If we've received the first packet (and thus have switched ports), start the think timer to send
             // commands back
@@ -74,6 +98,10 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
                 Logger.debug("First message received, starting think timer")
                 thinkTimer.scheduleAtFixedRate({ think() }, 0, 99, TimeUnit.MILLISECONDS)
                 haveReceivedMsg = true
+
+                // TODO just for testing
+                val ctx = AgentContext(highModel, lowModel.time)
+                behaviourManager.changeMovementBehaviour(MoveToPoint(Vector2(-9.10, -0.5), 75.0), ctx)
             }
         }
     }
@@ -120,10 +148,9 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
         Logger.debug("Moving to initial position $pos for formation ${startingFormation.name}")
         pushBatch(MoveMessage(pos))
 
-        // we also disable hearing the opposition since we don't care about that
-        // this was found by looking at the logs for FRA-UNited
+        // usually we won't listen to the opposition - can be changed in YAML config though
         pushBatch(EarMessage(status = CURRENT_CONFIG.get().listenToOpposition, us = false))
-        // send synch_see which disables low quality mode (for TODO what tradeoff do we get back?)
+        // send synch_see which disables low quality mode
         // this is because most teams do this, and also I literally cannot find any use for low quality vision,
         // it is objectively trash and doesn't work with the localiser
         pushBatch(SyncSeeMessage())
@@ -133,7 +160,7 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
     override fun handleSeeMessage(see: SeeMessage){
         // first, setup our low level world model
         val flags = see.objects.filter { it.type == ObjectType.FLAG }
-        // good flags are the ones we use to localise
+        // good flags are the non-weird ones we will use to localise with
         lowModel.goodFlags = flags.filter {
             it.name.isNotEmpty() && !it.isBehind && it.direction != null && it.distance != null
         }
@@ -173,6 +200,7 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
                     continue
                 }
 
+                // TODO calculate velocity if distChange/dirChange is available
                 if (info?.unum != null && info.teamName != null){
                     // we have lots of information: we can find out this player's id, and which team they're on
                     val id = info.unum!! - 1
@@ -253,7 +281,7 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
             highModel.teamPlayers[self].lastSeen = lowModel.time
             AGENT_STATS.get().successfulLocalisations++
         } else {
-            //Logger.debug("Cannot perform localisation, no good flags! all flags = ${lowModel.allFlags}")
+            // Logger.debug("Cannot perform localisation, no good flags! all flags = ${lowModel.allFlags}")
             // because we couldn't localise, this means that the positions of ALL of our localised objects are
             // now unknown. so go and update them here
             for (i in highModel.teamPlayers.indices){
@@ -306,6 +334,8 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
     override fun handleAnyMessage() {
         // decrease our error count, don't set to zero in case we get spaced out errors
         // (we still need to do the emergency exit then)
+        // TODO note this logic is broke, handleAnyMessage should be renamed to handleAnyNonErrorMessage
+        // as it is accidentally called when there is an error message
         if (errorCount > 0){
             errorCount--
         }

@@ -155,18 +155,18 @@ abstract class AbstractSoccerAgent(private var host: InetAddress, private var de
         transmitString(text)
     }
 
-    /** Adds the specified message to the current message batch */
+    /** Adds the specified message to the current message batch. NOT THREAD SAFE! */
     fun pushBatch(message: OutgoingServerMessage){
         messageBatch.add(message)
     }
 
-    /** Sends the current batch to the server and clears it for new items */
+    /** Sends the current batch to the server and clears it for new items. NOT THREAD SAFE! */
     fun flushBatch(){
         transmit(messageBatch)
         messageBatch.clear()
     }
 
-    /** Clears the current message batch */
+    /** Clears the current message batch. NOT THREAD SAFE! */
     fun clearBatch(){
         messageBatch.clear()
     }
@@ -190,7 +190,7 @@ abstract class AbstractSoccerAgent(private var host: InetAddress, private var de
     }
 
     /**
-     * Closes the socket and cleans up resources. This method may block for up to 500 ms.
+     * Closes the socket and cleans up resources. This method may block for up to 600 ms.
      */
     fun disconnect(){
         if (!isConnected){
@@ -202,7 +202,7 @@ abstract class AbstractSoccerAgent(private var host: InetAddress, private var de
         println("Disconnecting agent")
         transmitString("(bye)")
         teardown()
-        Thread.sleep(100) // wait for transmission
+        Thread.sleep(100) // wait for transmission and teardown
 
         // close down the socket
         sockThread.interrupt()

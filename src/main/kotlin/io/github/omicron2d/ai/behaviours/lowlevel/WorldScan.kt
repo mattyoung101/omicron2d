@@ -1,15 +1,17 @@
 /*
  * This file is part of the Omicron2D RoboCup 2D Soccer Simulation team.
- * Copyright (c) 2020 Matt Young. All rights reserved.
+ * Copyright (c) 2021 Matt Young. All rights reserved.
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package io.github.omicron2d.ai.behaviours
+package io.github.omicron2d.ai.behaviours.lowlevel
 
+import io.github.omicron2d.ai.behaviours.MovementBehaviour
 import io.github.omicron2d.utils.AgentContext
+import mikera.vectorz.Vector2
 import org.tinylog.kotlin.Logger
 
 /**
@@ -25,11 +27,11 @@ class WorldScanMovementBehaviour(private val isFastScan: Boolean, private val nu
         Logger.debug("World scan behaviour started at orientation $startOrientation rad")
     }
 
-    override fun getDashVelocity(): Double {
-        return 0.0 // don't move while scanning
+    override fun calculateSteering(ctx: AgentContext): Vector2 {
+        return Vector2(0.0, 0.0) // don't move while scanning
     }
 
-    override fun getTurnVelocity(): Double {
+    override fun calculateTurn(ctx: AgentContext): Double {
         // TODO calculate this
         return 1234.0
     }

@@ -10,9 +10,6 @@
 package io.github.omicron2d.tools
 
 import com.esotericsoftware.yamlbeans.YamlWriter
-import com.google.gson.GsonBuilder
-import io.github.omicron2d.utils.FIELD_LENGTH
-import io.github.omicron2d.utils.FIELD_WIDTH
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.scene.Scene
@@ -50,7 +47,11 @@ import kotlin.system.exitProcess
  *  - prompt on exit if unsaved changes
  */
 class FormationEditor : Application() {
-    private val gson = GsonBuilder().setPrettyPrinting().create()
+    // Source: https://github.com/rcsoccersim/rcssserver/blob/master/src/serverparam.cpp
+    // TODO load currentConfig to read this value instead
+    private val FIELD_LENGTH = 105.0
+    private val FIELD_WIDTH = 68.0
+
     private val FIELD_CENTRE = Vector2.of(FIELD_LENGTH / 2.0, FIELD_WIDTH / 2.0)
     private val VERSION = "1.0"
 

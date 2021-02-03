@@ -10,7 +10,7 @@ coachPort: 6002
 timeout: 10000 # milliseconds
 
 # GUI config
-showDebugDisplay: true
+showDebugDisplay: false
 
 # Formations
 initialFormation: formations/starting433.yml
@@ -19,6 +19,16 @@ initialFormation: formations/starting433.yml
 # There's currently no good reason to listen to the opposition, but in future it would be interesting to
 # intercept agent2d messages and attempt to decode them
 listenToOpposition: false
+
+# Move to Point behaviour
+# Speed P-D controller
+moveSpeedKp: 1.0
+moveSpeedKd: 0.5
+# Angle P-D controller
+moveAngleKp: 1.0
+moveAngleKd: 0.5
+# Distance at which to consider the MoveToPoint behaviour point as being "reached"
+movePointReachedThresh: 2.5
 
 # Field definitions
 # Source: https://github.com/rcsoccersim/rcssserver/blob/master/src/serverparam.cpp#L130

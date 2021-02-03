@@ -15,6 +15,7 @@ grammar PlannerConfig;
 // and isn't too verbose. Plus, as you can see by the grammar, it's really not a complicated language at all :)
 
 // TODO add support for describing cost
+// TODO (important) add support for OR conditions like (!InPriority OR !Stationary)
 
 /*
 Code example:
@@ -56,6 +57,15 @@ LBRACKET
 
 RBRACKET
     : ']' ;
+
+LPAREN
+    : '(' ;
+
+RPAREN
+    : ')' ;
+
+OR
+    : ('OR' | '||') ;
 
 SEMICOLON
     : ';' ;

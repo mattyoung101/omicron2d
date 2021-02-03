@@ -45,10 +45,14 @@ data class ChangeViewMessage(var mode: ViewMode = ViewMode.UNKNOWN,
     }
 }
 
-// TODO add support for direction!
-data class DashMessage(var power: Double = 0.0): OutgoingServerMessage {
+data class DashMessage(var power: Double = 0.0, var direction: Double? = null): OutgoingServerMessage {
     override fun serialise(): String {
-        return "(dash $power)"
+        return if (direction != null){
+            println("Transmitting dash command (dash $power $direction)")
+            "(dash $power $direction)"
+        } else {
+            "(dash $power)"
+        }
     }
 }
 
@@ -64,7 +68,6 @@ data class TurnMessage(var angle: Double = 0.0): OutgoingServerMessage {
 /** Move message, for use during initial setup */
 data class MoveMessage(var x: Double = 0.0, var y: Double = 0.0): OutgoingServerMessage {
     constructor(pos: Vector2) : this(pos.x, pos.y)
-
     override fun serialise(): String {
         return "(move $x $y)"
     }

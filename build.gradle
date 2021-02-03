@@ -39,10 +39,11 @@ dependencies {
     implementation 'org.tinylog:tinylog-impl:2.0.0'
     implementation group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: '1.4.10'
     // implementation group: 'com.esotericsoftware', name: 'kryo', version: '5.0.0-RC4'
-    implementation 'com.github.ajalt:clikt:2.1.0' // TODO UNUSED
+    // implementation 'com.github.ajalt:clikt:2.1.0'
     implementation group: 'net.mikera', name: 'vectorz', version: '0.67.0'
-    implementation group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
+    implementation group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1' // note: watch for math4 release
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
+    implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
     implementation group: 'commons-io', name: 'commons-io', version: '2.6'
     // compile 'com.google.guava:guava:28.1-jre'
     implementation 'com.google.code.gson:gson:2.8.6'

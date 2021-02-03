@@ -10,18 +10,13 @@
 package io.github.omicron2d.ai.behaviours
 
 import io.github.omicron2d.utils.AgentContext
+import mikera.vectorz.Vector2
 
-// FIXME rename this class and package to "skills"
+// consider renaming this class and package to "skills"?? would that fit better?
 
-/*
- * Problems with this approach:
- * - one server action, like (turn) corresponds to both MovementBehaviour AND OrientationBehaviour, so which behaviour
- * gets to choose which way to spin?
- * - how do we represent behaviours who need both movement and orientation?
- * - how do we get head and body to work together?
- *
- * NOTE: we can kind of think of each Behaviour as a state in a state machine almost?
- */
+// FIXME Important note: we CANNOT turn while driving! Can only turn when not issuing a dash command!
+// This means that probably drive and orient behaviours need to be separate
+// TODO maybe consider bringing back head turning for when we're driving around so we can scan a little?
 
 /**
  * Root class for all behaviours. A behaviour is essentially what the robot "does".
@@ -30,8 +25,7 @@ import io.github.omicron2d.utils.AgentContext
  * probably give the planner access to all behaviours, low level ones such as ScanWorld and high level ones such as
  * DefendGoal. We hope that the planner is smart enough to figure everything out by itself.
  *
- * The robot can generally have and execute one behaviour for each of its models.
- * In other words, we have one movement behaviour, one orientation and one communication behaviour executing at a time.
+ * The robot can execute one movement behaviour and one communication behaviour at a time.
  */
 interface Behaviour {
     /** Called when the behaviour is started. Default method does nothing. */
@@ -47,35 +41,41 @@ interface Behaviour {
     fun isDone(ctx: AgentContext): Boolean
 }
 
-//interface ExclusiveBodyAngleControl {
-//    /** @return if true, this behaviour needs exclusive control over body angle (turn command) */
-//    fun isExclusiveBodyAngleControl(): Boolean
-//}
-
 /**
  * A task which controls the agent's movement by controlling dash speed and turn angle.
  * We group together dash and turn angle because they are most often necessary together.
  */
 interface MovementBehaviour : Behaviour {
-    /** @return amount of dash power to execute this tick */
-    fun getDashVelocity(): Double
+    /** @return dash velocity. x = amount of stamina to use, y = direction to go in, in **radians** (polar dash vector) */
+    fun calculateSteering(ctx: AgentContext): Vector2
 
-    /** @return amount of **radians** to add to current body angle (turn command) */
-    fun getTurnVelocity(): Double
-}
-
-/**
- * A task which controls the agent's head orientation
- */
-interface HeadBehaviour : Behaviour {
-    /**
-     * @return number of **radians** to add to current head angle (turn_neck command)
-     */
-    fun getHeadVelocity(): Double
+    /** @return amount of **radians** to add to current body angle */
+    fun calculateTurn(ctx: AgentContext): Double
 }
 
 /**
  * A task which controls the agent's communication (say command)
  */
-interface CommunicationBehaviour : Behaviour
-// TODO
+interface CommunicationBehaviour : Behaviour {
+    /** @return the encoded bytes of the message (will be enco */
+    fun getBytes(ctx: AgentContext): ByteArray
+}
+
+/**
+ * Encapsulates the result of a MovementBehaviour. Only either [dash] or [turn] should be non-null.
+ * This means the robot is either turning or dashing (we cannot do both at the same time apparently).
+ * @param dash if not null, indicates we are dashing and the values in order for the dash command
+ * @param turn if not null, indicates we are issuing a turn and the amount of **radians** to turn
+ */
+data class MovementResult(val dash: Vector2? = null, val turn: Double? = null)
+
+///**
+// * A task which controls the agent's head orientation
+// */
+//@Deprecated("Due to the fact that we can dash in any direction now, turning the head appears to be useless.")
+//interface HeadBehaviour : Behaviour {
+//    /**
+//     * @return number of **radians** to add to current head angle (turn_neck command)
+//     */
+//    fun getHeadVelocity(): Double
+//}

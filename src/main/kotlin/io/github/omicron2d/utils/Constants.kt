@@ -42,13 +42,9 @@ const val DEG_RAD = 0.017453292519943295
 const val RAD_DEG = 57.29577951308232
 /** PI * 2 **/
 const val PI2 = PI * 2.0
-val ZERO_VECTOR = Vector2(0.0, 0.0).immutable()
-
-// Source: https://github.com/rcsoccersim/rcssserver/blob/master/src/serverparam.cpp
-@Deprecated("Please read from currentConfig instead")
-const val FIELD_LENGTH = 105.0
-@Deprecated("Please read from currentConfig instead")
-const val FIELD_WIDTH = 68.0
+/** Used for floating point comparisons */
+const val EPSILON = 0.001
+val ZERO_VECTOR = Vector2(0.0, 0.0)
 
 // THREAD LOCAL VARIABLES
 /**

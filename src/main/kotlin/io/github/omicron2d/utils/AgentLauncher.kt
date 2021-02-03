@@ -53,7 +53,6 @@ object AgentLauncher {
 
         Logger.info("Connecting to ${generalConfig.serverHost}:${generalConfig.playerPort}")
         val initMessage = OutgoingInitMessage(generalConfig.teamName, SERVER_PROTOCOL_VERSION, isGoalie)
-        // TODO we need to forward to the PlayerAgent whether or not its a goalie!
 
         val agent = PlayerAgent(InetAddress.getByName(generalConfig.serverHost), generalConfig.playerPort, isGoalie)
         agent.connect(initMessage)

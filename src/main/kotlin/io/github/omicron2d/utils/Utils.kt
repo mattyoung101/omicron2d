@@ -60,10 +60,16 @@ fun angleDistanceRad(a: Double, b: Double): Double {
     return if (phi > PI) PI2 - phi else phi
 }
 
+/**
+ * Converts this angle in radians to degrees, does not do any range conversions.
+ */
 fun Double.toDegrees(): Double {
     return this * RAD_DEG
 }
 
+/**
+ * Converts this angle in degrees to radians, does not do any range conversions.
+ */
 fun Double.toRadians(): Double {
     return this * DEG_RAD
 }
