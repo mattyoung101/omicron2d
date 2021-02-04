@@ -13,11 +13,18 @@ import io.github.omicron2d.utils.SERVER_PROTOCOL_VERSION
 import io.github.omicron2d.utils.ViewMode
 import io.github.omicron2d.utils.ViewQuality
 import mikera.vectorz.Vector2
+import java.text.DecimalFormat
 
 // Source for all protocol information: https://rcsoccersim.github.io/manual/soccerserver.html#protocols
 // Should support around about protocol version 15
 // Note: for most of the floats before, I would string format using "%.2f" but according to the logs I've looked at,
 // the server supports weird formats like even "1e+06" so we should be fine to send that
+
+// https://stackoverflow.com/a/2538798/5007892
+private val fmt = DecimalFormat().apply {
+    minimumFractionDigits = 1
+    maximumFractionDigits = 8
+}
 
 /** Client to server init message */
 data class OutgoingInitMessage(var teamName: String = "", var version: String = SERVER_PROTOCOL_VERSION,
@@ -52,9 +59,9 @@ data class ChangeViewMessage(var mode: ViewMode = ViewMode.UNKNOWN,
 data class DashMessage(var power: Double = 0.0, var direction: Double? = null): OutgoingServerMessage {
     override fun serialise(): String {
         return if (direction != null){
-            "(dash $power $direction)"
+            "(dash ${fmt.format(power)} ${fmt.format(direction)})"
         } else {
-            "(dash $power)"
+            "(dash ${fmt.format(power)}"
         }
     }
 }
@@ -64,13 +71,14 @@ data class DashMessage(var power: Double = 0.0, var direction: Double? = null): 
  */
 data class TurnMessage(var angle: Double = 0.0): OutgoingServerMessage {
     override fun serialise(): String {
-        return "(turn $angle)"
+        return "(turn ${fmt.format(angle)})"
     }
 }
 
 /** Move message, for use during initial setup */
 data class MoveMessage(var x: Double = 0.0, var y: Double = 0.0): OutgoingServerMessage {
     constructor(pos: Vector2) : this(pos.x, pos.y)
+
     override fun serialise(): String {
         return "(move $x $y)"
     }

@@ -26,6 +26,8 @@ object TeamMain {
         System.setProperty("tinylog.configuration", "tinylog.properties")
         Logger.info("Omicron2D v$OMICRON2D_VERSION: Copyright (c) 2019-2021 Matt Young.")
 
+        AgentLauncher.maybeStartRcsoccersim()
+
         // uncomment if testing right side
         // UselessAgent.launch()
         // Thread.sleep(500)

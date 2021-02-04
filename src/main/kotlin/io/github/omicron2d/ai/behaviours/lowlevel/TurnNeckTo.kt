@@ -1,19 +1,16 @@
 /*
  * This file is part of the Omicron2D RoboCup 2D Soccer Simulation team.
- * Copyright (c) 2020 Matt Young. All rights reserved.
+ * Copyright (c) 2021 Matt Young. All rights reserved.
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package io.github.omicron2d.utils
+package io.github.omicron2d.ai.behaviours.lowlevel
 
-data class BehaviourYaml(
-    var name: String = "",
-    var cost: Int = -1,
-)
-
-data class BehaviourConfig(
-    var behaviours: List<BehaviourYaml> = listOf()
-)
+/**
+ * This behaviour turns the neck to a specified angle (uses a P-D controller)
+ */
+class TurnNeckTo {
+}

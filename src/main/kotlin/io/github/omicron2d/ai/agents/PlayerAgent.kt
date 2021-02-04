@@ -12,14 +12,13 @@ package io.github.omicron2d.ai.agents
 import io.github.omicron2d.ai.EventStates
 import io.github.omicron2d.ai.Formation
 import io.github.omicron2d.ai.behaviours.BehaviourManager
-import io.github.omicron2d.ai.behaviours.highlevel.FollowPath
+import io.github.omicron2d.ai.behaviours.lowlevel.TurnBodyTo
 import io.github.omicron2d.ai.world.HighLevelWorldModel
 import io.github.omicron2d.ai.world.ICPLocalisation
 import io.github.omicron2d.ai.world.LowLevelWorldModel
 import io.github.omicron2d.communication.AbstractSoccerAgent
 import io.github.omicron2d.communication.messages.*
 import io.github.omicron2d.utils.*
-import mikera.vectorz.Vector2
 import org.apache.commons.lang3.concurrent.BasicThreadFactory
 import org.tinylog.kotlin.Logger
 import java.net.InetAddress
@@ -69,11 +68,10 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
             // convert radians to degrees, then 0-360 degrees to -180 to +180 degrees
             val dashDirDegrees = movement.dash.y.toDegrees()
             val dashDir = if (dashDirDegrees > 180.0) dashDirDegrees - 360.0 else dashDirDegrees
-
             transmit(DashMessage(movement.dash.x, dashDir))
-        } else if (movement.turn != null){
-            // TODO need to convert angles?
-            transmit(TurnMessage(movement.turn))
+        } else if (movement.turn != null && movement.turn >= EPSILON){
+            val angleDeg = movement.turn.toDegrees()
+            transmit(TurnMessage(angleDeg))
         }
 
         // update agent communications
@@ -87,7 +85,9 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
 
         while (true) {
             // Receive message from server and parse
-            val msgStr = messages.poll(30, TimeUnit.SECONDS)
+            // this timeUnit thing is a hack so that when we're debugging it doesn't keep quitting
+            val timeUnit = if (System.getProperty("ignoreNullServerMessages") == null) TimeUnit.SECONDS else TimeUnit.HOURS
+            val msgStr = messages.poll(30, timeUnit)
             if (msgStr == null) {
                 Logger.warn("Unexpected null message from message queue, server dead? Terminating!")
                 return
@@ -113,25 +113,34 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
     private fun onPlayModeChange(newMode: PlayMode){
         highModel.playMode = newMode
 
-        // check for kickoff
+        // check for initial play_on
+        // TODO also check for our kickoff (kick_off_l/kick_off_r depending)
         if (highModel.playMode == PlayMode.PLAY_ON && !eventState.hasKickedOff){
             Logger.debug("First PLAY_ON, starting kick off behaviours")
             eventState.hasKickedOff = true
 
-            // just for testing
+            // fun testing code!
+            // move to four corners of field using MoveToPoint
 //            val coords = listOf(Vector2(-50.0, 32.0), Vector2(-50.0, -32.0), Vector2(45.0, -32.0),
 //                    Vector2(51.36, 32.31))
-//            val coords = listOf(Vector2(-7.0, -6.0), Vector2(-6.0, -6.0), Vector2(5.0, -7.0),
-//                    Vector2(7.0, 5.0), Vector2(-7.0, -6.0))
 //            for (coord in coords){
 //                behaviourManager.movementQueue.add(MoveToPoint(coord, 100.0))
 //                behaviourManager.movementQueue.add(Sit(10000))
 //            }
 
-            val coords = arrayOf(Vector2(-7.0, -6.0), Vector2(-6.0, -6.0), Vector2(5.0, -7.0),
-                    Vector2(7.0, 5.0), Vector2(-7.0, -6.0))
-            val stamina = DoubleArray(coords.size) { 100.0 }
-            behaviourManager.movementQueue.add(FollowPath(coords, stamina))
+            // move around in the centre using FollowPath
+//            val coords = arrayOf(Vector2(-7.0, -6.0), Vector2(-6.0, -6.0), Vector2(5.0, -7.0),
+//                    Vector2(7.0, 5.0), Vector2(-7.0, -6.0))
+//            val stamina = DoubleArray(coords.size) { 100.0 }
+//            behaviourManager.movementQueue.add(FollowPath(coords, stamina))
+
+            // face 270 degrees
+            //behaviourManager.movementQueue.add(TurnBodyTo(270.0 * DEG_RAD))
+
+            // face a bunch of random directions then back to zero
+            val behaviours = Array(10) { TurnBodyTo(RAND.get().nextDouble(0.0, 360.0)) }
+            behaviourManager.movementQueue.addAll(behaviours)
+            behaviourManager.movementQueue.add(TurnBodyTo(0.0))
         }
     }
 
@@ -313,6 +322,7 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
             hear.sender == MessageSender.REFEREE -> {
                 // first check if the message is a play mode change
                 val playModes = PlayMode.values().map { it.toString() }
+
                 if (hear.message.toUpperCase() in playModes){
                     val newPlayMode = PlayMode.valueOf(hear.message.toUpperCase())
                     Logger.debug("Referee changing play mode to: $newPlayMode")
@@ -338,11 +348,9 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
         }
     }
 
-    override fun handleAnyMessage() {
+    override fun handleAnyNonErrorMessage() {
         // decrease our error count, don't set to zero in case we get spaced out errors
         // (we still need to do the emergency exit then)
-        // TODO note this logic is broke, handleAnyMessage should be renamed to handleAnyNonErrorMessage
-        // as it is accidentally called when there is an error message
         if (errorCount > 0){
             errorCount--
         }

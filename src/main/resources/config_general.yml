@@ -21,10 +21,16 @@ initialFormation: formations/starting433.yml
 listenToOpposition: false
 # Move to Point behaviour
 # P-D controller constants
-moveKp: 20.0
+moveKp: 25.0
 moveKd: 0.5
 # Distance at which to consider the MoveToPoint behaviour point as being "reached"
 movePointReachedThresh: 1.0
+# Turn Body To behaviour
+# P-D controller constants, in degrees (will be converted to radians)
+turnBodyKp: 6.0
+turnBodyKd: 2.0
+# Number of degrees tolerance where we consider the body angle as being reached
+turnBodyToleranceDeg: 4.0
 
 # Field definitions
 # Source: https://github.com/rcsoccersim/rcssserver/blob/master/src/serverparam.cpp#L130

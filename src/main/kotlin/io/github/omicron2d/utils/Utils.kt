@@ -98,4 +98,9 @@ data class Transform2D(val pos: Vector2 = Vector2(0.0, 0.0), val theta: Double =
 /**
  * Data class that holds the context that something, usually a [Behaviour], is executing in.
  */
-data class AgentContext(val world: HighLevelWorldModel, val time: Int)
+data class AgentContext(val world: HighLevelWorldModel, val time: Int){
+    // TODO only for the debugger!!
+    override fun toString(): String {
+        return ""
+    }
+}

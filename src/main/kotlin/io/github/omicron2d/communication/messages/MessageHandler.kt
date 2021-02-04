@@ -19,7 +19,7 @@ import org.tinylog.kotlin.Logger
  * call the appropriate handler function with the deserialised message. In other words, it's a message router.
  * It mainly exists to make the code a little cleaner.
  *
- * This interface includes a set of default implementations (that can be overriden) for really basic stuff like
+ * This interface includes a set of default implementations (that can be overridden) for really basic stuff like
  * parse errors and unknown messages.
  */
 interface MessageHandler {
@@ -42,7 +42,7 @@ interface MessageHandler {
     }
 
     /** Called when any message is parsed successfully. Default behaviour does nothing. */
-    fun handleAnyMessage(){}
+    fun handleAnyNonErrorMessage(){}
 }
 
 /**
@@ -51,6 +51,7 @@ interface MessageHandler {
 interface PlayerMessageHandler : MessageHandler {
     override fun dispatchMessage(msg: String) {
         val name = msg.split(" ").first().replace("(", "")
+        var error = false
 
         try {
             when (name) {
@@ -65,6 +66,7 @@ interface PlayerMessageHandler : MessageHandler {
                 }
                 "error" -> {
                     handleErrorMessage(ErrorMessage.deserialise(msg))
+                    error = true
                 }
                 "warning" -> {
                     handleWarningMessage(WarningMessage.deserialise(msg))
@@ -73,7 +75,7 @@ interface PlayerMessageHandler : MessageHandler {
                     handleUnknownMessage(msg)
                 }
             }
-            handleAnyMessage()
+            if (!error) handleAnyNonErrorMessage()
         } catch(e: MessageParseException){
             handleIllegalMessage(msg, e)
         }

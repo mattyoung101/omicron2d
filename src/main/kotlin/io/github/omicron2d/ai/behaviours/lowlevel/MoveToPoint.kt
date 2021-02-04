@@ -23,9 +23,7 @@ import kotlin.math.atan2
  * @param maxPower maximum amount of power that can be used in any one dash command (this is NOT total stamina used)
  * @param staminaSaver only sends a move command every second tick to save some stamina
  */
-class MoveToPoint(val targetPoint: Vector2, val maxPower: Double,
-        private val staminaSaver: Boolean = false) : MovementBehaviour {
-
+class MoveToPoint(val targetPoint: Vector2, val maxPower: Double, val staminaSaver: Boolean = false) : MovementBehaviour {
     private val xPD = PDController(CURRENT_CONFIG.get().moveKp, CURRENT_CONFIG.get().moveKd, -maxPower, maxPower)
     private val yPD = PDController(CURRENT_CONFIG.get().moveKp, CURRENT_CONFIG.get().moveKd, -maxPower, maxPower)
     private val threshold = CURRENT_CONFIG.get().movePointReachedThresh
@@ -41,7 +39,7 @@ class MoveToPoint(val targetPoint: Vector2, val maxPower: Double,
     override fun calculateSteering(ctx: AgentContext): Vector2 {
         // can't do much if we don't know anything about ourselves (words of wisdom right there!)
         if (!ctx.world.getSelfPlayer().isKnown){
-            Logger.warn("Self position unknown!")
+            Logger.warn("Cannot calculate movement, self position unknown!")
             // FIXME come up with a better way to handle this:
             // either ask our friends for help, or move back to a previous pos?
             return Vector2(0.0, 0.0)
@@ -60,7 +58,8 @@ class MoveToPoint(val targetPoint: Vector2, val maxPower: Double,
 
         // convert our relative cartesian correction vector into polar for the server
         val movementCart = Vector2(xCorrection, yCorrection)
-        val r = movementCart.magnitude()
+        // for some reason we have to constrain this again to our max range
+        val r = movementCart.magnitude().coerceIn(-maxPower, maxPower)
         val theta = atan2(movementCart.y, movementCart.x)
 
         // note that the final output is still in radians, -pi to pi as well in this case
