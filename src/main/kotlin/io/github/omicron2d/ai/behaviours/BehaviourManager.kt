@@ -16,56 +16,59 @@ import java.util.*
 
 /**
  * This class manages the agent's behaviours (what it's doing and how it's doing it).
+ * @param onMoveQueueDepleted called to request a new movement behaviour when the queue becomes empty
  */
-class BehaviourManager {
-    private var currentMovement: MovementBehaviour = NullMovementBehaviour()
-    private var currentComms: CommunicationBehaviour = NullCommunicationBehaviour()
+class BehaviourManager(private val onMoveQueueDepleted: (AgentContext) -> MovementBehaviour? = { null }) {
+    private var currentMovement: MovementBehaviour = NullMovement()
+    private var currentComms: CommunicationBehaviour = NullCommunication()
     /**
-    * Queue of behaviours to be executed after the current one finishes. Switching between these is handled automatically
-    * when [updateMovement] is called.
-    */
+     * Queue of behaviours to be executed after the current one finishes. Switching between these is handled automatically
+     * when [tickMovement] is called.
+     */
     val movementQueue: Queue<MovementBehaviour> = LinkedList()
 
     /**
      * Sets the current movement behaviour in the BehaviourManager. Handles exit and enter calls.
      */
     fun setMovementBehaviour(newBehaviour: MovementBehaviour, ctx: AgentContext){
-        Logger.debug("Changing movement behaviour to: ${newBehaviour.javaClass.simpleName}")
+        Logger.debug("Setting movement behaviour to: $newBehaviour")
         currentMovement.onExit(ctx)
         currentMovement = newBehaviour
         currentMovement.onEnter(ctx)
     }
 
     /**
-     * Returns the name of the current movement behaviour being executed
-     */
-    fun getCurrentMovementName(): String {
-        return currentMovement.javaClass.simpleName
-    }
-
-    /**
      * Calculates steering for the agent using the current steering behaviour. Returns a [MovementResult] with
      * either turn or dash non-null (but never both).
      */
-    fun updateMovement(ctx: AgentContext): MovementResult {
+    fun tickMovement(ctx: AgentContext): MovementResult {
         val steering = currentMovement.calculateSteering(ctx)
         val turn = currentMovement.calculateTurn(ctx)
 
         // if we have new items in the queue and are doing nothing, switch to the new behaviour
-        // TODO peek the queue and check if next behaviour is not a Null(X) behaviour
-        if (currentMovement::class.java == NullMovementBehaviour::class.java && movementQueue.isNotEmpty()){
-            Logger.info("New movement behaviour added to queue while in NullBehaviour, switching to it!")
+        if (currentMovement::class.java == NullMovement::class.java && movementQueue.isNotEmpty()){
+            Logger.info("New movement behaviour queued while in NullBehaviour, switching to it!")
             setMovementBehaviour(movementQueue.remove(), ctx)
         }
 
         // check if the current behaviour is done
         if (currentMovement.isDone(ctx)){
-            Logger.debug("Current behaviour (${getCurrentMovementName()}) has finished!")
+            Logger.debug("Current behaviour $currentMovement has finished")
 
             if (movementQueue.isEmpty()){
-                Logger.warn("No more items in movement queue! Reverting to NullMovementBehaviour")
-                setMovementBehaviour(NullMovementBehaviour(), ctx)
+                Logger.debug("Movement queue depleted! Looking for next behaviour")
+
+                // see if the event listener can get us a new behaviour
+                val next = onMoveQueueDepleted(ctx)
+                if (next != null){
+                    Logger.debug("Received valid behaviour from event listener: $next")
+                    setMovementBehaviour(next, ctx)
+                } else {
+                    Logger.warn("No more movement behaviours available! Reverting to NullBehaviour")
+                    setMovementBehaviour(NullMovement(), ctx)
+                }
             } else {
+                Logger.debug("Fetching next behaviour from queue")
                 setMovementBehaviour(movementQueue.remove(), ctx)
             }
         }
@@ -74,7 +77,7 @@ class BehaviourManager {
             // turn is zero, must be movement then
             MovementResult(dash = steering)
         } else {
-            // turn is not zero, it's therefore going to be a movement behaviour
+            // turn is not zero, it's therefore going to be a turn
             MovementResult(turn = turn)
         }
     }
@@ -84,7 +87,7 @@ class BehaviourManager {
      * compatible string using another strategy. If output size is zero, the behaviour has decided no message
      * should be sent.
      */
-    fun updateCommunications(ctx: AgentContext): ByteArray {
+    fun tickCommunications(ctx: AgentContext): ByteArray {
         return currentComms.getBytes(ctx)
     }
 }

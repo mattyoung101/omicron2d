@@ -35,4 +35,10 @@ class Sit(private val millis: Int) : MovementBehaviour {
     override fun calculateTurn(ctx: AgentContext): Double {
         return 0.0
     }
+
+    override fun toString(): String {
+        return "Sit(millis=$millis)"
+    }
+
+
 }

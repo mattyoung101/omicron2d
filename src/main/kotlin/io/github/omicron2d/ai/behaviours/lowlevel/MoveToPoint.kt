@@ -21,15 +21,17 @@ import kotlin.math.atan2
  * Behaviour which moves the agent to a given point using a PD controller.
  * @param targetPoint point to go to
  * @param maxPower maximum amount of power that can be used in any one dash command (this is NOT total stamina used)
+ * @param staminaSaver only sends a move command every second tick to save some stamina
  */
-class MoveToPoint(private val targetPoint: Vector2, private val maxPower: Double) : MovementBehaviour {
+class MoveToPoint(val targetPoint: Vector2, val maxPower: Double,
+        private val staminaSaver: Boolean = false) : MovementBehaviour {
+
     private val xPD = PDController(CURRENT_CONFIG.get().moveKp, CURRENT_CONFIG.get().moveKd, -maxPower, maxPower)
     private val yPD = PDController(CURRENT_CONFIG.get().moveKp, CURRENT_CONFIG.get().moveKd, -maxPower, maxPower)
     private val threshold = CURRENT_CONFIG.get().movePointReachedThresh
+    private var currentTicks = 0
 
-    override fun onEnter(ctx: AgentContext) {
-        // in future we would do better stamina planning here
-    }
+    // TODO add better stamina planning instead of just max power
 
     override fun isDone(ctx: AgentContext): Boolean {
         val myPos = ctx.world.getSelfPlayer().transform.pos
@@ -40,8 +42,14 @@ class MoveToPoint(private val targetPoint: Vector2, private val maxPower: Double
         // can't do much if we don't know anything about ourselves (words of wisdom right there!)
         if (!ctx.world.getSelfPlayer().isKnown){
             Logger.warn("Self position unknown!")
-            // FIXME come up with a better way to handle this
-            // (either ask our friends for help, or move back to a previous pos?)
+            // FIXME come up with a better way to handle this:
+            // either ask our friends for help, or move back to a previous pos?
+            return Vector2(0.0, 0.0)
+        }
+
+        // stamina saver code
+        // TODO this could be more advanced in future by analysing our velocity
+        if (currentTicks++ % 2 == 0 && staminaSaver){
             return Vector2(0.0, 0.0)
         }
 
@@ -55,7 +63,7 @@ class MoveToPoint(private val targetPoint: Vector2, private val maxPower: Double
         val r = movementCart.magnitude()
         val theta = atan2(movementCart.y, movementCart.x)
 
-        // note that the final output is still in radians
+        // note that the final output is still in radians, -pi to pi as well in this case
         return Vector2(r, theta)
     }
 
@@ -63,4 +71,10 @@ class MoveToPoint(private val targetPoint: Vector2, private val maxPower: Double
         // use omnidirectional dash instead of turn
         return 0.0
     }
+
+    override fun toString(): String {
+        return "MoveToPoint(targetPoint=$targetPoint, maxPower=$maxPower)"
+    }
+
+
 }

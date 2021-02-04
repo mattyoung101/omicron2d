@@ -42,6 +42,7 @@ data class PlayerObject(
  */
 data class BallObject(
     var pos: Vector2 = Vector2(0.0, 0.0),
+    var lastPos: Vector2 = Vector2(0.0, 0.0),
     var vel: Vector2 = Vector2(0.0, 0.0),
     var isKnown: Boolean = false,
     var lastSeen: Int = -1)

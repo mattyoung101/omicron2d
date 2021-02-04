@@ -15,17 +15,28 @@ import mikera.vectorz.Vector2
 /**
  * Movement behaviour which does nothing.
  */
-class NullMovementBehaviour : MovementBehaviour {
+class NullMovement : MovementBehaviour {
     override fun calculateSteering(ctx: AgentContext): Vector2 = Vector2(0.0, 0.0)
 
     override fun calculateTurn(ctx: AgentContext): Double = 0.0
 
     // we are always willing to accept a new behaviour, so return that we are done
     override fun isDone(ctx: AgentContext): Boolean = false
+
+    override fun toString(): String {
+        return "NullMovement()"
+    }
 }
 
-class NullCommunicationBehaviour : CommunicationBehaviour {
+/**
+ * Communication behaviour which does nothing.
+ */
+class NullCommunication : CommunicationBehaviour {
     override fun getBytes(ctx: AgentContext): ByteArray = byteArrayOf()
 
     override fun isDone(ctx: AgentContext): Boolean = false
+
+    override fun toString(): String {
+        return "NullCommunication()"
+    }
 }

@@ -45,6 +45,10 @@ data class ChangeViewMessage(var mode: ViewMode = ViewMode.UNKNOWN,
     }
 }
 
+/**
+ * @param power >0-100
+ * @param direction -180 to 180
+ */
 data class DashMessage(var power: Double = 0.0, var direction: Double? = null): OutgoingServerMessage {
     override fun serialise(): String {
         return if (direction != null){

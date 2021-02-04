@@ -9,11 +9,10 @@
 
 package io.github.omicron2d.ai.agents
 
-import io.github.omicron2d.ai.EventState
+import io.github.omicron2d.ai.EventStates
 import io.github.omicron2d.ai.Formation
 import io.github.omicron2d.ai.behaviours.BehaviourManager
-import io.github.omicron2d.ai.behaviours.lowlevel.MoveToPoint
-import io.github.omicron2d.ai.behaviours.lowlevel.Sit
+import io.github.omicron2d.ai.behaviours.highlevel.FollowPath
 import io.github.omicron2d.ai.world.HighLevelWorldModel
 import io.github.omicron2d.ai.world.ICPLocalisation
 import io.github.omicron2d.ai.world.LowLevelWorldModel
@@ -43,19 +42,26 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
     private val startingFormation = Formation(CURRENT_CONFIG.get().initialFormation)
     // we use this instead of timer, see https://stackoverflow.com/a/409993/5007892
     private val thinkTimer = Executors.newSingleThreadScheduledExecutor(namedThreadFactory)
-    private val eventState = EventState()
+    private val eventState = EventStates()
 
     /**
      * This function is intermittently called every 99ms, to send data to the server, since our message receive rate
      * does not equal how often we should be sending messages. (We leave 1ms for transport to the server).
-     *
-     * TODO:
-     * - rewrite AbstractSoccerAgent to include this by default?
      */
     private fun think(){
         val ctx = AgentContext(highModel, lowModel.time)
-        val movement = behaviourManager.updateMovement(ctx)
-        val comms = behaviourManager.updateCommunications(ctx)
+
+        // just for testing
+//        if (highModel.ball.isKnown){
+//            if (highModel.ball.pos.distance(highModel.ball.lastPos) >= 5.0){
+//                behaviourManager.movementQueue.clear()
+//                val move = MoveToPoint(highModel.ball.pos, 100.0)
+//                behaviourManager.setMovementBehaviour(move, ctx)
+//            }
+//        }
+
+        val movement = behaviourManager.tickMovement(ctx)
+        val comms = behaviourManager.tickCommunications(ctx)
 
         // update agent movement
         // if the dash power here is too small, don't bother sending the message to the server to reduce spam
@@ -64,11 +70,9 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
             val dashDirDegrees = movement.dash.y.toDegrees()
             val dashDir = if (dashDirDegrees > 180.0) dashDirDegrees - 360.0 else dashDirDegrees
 
-            // only transmit dash after kickoff, don't spam the server during setup
-            if (eventState.hasKickedOff) {
-                transmit(DashMessage(movement.dash.x, dashDir))
-            }
+            transmit(DashMessage(movement.dash.x, dashDir))
         } else if (movement.turn != null){
+            // TODO need to convert angles?
             transmit(TurnMessage(movement.turn))
         }
 
@@ -115,15 +119,19 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
             eventState.hasKickedOff = true
 
             // just for testing
-            val coords = listOf(Vector2(-50.0, 32.0), Vector2(-50.0, -32.0), Vector2(45.0, -32.0),
-                    Vector2(51.36, 32.31))
+//            val coords = listOf(Vector2(-50.0, 32.0), Vector2(-50.0, -32.0), Vector2(45.0, -32.0),
+//                    Vector2(51.36, 32.31))
 //            val coords = listOf(Vector2(-7.0, -6.0), Vector2(-6.0, -6.0), Vector2(5.0, -7.0),
 //                    Vector2(7.0, 5.0), Vector2(-7.0, -6.0))
+//            for (coord in coords){
+//                behaviourManager.movementQueue.add(MoveToPoint(coord, 100.0))
+//                behaviourManager.movementQueue.add(Sit(10000))
+//            }
 
-            for (coord in coords){
-                behaviourManager.movementQueue.add(MoveToPoint(coord, 100.0))
-                behaviourManager.movementQueue.add(Sit(10000))
-            }
+            val coords = arrayOf(Vector2(-7.0, -6.0), Vector2(-6.0, -6.0), Vector2(5.0, -7.0),
+                    Vector2(7.0, 5.0), Vector2(-7.0, -6.0))
+            val stamina = DoubleArray(coords.size) { 100.0 }
+            behaviourManager.movementQueue.add(FollowPath(coords, stamina))
         }
     }
 
@@ -207,28 +215,18 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
                 if (info?.unum != null && info.teamName != null){
                     // we have lots of information: we can find out this player's id, and which team they're on
                     val id = info.unum!! - 1
-                    // TODO can we DRY this?
-                    if (info.teamName == CURRENT_CONFIG.get().teamName){
-                        // it's our team
-                        // note that we use ID here instead of unum since teamPlayers is zero indexed
-                        highModel.teamPlayers[id].isKnown = true
-                        highModel.teamPlayers[id].lastSeen = lowModel.time
-                        highModel.teamPlayers[id].isGoalie = info.goalie
-                        val absolute = calculateAbsolutePosition(dir, dist, agentTransform)
-                        // calculate body orientation in radians if available
-                        val bodyDirection = calcBodyFaceDir(player.bodyFaceDir)
-                        highModel.teamPlayers[id].transform = Transform2D(absolute, bodyDirection)
-                    } else {
-                        // it's the opposition team
-                        highModel.opponentPlayers[id].isKnown = true
-                        highModel.opponentPlayers[id].lastSeen = lowModel.time
-                        highModel.opponentPlayers[id].isGoalie = info.goalie
-                        val absolute = calculateAbsolutePosition(dir, dist, agentTransform)
-                        highModel.teamPlayers[id].transform = Transform2D(absolute, 0.0)
-                        // calculate body orientation in radians if available
-                        val bodyDirection = calcBodyFaceDir(player.bodyFaceDir)
-                        highModel.teamPlayers[id].transform = Transform2D(absolute, bodyDirection)
-                    }
+                    val isOurSide = info.teamName == CURRENT_CONFIG.get().teamName
+                    val array = if (isOurSide) highModel.teamPlayers else highModel.opponentPlayers
+
+                    // note that we use ID here instead of unum since teamPlayers/opponentPlayers is zero indexed
+                    array[id].isKnown = true
+                    array[id].lastSeen = lowModel.time
+                    array[id].isGoalie = info.goalie
+                    val absolute = calculateAbsolutePosition(dir, dist, agentTransform)
+                    // calculate body orientation in radians if available
+                    val bodyDirection = calcBodyFaceDir(player.bodyFaceDir)
+                    array[id].transform = Transform2D(absolute, bodyDirection)
+
                 } else if (info?.unum != null){
                     // we know this player's id, we might be able to infer which team they're on
                     // TODO work out a way to infer team for certain players
@@ -268,6 +266,7 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
                     // here we may want to ask our teammates for help
                 } else {
                     val absolute = calculateAbsolutePosition(ball.direction!!, ball.distance!!, agentTransform)
+                    highModel.ball.lastPos.set(highModel.ball.pos)
                     highModel.ball.pos = absolute
                     highModel.ball.isKnown = true
                     highModel.ball.lastSeen = lowModel.time
@@ -284,7 +283,6 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
             highModel.teamPlayers[self].lastSeen = lowModel.time
             AGENT_STATS.get().successfulLocalisations++
         } else {
-            // Logger.debug("Cannot perform localisation, no good flags! all flags = ${lowModel.allFlags}")
             // because we couldn't localise, this means that the positions of ALL of our localised objects are
             // now unknown. so go and update them here
             for (i in highModel.teamPlayers.indices){

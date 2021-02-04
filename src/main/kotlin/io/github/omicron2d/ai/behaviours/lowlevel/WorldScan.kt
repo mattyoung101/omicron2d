@@ -19,7 +19,7 @@ import org.tinylog.kotlin.Logger
  * @param isFastScan should we use wider vision, less accurate but we can complete a scan faster?
  * @param numScans number of scans or complete spins to do before exiting
  */
-class WorldScanMovementBehaviour(private val isFastScan: Boolean, private val numScans: Int) : MovementBehaviour {
+class WorldScan(private val isFastScan: Boolean, private val numScans: Int) : MovementBehaviour {
     private var startOrientation = -1.0
 
     override fun onEnter(ctx: AgentContext) {
@@ -37,7 +37,6 @@ class WorldScanMovementBehaviour(private val isFastScan: Boolean, private val nu
     }
 
     override fun isDone(ctx: AgentContext): Boolean {
-        ctx.world.getSelfPlayer().transform.theta
         // TODO return true when we have finished the number of scans.
         return false
     }

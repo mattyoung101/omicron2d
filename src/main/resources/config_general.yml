@@ -19,11 +19,10 @@ initialFormation: formations/starting433.yml
 # There's currently no good reason to listen to the opposition, but in future it would be interesting to
 # intercept agent2d messages and attempt to decode them
 listenToOpposition: false
-
 # Move to Point behaviour
 # P-D controller constants
-moveKp: 50.0
-moveKd: 0.0
+moveKp: 20.0
+moveKd: 0.5
 # Distance at which to consider the MoveToPoint behaviour point as being "reached"
 movePointReachedThresh: 1.0
 

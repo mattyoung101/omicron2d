@@ -2,8 +2,10 @@ plugins {
     id 'java'
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.0.8'
-    id 'org.jetbrains.kotlin.jvm' version '1.4.10'
+    id 'org.jetbrains.kotlin.jvm' version '1.4.30'
 }
+
+// Kotlin versions: https://kotlinlang.org/releases.html
 
 group 'omicron'
 version '1.0-SNAPSHOT'
@@ -37,7 +39,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation 'org.tinylog:tinylog-api-kotlin:2.0.0'
     implementation 'org.tinylog:tinylog-impl:2.0.0'
-    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: '1.4.10'
+    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: '1.4.30'
     // implementation group: 'com.esotericsoftware', name: 'kryo', version: '5.0.0-RC4'
     // implementation 'com.github.ajalt:clikt:2.1.0'
     implementation group: 'net.mikera', name: 'vectorz', version: '0.67.0'
@@ -45,7 +47,6 @@ dependencies {
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
     implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
     implementation group: 'commons-io', name: 'commons-io', version: '2.6'
-    // compile 'com.google.guava:guava:28.1-jre'
     implementation 'com.google.code.gson:gson:2.8.6'
     // implementation 'org.greenrobot:eventbus:3.1.1'
     implementation group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.14'

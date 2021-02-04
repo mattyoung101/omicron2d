@@ -11,6 +11,7 @@ package io.github.omicron2d.utils
 
 import io.github.omicron2d.debug.DebugDisplay
 import mikera.vectorz.Vector2
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.PI
 import kotlin.random.Random
 
@@ -24,9 +25,11 @@ import kotlin.random.Random
  * 0.2.0-alpha: rewrite parsers in ANTLR
  * 0.3.0-alpha: localisation implemented, more ANTLR parsers, debug UI, storage now in YAML
  * 0.4.0-alpha: formation loading, high level world model
- * 0.5.0-alpha: (WIP) basic planning and movement
+ * 0.5.0-alpha: basic planning and movement code written
+ * 0.6.0-alpha: (WIP) more advanced movement and planning, basic response to rules
  */
-const val OMICRON2D_VERSION = "0.5.0-alpha"
+const val OMICRON2D_VERSION = "0.6.0-alpha"
+
 /** Supported rcssserver protocol version */
 const val SERVER_PROTOCOL_VERSION = "15"
 /** Charset available for the (say) command */
@@ -49,9 +52,11 @@ val ZERO_VECTOR = Vector2(0.0, 0.0)
 // THREAD LOCAL VARIABLES
 /**
  * Shared instance of GeneralConfig loaded from YAML at boot. DO NOT MODIFY AFTER DESERIALISATION!!!
- * When doing multi agent execution with TeamMain, each thread has its own copy of this.
+ * Used to be a ThreadLocal but this caused really difficult problems when being called from PlayerAgent think()
+ * since that was on its own timer thread.
+ * TODO refactor from being an AtomicReference to just normal
  */
-var CURRENT_CONFIG = ThreadLocal.withInitial { GeneralConfig() }!!
+var CURRENT_CONFIG = AtomicReference(GeneralConfig()) //ThreadLocal.withInitial { GeneralConfig() }!!
 /** Shared debug display. Disabled during multi agent execution with TeamMain. MAY BE NULL!! BE CAREFUL! */
 var DEBUG_DISPLAY: DebugDisplay? = null
 val AGENT_STATS = ThreadLocal.withInitial { AgentStats() }!!

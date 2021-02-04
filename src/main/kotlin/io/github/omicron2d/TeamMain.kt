@@ -26,9 +26,9 @@ object TeamMain {
         System.setProperty("tinylog.configuration", "tinylog.properties")
         Logger.info("Omicron2D v$OMICRON2D_VERSION: Copyright (c) 2019-2021 Matt Young.")
 
-        // ----- note: only for testing
-//        UselessAgent.launch()
-//        Thread.sleep(500)
+        // uncomment if testing right side
+        // UselessAgent.launch()
+        // Thread.sleep(500)
 
         // launch the entire team
         for (i in 0 until 11){
@@ -46,5 +46,6 @@ object TeamMain {
             thread.join()
             Logger.info("Agent $i has finished")
         }
+        Logger.info("All agents have finished. Goodbye!")
     }
 }
