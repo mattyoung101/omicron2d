@@ -12,6 +12,7 @@ package io.github.omicron2d.ai.agents
 import io.github.omicron2d.ai.EventStates
 import io.github.omicron2d.ai.Formation
 import io.github.omicron2d.ai.behaviours.BehaviourManager
+import io.github.omicron2d.ai.behaviours.highlevel.FollowPath
 import io.github.omicron2d.ai.behaviours.lowlevel.TurnBodyTo
 import io.github.omicron2d.ai.world.HighLevelWorldModel
 import io.github.omicron2d.ai.world.ICPLocalisation
@@ -19,11 +20,13 @@ import io.github.omicron2d.ai.world.LowLevelWorldModel
 import io.github.omicron2d.communication.AbstractSoccerAgent
 import io.github.omicron2d.communication.messages.*
 import io.github.omicron2d.utils.*
+import mikera.vectorz.Vector2
 import org.apache.commons.lang3.concurrent.BasicThreadFactory
 import org.tinylog.kotlin.Logger
 import java.net.InetAddress
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlin.math.abs
 import kotlin.system.exitProcess
 
 /**
@@ -64,12 +67,12 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
 
         // update agent movement
         // if the dash power here is too small, don't bother sending the message to the server to reduce spam
-        if (movement.dash != null && movement.dash.x >= EPSILON){
+        if (movement.dash != null && abs(movement.dash.x) >= EPSILON){
             // convert radians to degrees, then 0-360 degrees to -180 to +180 degrees
             val dashDirDegrees = movement.dash.y.toDegrees()
             val dashDir = if (dashDirDegrees > 180.0) dashDirDegrees - 360.0 else dashDirDegrees
             transmit(DashMessage(movement.dash.x, dashDir))
-        } else if (movement.turn != null && movement.turn >= EPSILON){
+        } else if (movement.turn != null && abs(movement.turn) >= EPSILON){
             val angleDeg = movement.turn.toDegrees()
             transmit(TurnMessage(angleDeg))
         }
@@ -128,19 +131,23 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
 //                behaviourManager.movementQueue.add(Sit(10000))
 //            }
 
-            // move around in the centre using FollowPath
-//            val coords = arrayOf(Vector2(-7.0, -6.0), Vector2(-6.0, -6.0), Vector2(5.0, -7.0),
-//                    Vector2(7.0, 5.0), Vector2(-7.0, -6.0))
-//            val stamina = DoubleArray(coords.size) { 100.0 }
-//            behaviourManager.movementQueue.add(FollowPath(coords, stamina))
+            // face increments of 90 degrees randomly
+            val angles = listOf(90.0, 180.0, 270.0).shuffled()
+            for (angle in angles){
+                behaviourManager.movementQueue.add(TurnBodyTo(angle.toRadians()))
+            }
+            behaviourManager.movementQueue.add(TurnBodyTo(0.0))
 
-            // face 270 degrees
-            //behaviourManager.movementQueue.add(TurnBodyTo(270.0 * DEG_RAD))
+            // move around in the centre using FollowPath
+            val coords = arrayOf(Vector2(-7.0, -6.0), Vector2(-6.0, -6.0), Vector2(5.0, -7.0),
+                    Vector2(7.0, 5.0), Vector2(-7.0, -6.0))
+            val stamina = DoubleArray(coords.size) { 100.0 }
+            behaviourManager.movementQueue.add(FollowPath(coords, stamina))
 
             // face a bunch of random directions then back to zero
-            val behaviours = Array(10) { TurnBodyTo(RAND.get().nextDouble(0.0, 360.0)) }
-            behaviourManager.movementQueue.addAll(behaviours)
-            behaviourManager.movementQueue.add(TurnBodyTo(0.0))
+//            val behaviours = Array(10) { TurnBodyTo(RAND.get().nextDouble(0.0, PI2)) }
+//            behaviourManager.movementQueue.addAll(behaviours)
+//            behaviourManager.movementQueue.add(TurnBodyTo(0.0))
         }
     }
 

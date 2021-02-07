@@ -7,7 +7,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package io.github.omicron2d.ai.behaviours.lowlevel
+package io.github.omicron2d.ai.behaviours.highlevel
 
 import io.github.omicron2d.ai.behaviours.MovementBehaviour
 import io.github.omicron2d.utils.AgentContext
@@ -16,6 +16,7 @@ import org.tinylog.kotlin.Logger
 
 /**
  * Behaviour to rotate around in a circle, scanning the world for things.
+ * TODO refactor to use TurnBodyTo
  * @param isFastScan should we use wider vision, less accurate but we can complete a scan faster?
  * @param numScans number of scans or complete spins to do before exiting
  */

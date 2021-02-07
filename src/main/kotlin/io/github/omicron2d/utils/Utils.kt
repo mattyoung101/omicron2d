@@ -14,8 +14,7 @@ import io.github.omicron2d.ai.world.HighLevelWorldModel
 import io.github.omicron2d.ai.world.ICPLocalisation
 import mikera.vectorz.Vector2
 import org.apache.commons.math3.linear.*
-import kotlin.math.PI
-import kotlin.math.abs
+import kotlin.math.*
 
 fun makeCommonsVector(x: Double, y: Double): RealVector {
     return ArrayRealVector(doubleArrayOf(x, y))
@@ -54,10 +53,20 @@ fun matrixMeanCols(matrix: RealMatrix): RealMatrix {
     return outMat
 }
 
-/** Distance between angles in radians. Source: [https://stackoverflow.com/a/7571008/5007892] */
-fun angleDistanceRad(a: Double, b: Double): Double {
+/** Unsigned distance between angles in radians. Source: [https://stackoverflow.com/a/7571008/5007892] */
+fun angleUnsignedDistance(a: Double, b: Double): Double {
     val phi = abs(b - a) % PI2
     return if (phi > PI) PI2 - phi else phi
+}
+
+/**
+ * Signed distance between two angles in radians.
+ * Source: [https://stackoverflow.com/a/2007279/5007892]
+ * @param y current angle
+ * @param x target angle
+ */
+fun angleSignedDistance(y: Double, x: Double): Double {
+    return atan2(sin(x - y), cos(x - y))
 }
 
 /**

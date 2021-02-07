@@ -123,7 +123,7 @@ class LocalisationTesterAgent(host: InetAddress = InetAddress.getLocalHost(), po
                         positionStats.addValue(dst)
                     } else {
                         Logger.debug("($i) Estimated angle: ${agentTransform.theta * RAD_DEG}, real angle: ${currentAngle * RAD_DEG}")
-                        angleStats.addValue(angleDistanceRad(currentAngle, agentTransform.theta))
+                        angleStats.addValue(angleUnsignedDistance(currentAngle, agentTransform.theta))
                     }
                     timingStats.addValue(end.toDouble())
 

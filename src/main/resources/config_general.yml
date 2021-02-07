@@ -21,14 +21,14 @@ initialFormation: formations/starting433.yml
 listenToOpposition: false
 # Move to Point behaviour
 # P-D controller constants
-moveKp: 25.0
-moveKd: 0.5
+moveKp: 75.0
+moveKd: 0.1
 # Distance at which to consider the MoveToPoint behaviour point as being "reached"
 movePointReachedThresh: 1.0
 # Turn Body To behaviour
 # P-D controller constants, in degrees (will be converted to radians)
-turnBodyKp: 6.0
-turnBodyKd: 2.0
+turnBodyKp: 20.0
+turnBodyKd: 0.05
 # Number of degrees tolerance where we consider the body angle as being reached
 turnBodyToleranceDeg: 4.0
 

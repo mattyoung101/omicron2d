@@ -9,11 +9,13 @@
 
 package io.github.omicron2d.ai
 
-import io.github.omicron2d.utils.angleDistanceRad
+import io.github.omicron2d.utils.angleSignedDistance
 
 /**
  * A special case of a P-D controller that works for angles. It knows about how angles wrap around, so doesn't produce
  * needlessly large correction values. **Note: works for radians only.**
+ *
+ * TODO add I term.
  *
  * Duplicated from [PDController].
  */
@@ -31,8 +33,8 @@ class AngularPDController(var kp: Double, var kd: Double, var min: Double = Doub
         val currentTime = System.nanoTime()
         val elapsedTime = (currentTime - lastTime) / 1e+9
 
-        val error = angleDistanceRad(setPoint, input)
-        val derivative = (angleDistanceRad(input, lastInput)) / elapsedTime
+        val error = angleSignedDistance(input, setPoint)
+        val derivative = (angleSignedDistance(input, lastInput)) / elapsedTime
         val correction = (kp * error) + (kd * derivative)
 
         lastTime = currentTime

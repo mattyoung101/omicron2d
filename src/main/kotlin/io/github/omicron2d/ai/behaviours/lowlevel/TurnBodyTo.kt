@@ -13,7 +13,7 @@ import io.github.omicron2d.ai.AngularPDController
 import io.github.omicron2d.ai.behaviours.MovementBehaviour
 import io.github.omicron2d.utils.AgentContext
 import io.github.omicron2d.utils.CURRENT_CONFIG
-import io.github.omicron2d.utils.angleDistanceRad
+import io.github.omicron2d.utils.angleUnsignedDistance
 import io.github.omicron2d.utils.toRadians
 import mikera.vectorz.Vector2
 import org.tinylog.kotlin.Logger
@@ -21,6 +21,7 @@ import kotlin.math.PI
 
 /**
  * This behaviour turns the body to a specified angle (uses a P-D controller)
+ * TODO make it so we just snap to the target angle.
  * @param targetAngle body angle to be reached **in radians**
  */
 class TurnBodyTo(val targetAngle: Double) : MovementBehaviour {
@@ -32,7 +33,7 @@ class TurnBodyTo(val targetAngle: Double) : MovementBehaviour {
     private val tolerance = CURRENT_CONFIG.get().turnBodyToleranceDeg.toRadians()
 
     override fun isDone(ctx: AgentContext): Boolean {
-        return angleDistanceRad(ctx.world.getSelfPlayer().transform.theta, targetAngle) <= tolerance
+        return angleUnsignedDistance(ctx.world.getSelfPlayer().transform.theta, targetAngle) <= tolerance
     }
 
     override fun calculateTurn(ctx: AgentContext): Double {
@@ -42,8 +43,7 @@ class TurnBodyTo(val targetAngle: Double) : MovementBehaviour {
         }
 
         val currentAngle = ctx.world.getSelfPlayer().transform.theta
-        val correction = controller.update(currentAngle, targetAngle)
-        return correction
+        return controller.update(currentAngle, targetAngle)
 
 //        println("Current angle: ${ctx.world.getSelfPlayer().transform.theta.toDegrees()} deg")
 //        return 1.0 * DEG_RAD

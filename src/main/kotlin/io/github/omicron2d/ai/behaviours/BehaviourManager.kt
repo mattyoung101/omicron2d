@@ -13,6 +13,7 @@ import io.github.omicron2d.utils.AgentContext
 import io.github.omicron2d.utils.EPSILON
 import org.tinylog.kotlin.Logger
 import java.util.*
+import kotlin.math.abs
 
 /**
  * This class manages the agent's behaviours (what it's doing and how it's doing it).
@@ -73,7 +74,7 @@ class BehaviourManager(private val onMoveQueueDepleted: (AgentContext) -> Moveme
             }
         }
 
-        return if (turn <= EPSILON){
+        return if (abs(turn) <= EPSILON){
             // turn is zero, must be movement then
             MovementResult(dash = steering)
         } else {

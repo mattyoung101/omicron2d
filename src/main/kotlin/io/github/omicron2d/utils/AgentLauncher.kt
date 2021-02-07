@@ -14,9 +14,9 @@ import io.github.omicron2d.ai.agents.PlayerAgent
 import io.github.omicron2d.communication.messages.OutgoingInitMessage
 import io.github.omicron2d.debug.DebugDisplay
 import org.tinylog.kotlin.Logger
-import java.io.File
 import java.io.FileReader
 import java.net.InetAddress
+import java.nio.file.Files
 import javax.swing.SwingUtilities
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
@@ -71,15 +71,15 @@ object AgentLauncher {
 
     /**
      * Starts rcsoccersim when the application launches to make debugging easier.
-     * Output directory is set to /tmp.
+     * Output directory is set to a generated folder in the temp directory.
      */
     fun maybeStartRcsoccersim(){
         if (System.getProperty("startSimTool") != null){
             // incredibly lazy and bad way of doing this
             thread {
-                val path = System.getProperty("java.io.tmpdir")
+                val path = Files.createTempDirectory("omicron2d")
                 Logger.info("Starting rcsoccersim (working directory: $path)")
-                val builder = ProcessBuilder().command("/usr/local/bin/rcsoccersim").directory(File(path))
+                val builder = ProcessBuilder().command("/usr/local/bin/rcsoccersim").directory(path.toFile())
                 val process = builder.start()
                 process.waitFor()
                 Logger.info("rcsoccersim has quit, exiting")
