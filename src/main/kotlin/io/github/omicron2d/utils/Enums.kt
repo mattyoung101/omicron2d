@@ -84,7 +84,6 @@ enum class ViewQuality {
     LOW
 }
 
-/** Status for behaviours */
 enum class BehaviourStatus {
     RUNNING,
     SUCCESS,

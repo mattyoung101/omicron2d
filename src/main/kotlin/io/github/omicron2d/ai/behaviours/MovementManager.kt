@@ -10,29 +10,30 @@
 package io.github.omicron2d.ai.behaviours
 
 import io.github.omicron2d.utils.AgentContext
+import io.github.omicron2d.utils.BehaviourStatus
 import io.github.omicron2d.utils.EPSILON
 import org.tinylog.kotlin.Logger
 import java.util.*
 import kotlin.math.abs
 
 /**
- * This class manages the agent's behaviours (what it's doing and how it's doing it).
- * @param onMoveQueueDepleted called to request a new movement behaviour when the queue becomes empty
+ * This class manages the agent's steering behaviours (dashing, body angle, head angle).
+ * @param onQueueDepleted called to request a new movement behaviour when the queue becomes empty
  */
-class BehaviourManager(private val onMoveQueueDepleted: (AgentContext) -> MovementBehaviour? = { null }) {
+class MovementManager(private val onQueueDepleted: (AgentContext) -> MovementBehaviour? = { null }) {
     private var currentMovement: MovementBehaviour = NullMovement()
-    private var currentComms: CommunicationBehaviour = NullCommunication()
+
     /**
      * Queue of behaviours to be executed after the current one finishes. Switching between these is handled automatically
      * when [tickMovement] is called.
      */
-    val movementQueue: Queue<MovementBehaviour> = LinkedList()
+    val queue: Queue<MovementBehaviour> = LinkedList()
 
     /**
      * Sets the current movement behaviour in the BehaviourManager. Handles exit and enter calls.
      */
-    fun setMovementBehaviour(newBehaviour: MovementBehaviour, ctx: AgentContext){
-        Logger.debug("Setting movement behaviour to: $newBehaviour")
+    fun setMovement(newBehaviour: MovementBehaviour, ctx: AgentContext){
+        Logger.debug("Setting behaviour to: $newBehaviour")
         currentMovement.onExit(ctx)
         currentMovement = newBehaviour
         currentMovement.onEnter(ctx)
@@ -47,30 +48,35 @@ class BehaviourManager(private val onMoveQueueDepleted: (AgentContext) -> Moveme
         val turn = currentMovement.calculateTurn(ctx)
 
         // if we have new items in the queue and are doing nothing, switch to the new behaviour
-        if (currentMovement::class.java == NullMovement::class.java && movementQueue.isNotEmpty()){
-            Logger.info("New movement behaviour queued while in NullBehaviour, switching to it!")
-            setMovementBehaviour(movementQueue.remove(), ctx)
+        if (currentMovement::class.java == NullMovement::class.java && queue.isNotEmpty()){
+            Logger.info("New behaviour queued while in NullBehaviour, switching to it!")
+            setMovement(queue.remove(), ctx)
         }
 
         // check if the current behaviour is done
-        if (currentMovement.isDone(ctx)){
-            Logger.debug("Current behaviour $currentMovement has finished")
+        val status = currentMovement.reportStatus(ctx)
+        if (status != BehaviourStatus.RUNNING){
+            if (status == BehaviourStatus.SUCCESS) {
+                Logger.debug("Current behaviour $currentMovement finished successfully")
+            } else {
+                Logger.warn("Current behaviour $currentMovement has failed!")
+            }
 
-            if (movementQueue.isEmpty()){
-                Logger.debug("Movement queue depleted! Looking for next behaviour")
+            if (queue.isEmpty()){
+                Logger.debug("Queue depleted! Looking for next behaviour")
 
                 // see if the event listener can get us a new behaviour
-                val next = onMoveQueueDepleted(ctx)
+                val next = onQueueDepleted(ctx)
                 if (next != null){
                     Logger.debug("Received valid behaviour from event listener: $next")
-                    setMovementBehaviour(next, ctx)
+                    setMovement(next, ctx)
                 } else {
                     Logger.warn("No more movement behaviours available! Reverting to NullBehaviour")
-                    setMovementBehaviour(NullMovement(), ctx)
+                    setMovement(NullMovement(), ctx)
                 }
             } else {
                 Logger.debug("Fetching next behaviour from queue")
-                setMovementBehaviour(movementQueue.remove(), ctx)
+                setMovement(queue.remove(), ctx)
             }
         }
 
@@ -81,14 +87,5 @@ class BehaviourManager(private val onMoveQueueDepleted: (AgentContext) -> Moveme
             // turn is not zero, it's therefore going to be a turn
             MovementResult(turn = turn)
         }
-    }
-
-    /**
-     * Calculates the communication message for this agent as a byte array. Result must be encoded to an rcssserver
-     * compatible string using another strategy. If output size is zero, the behaviour has decided no message
-     * should be sent.
-     */
-    fun tickCommunications(ctx: AgentContext): ByteArray {
-        return currentComms.getBytes(ctx)
     }
 }

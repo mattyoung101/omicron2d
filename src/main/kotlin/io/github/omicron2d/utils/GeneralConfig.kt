@@ -29,7 +29,6 @@ data class GeneralConfig(
     var moveKp: Double = 0.0,
     var moveKd: Double = 0.0,
     var movePointReachedThresh: Double = 0.0,
-    var turnBodyKp: Double = 0.0,
-    var turnBodyKd: Double = 0.0,
     var turnBodyToleranceDeg: Double = 0.0,
+    var turnBodySmoothing: Double = 0.0,
 )

@@ -12,12 +12,14 @@ package io.github.omicron2d.ai.behaviours.highlevel
 import io.github.omicron2d.ai.behaviours.MovementBehaviour
 import io.github.omicron2d.ai.behaviours.lowlevel.MoveToPoint
 import io.github.omicron2d.utils.AgentContext
+import io.github.omicron2d.utils.BehaviourStatus
 import mikera.vectorz.Vector2
 import org.tinylog.kotlin.Logger
 import java.util.*
 
 /**
  * Follows a path of points. Internally dispatches to a series of MoveToPoint behaviours.
+ * TODO make this use a child MovementManager?
  * @param path list of points to visit
  * @param stamina for each point in the path array, the max amount of stamina to use when navigating to this point
  */
@@ -26,12 +28,15 @@ class FollowPath(private val path: Array<Vector2>, private val stamina: DoubleAr
     private val queue: Queue<MoveToPoint> = LinkedList()
     /** current movement behaviour we are executing, or null if none */
     private var currentMove: MoveToPoint? = null
+    private var status = BehaviourStatus.RUNNING
 
     init {
         if (path.size != stamina.size){
-            throw IllegalArgumentException("Path array and stamina array size mismatch")
+            Logger.error("Path array and stamina array size mismatch")
+            status = BehaviourStatus.FAILURE
         } else if (path.isEmpty() || stamina.isEmpty()){
-            throw IllegalArgumentException("Path and stamina arrays must not be empty")
+            Logger.error("Path and stamina arrays must not be empty")
+            status = BehaviourStatus.FAILURE
         }
 
         for ((i, point) in path.withIndex()){
@@ -39,9 +44,9 @@ class FollowPath(private val path: Array<Vector2>, private val stamina: DoubleAr
         }
     }
 
-    override fun isDone(ctx: AgentContext): Boolean {
+    override fun reportStatus(ctx: AgentContext): BehaviourStatus {
         // check that we have no more points to visit, and the last point is done being moved to
-        return queue.isEmpty() && (currentMove?.isDone(ctx) ?: false)
+        return if (queue.isEmpty() && (currentMove?.reportStatus(ctx) != BehaviourStatus.RUNNING)) BehaviourStatus.SUCCESS else status
     }
 
     override fun calculateSteering(ctx: AgentContext): Vector2 {
@@ -52,7 +57,7 @@ class FollowPath(private val path: Array<Vector2>, private val stamina: DoubleAr
         }
 
         // check if we have reached our point
-        if (currentMove!!.isDone(ctx) && queue.isNotEmpty()){
+        if (currentMove!!.reportStatus(ctx) != BehaviourStatus.RUNNING && queue.isNotEmpty()){
             currentMove = queue.remove()
             Logger.debug("Reached point, moving to next: ${currentMove!!.targetPoint} (remaining: ${queue.size})")
         }

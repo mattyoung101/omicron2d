@@ -70,7 +70,7 @@ object AgentLauncher {
     fun launchCoachAgent(){}
 
     /**
-     * Starts rcsoccersim when the application launches to make debugging easier.
+     * Starts rcsoccersim when the application launches to make debugging easier (only if `startSimTool` is set).
      * Output directory is set to a generated folder in the temp directory.
      */
     fun maybeStartRcsoccersim(){

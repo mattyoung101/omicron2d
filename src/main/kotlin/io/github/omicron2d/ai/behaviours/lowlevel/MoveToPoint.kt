@@ -12,6 +12,7 @@ package io.github.omicron2d.ai.behaviours.lowlevel
 import io.github.omicron2d.ai.PDController
 import io.github.omicron2d.ai.behaviours.MovementBehaviour
 import io.github.omicron2d.utils.AgentContext
+import io.github.omicron2d.utils.BehaviourStatus
 import io.github.omicron2d.utils.CURRENT_CONFIG
 import mikera.vectorz.Vector2
 import org.tinylog.kotlin.Logger
@@ -28,20 +29,20 @@ class MoveToPoint(val targetPoint: Vector2, val maxPower: Double, val staminaSav
     private val yPD = PDController(CURRENT_CONFIG.get().moveKp, CURRENT_CONFIG.get().moveKd, -maxPower, maxPower)
     private val threshold = CURRENT_CONFIG.get().movePointReachedThresh
     private var currentTicks = 0
+    private var status = BehaviourStatus.RUNNING
 
     // TODO add better stamina planning instead of just max power
 
-    override fun isDone(ctx: AgentContext): Boolean {
+    override fun reportStatus(ctx: AgentContext): BehaviourStatus {
         val myPos = ctx.world.getSelfPlayer().transform.pos
-        return myPos.distance(targetPoint) <= threshold
+        return if (myPos.distance(targetPoint) <= threshold) BehaviourStatus.SUCCESS else status
     }
 
     override fun calculateSteering(ctx: AgentContext): Vector2 {
         // can't do much if we don't know anything about ourselves (words of wisdom right there!)
         if (!ctx.world.getSelfPlayer().isKnown){
             Logger.warn("Cannot calculate movement, self position unknown!")
-            // FIXME come up with a better way to handle this:
-            // either ask our friends for help, or move back to a previous pos?
+            status = BehaviourStatus.FAILURE
             return Vector2(0.0, 0.0)
         }
 

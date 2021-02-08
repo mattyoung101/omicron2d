@@ -10,9 +10,8 @@
 package io.github.omicron2d.ai.behaviours
 
 import io.github.omicron2d.utils.AgentContext
+import io.github.omicron2d.utils.BehaviourStatus
 import mikera.vectorz.Vector2
-
-// consider renaming this class and package to "skills"?? would that fit better?
 
 // FIXME Important note: we CANNOT turn while driving! Can only turn when not issuing a dash command!
 // This means that probably drive and orient behaviours need to be separate
@@ -21,7 +20,7 @@ import mikera.vectorz.Vector2
 /**
  * Root class for all behaviours. A behaviour is essentially what the robot "does".
  *
- * The GOAP planner will choose what behaviours we should execute in which order to succeed at our goal. We will
+ * The planner will choose what behaviours we should execute in which order to succeed at our goal. We will
  * probably give the planner access to all behaviours, low level ones such as ScanWorld and high level ones such as
  * DefendGoal. We hope that the planner is smart enough to figure everything out by itself.
  *
@@ -37,8 +36,8 @@ interface Behaviour {
     /** Called when the behaviour is exited. Default does nothing. */
     fun onExit(ctx: AgentContext){}
 
-    /** @return if true, this Behaviour believes it has finished working, otherwise, it is still working. */
-    fun isDone(ctx: AgentContext): Boolean
+    /** @return the current status of this behaviour (if it has finished, failed, etc) */
+    fun reportStatus(ctx: AgentContext): BehaviourStatus
 }
 
 /**
@@ -51,6 +50,14 @@ interface MovementBehaviour : Behaviour {
 
     /** @return amount of **radians** to add to current body angle */
     fun calculateTurn(ctx: AgentContext): Double
+}
+
+/**
+ * A task which controls the agent's head orientation. Separate from MovementBehaviour since rarely used
+ */
+interface HeadBehaviour : Behaviour {
+    /** @return number of **radians** to add to current head angle (turn_neck command) */
+    fun calculateHeadTurn(): Double
 }
 
 /**
@@ -68,14 +75,3 @@ interface CommunicationBehaviour : Behaviour {
  * @param turn if not null, indicates we are issuing a turn and the amount of **radians** to turn
  */
 data class MovementResult(val dash: Vector2? = null, val turn: Double? = null)
-
-///**
-// * A task which controls the agent's head orientation
-// */
-//@Deprecated("Due to the fact that we can dash in any direction now, turning the head appears to be useless.")
-//interface HeadBehaviour : Behaviour {
-//    /**
-//     * @return number of **radians** to add to current head angle (turn_neck command)
-//     */
-//    fun getHeadVelocity(): Double
-//}

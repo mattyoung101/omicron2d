@@ -9,44 +9,55 @@
 
 package io.github.omicron2d.ai.behaviours.lowlevel
 
-import io.github.omicron2d.ai.AngularPDController
 import io.github.omicron2d.ai.behaviours.MovementBehaviour
-import io.github.omicron2d.utils.AgentContext
-import io.github.omicron2d.utils.CURRENT_CONFIG
-import io.github.omicron2d.utils.angleUnsignedDistance
-import io.github.omicron2d.utils.toRadians
+import io.github.omicron2d.utils.*
 import mikera.vectorz.Vector2
 import org.tinylog.kotlin.Logger
-import kotlin.math.PI
 
 /**
- * This behaviour turns the body to a specified angle (uses a P-D controller)
- * TODO make it so we just snap to the target angle.
+ * This behaviour turns the body to a specified angle (snaps directly to it using angle difference).
  * @param targetAngle body angle to be reached **in radians**
  */
 class TurnBodyTo(val targetAngle: Double) : MovementBehaviour {
-    // in the config file, kp and kd are in degrees - but we work in radians in the code, so convert them
-    private val kp = CURRENT_CONFIG.get().turnBodyKp.toRadians()
-    private val kd = CURRENT_CONFIG.get().turnBodyKd.toRadians()
-
-    private val controller = AngularPDController(kp, kd, -PI, PI)
     private val tolerance = CURRENT_CONFIG.get().turnBodyToleranceDeg.toRadians()
+    private val smoothing = CURRENT_CONFIG.get().turnBodySmoothing
+    private var lastObservedTick = -1
+    private var status = BehaviourStatus.RUNNING
 
-    override fun isDone(ctx: AgentContext): Boolean {
-        return angleUnsignedDistance(ctx.world.getSelfPlayer().transform.theta, targetAngle) <= tolerance
+    override fun reportStatus(ctx: AgentContext): BehaviourStatus {
+        return if (angleUnsignedDistance(ctx.world.getSelfPlayer().transform.theta, targetAngle) <= tolerance){
+            BehaviourStatus.SUCCESS
+        } else {
+            status
+        }
     }
 
     override fun calculateTurn(ctx: AgentContext): Double {
         if (!ctx.world.getSelfPlayer().isKnown || ctx.world.getSelfPlayer().transform.theta == -1.0) {
             Logger.warn("Cannot calculate orientation, self information unknown!")
             return 0.0
+        } else if (ctx.world.playMode == PlayMode.BEFORE_KICK_OFF) {
+            // don't support any behaviours where the clock is not ticking up
+            Logger.warn("TurnBodyTo not supported in current play mode: ${ctx.world.playMode}")
+            status = BehaviourStatus.FAILURE
+            return 0.0
         }
 
-        val currentAngle = ctx.world.getSelfPlayer().transform.theta
-        return controller.update(currentAngle, targetAngle)
+        // our problem originally was that, because server vision runs at 250ms but thinking runs ever 100ms,
+        // the TurnBodyTo behaviour doesn't actually know that it has turned yet (since new vision and localisation data
+        // hasn't come in yet), and keeps spinning around.
+        // what we do here is make sure we only update the behaviour when the tick changed, otherwise skip processing.
+        if (ctx.world.getSelfPlayer().lastSeen == lastObservedTick) {
+            // same vision tick, wait for next world model update
+            return 0.0
+        } else {
+            // new vision data received, world model is updated, we can act now
+            lastObservedTick = ctx.world.getSelfPlayer().lastSeen
+        }
 
-//        println("Current angle: ${ctx.world.getSelfPlayer().transform.theta.toDegrees()} deg")
-//        return 1.0 * DEG_RAD
+        // snap to the target angle, turn by the difference it between us now and the target
+        val currentAngle = ctx.world.getSelfPlayer().transform.theta
+        return angleSignedDistance(currentAngle, targetAngle) * smoothing
     }
 
     override fun calculateSteering(ctx: AgentContext): Vector2 {

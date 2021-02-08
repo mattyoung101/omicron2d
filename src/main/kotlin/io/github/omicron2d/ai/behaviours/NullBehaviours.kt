@@ -10,6 +10,7 @@
 package io.github.omicron2d.ai.behaviours
 
 import io.github.omicron2d.utils.AgentContext
+import io.github.omicron2d.utils.BehaviourStatus
 import mikera.vectorz.Vector2
 
 /**
@@ -20,8 +21,7 @@ class NullMovement : MovementBehaviour {
 
     override fun calculateTurn(ctx: AgentContext): Double = 0.0
 
-    // we are always willing to accept a new behaviour, so return that we are done
-    override fun isDone(ctx: AgentContext): Boolean = false
+    override fun reportStatus(ctx: AgentContext): BehaviourStatus = BehaviourStatus.RUNNING
 
     override fun toString(): String {
         return "NullMovement()"
@@ -34,7 +34,7 @@ class NullMovement : MovementBehaviour {
 class NullCommunication : CommunicationBehaviour {
     override fun getBytes(ctx: AgentContext): ByteArray = byteArrayOf()
 
-    override fun isDone(ctx: AgentContext): Boolean = false
+    override fun reportStatus(ctx: AgentContext): BehaviourStatus = BehaviourStatus.RUNNING
 
     override fun toString(): String {
         return "NullCommunication()"

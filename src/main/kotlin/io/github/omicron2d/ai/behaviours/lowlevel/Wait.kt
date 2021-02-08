@@ -11,21 +11,22 @@ package io.github.omicron2d.ai.behaviours.lowlevel
 
 import io.github.omicron2d.ai.behaviours.MovementBehaviour
 import io.github.omicron2d.utils.AgentContext
+import io.github.omicron2d.utils.BehaviourStatus
 import mikera.vectorz.Vector2
 
 /**
- * This behaviour makes the agent sit at a point for a certain number of milliseconds.
+ * This behaviour makes the agent sit still for a certain number of milliseconds.
  * @param millis number of milliseconds to wait for
  */
-class Sit(private val millis: Int) : MovementBehaviour {
+class Wait(private val millis: Int) : MovementBehaviour {
     private var startTime = 0L
 
     override fun onEnter(ctx: AgentContext) {
         startTime = System.currentTimeMillis()
     }
 
-    override fun isDone(ctx: AgentContext): Boolean {
-        return System.currentTimeMillis() - startTime > millis
+    override fun reportStatus(ctx: AgentContext): BehaviourStatus {
+        return if (System.currentTimeMillis() - startTime > millis) BehaviourStatus.SUCCESS else BehaviourStatus.RUNNING
     }
 
     override fun calculateSteering(ctx: AgentContext): Vector2 {
@@ -37,7 +38,7 @@ class Sit(private val millis: Int) : MovementBehaviour {
     }
 
     override fun toString(): String {
-        return "Sit(millis=$millis)"
+        return "Wait(millis=$millis)"
     }
 
 

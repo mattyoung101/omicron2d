@@ -11,16 +11,16 @@ package io.github.omicron2d.ai.agents
 
 import io.github.omicron2d.ai.EventStates
 import io.github.omicron2d.ai.Formation
-import io.github.omicron2d.ai.behaviours.BehaviourManager
-import io.github.omicron2d.ai.behaviours.highlevel.FollowPath
+import io.github.omicron2d.ai.behaviours.CommsManager
+import io.github.omicron2d.ai.behaviours.MovementManager
 import io.github.omicron2d.ai.behaviours.lowlevel.TurnBodyTo
+import io.github.omicron2d.ai.behaviours.lowlevel.Wait
 import io.github.omicron2d.ai.world.HighLevelWorldModel
 import io.github.omicron2d.ai.world.ICPLocalisation
 import io.github.omicron2d.ai.world.LowLevelWorldModel
 import io.github.omicron2d.communication.AbstractSoccerAgent
 import io.github.omicron2d.communication.messages.*
 import io.github.omicron2d.utils.*
-import mikera.vectorz.Vector2
 import org.apache.commons.lang3.concurrent.BasicThreadFactory
 import org.tinylog.kotlin.Logger
 import java.net.InetAddress
@@ -39,7 +39,8 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
 
     private val lowModel = LowLevelWorldModel()
     private val highModel = HighLevelWorldModel()
-    private val behaviourManager = BehaviourManager()
+    private val movementManager = MovementManager()
+    private val commsManager = CommsManager()
     private var errorCount = 0
     private val startingFormation = Formation(CURRENT_CONFIG.get().initialFormation)
     // we use this instead of timer, see https://stackoverflow.com/a/409993/5007892
@@ -53,17 +54,8 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
     private fun think(){
         val ctx = AgentContext(highModel, lowModel.time)
 
-        // just for testing
-//        if (highModel.ball.isKnown){
-//            if (highModel.ball.pos.distance(highModel.ball.lastPos) >= 5.0){
-//                behaviourManager.movementQueue.clear()
-//                val move = MoveToPoint(highModel.ball.pos, 100.0)
-//                behaviourManager.setMovementBehaviour(move, ctx)
-//            }
-//        }
-
-        val movement = behaviourManager.tickMovement(ctx)
-        val comms = behaviourManager.tickCommunications(ctx)
+        val movement = movementManager.tickMovement(ctx)
+        val comms = commsManager.tickCommunications(ctx)
 
         // update agent movement
         // if the dash power here is too small, don't bother sending the message to the server to reduce spam
@@ -71,10 +63,14 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
             // convert radians to degrees, then 0-360 degrees to -180 to +180 degrees
             val dashDirDegrees = movement.dash.y.toDegrees()
             val dashDir = if (dashDirDegrees > 180.0) dashDirDegrees - 360.0 else dashDirDegrees
+
             transmit(DashMessage(movement.dash.x, dashDir))
         } else if (movement.turn != null && abs(movement.turn) >= EPSILON){
+            // same angle conversion as above, and also don't transmit if turn angle is too small
             val angleDeg = movement.turn.toDegrees()
-            transmit(TurnMessage(angleDeg))
+            val angle = if (angleDeg > 180.0) angleDeg - 360.0 else angleDeg
+
+            transmit(TurnMessage(angle))
         }
 
         // update agent communications
@@ -132,22 +128,19 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
 //            }
 
             // face increments of 90 degrees randomly
-            val angles = listOf(90.0, 180.0, 270.0).shuffled()
+            val angles = mutableListOf(90.0, 180.0, 270.0, 0.0)
+            angles.addAll(angles.reversed())
             for (angle in angles){
-                behaviourManager.movementQueue.add(TurnBodyTo(angle.toRadians()))
+                movementManager.queue.add(TurnBodyTo(angle.toRadians()))
             }
-            behaviourManager.movementQueue.add(TurnBodyTo(0.0))
+            movementManager.queue.add(TurnBodyTo(0.0))
+            movementManager.queue.add(Wait(2000))
 
-            // move around in the centre using FollowPath
-            val coords = arrayOf(Vector2(-7.0, -6.0), Vector2(-6.0, -6.0), Vector2(5.0, -7.0),
-                    Vector2(7.0, 5.0), Vector2(-7.0, -6.0))
-            val stamina = DoubleArray(coords.size) { 100.0 }
-            behaviourManager.movementQueue.add(FollowPath(coords, stamina))
-
-            // face a bunch of random directions then back to zero
-//            val behaviours = Array(10) { TurnBodyTo(RAND.get().nextDouble(0.0, PI2)) }
-//            behaviourManager.movementQueue.addAll(behaviours)
-//            behaviourManager.movementQueue.add(TurnBodyTo(0.0))
+//            // move around in the centre using FollowPath
+//            val coords = arrayOf(Vector2(-7.0, -6.0), Vector2(-6.0, -6.0), Vector2(5.0, -7.0),
+//                    Vector2(7.0, 5.0), Vector2(-7.0, -6.0))
+//            val stamina = DoubleArray(coords.size) { 100.0 }
+//            behaviourManager.movementQueue.add(FollowPath(coords, stamina))
         }
     }
 

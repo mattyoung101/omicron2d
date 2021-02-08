@@ -11,6 +11,7 @@ package io.github.omicron2d.ai.behaviours.highlevel
 
 import io.github.omicron2d.ai.behaviours.MovementBehaviour
 import io.github.omicron2d.utils.AgentContext
+import io.github.omicron2d.utils.BehaviourStatus
 import mikera.vectorz.Vector2
 import org.tinylog.kotlin.Logger
 
@@ -37,8 +38,8 @@ class WorldScan(private val isFastScan: Boolean, private val numScans: Int) : Mo
         return 1234.0
     }
 
-    override fun isDone(ctx: AgentContext): Boolean {
+    override fun reportStatus(ctx: AgentContext): BehaviourStatus {
         // TODO return true when we have finished the number of scans.
-        return false
+        return BehaviourStatus.RUNNING
     }
 }
