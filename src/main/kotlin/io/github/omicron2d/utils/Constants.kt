@@ -10,7 +10,6 @@
 package io.github.omicron2d.utils
 
 import io.github.omicron2d.debug.DebugDisplay
-import mikera.vectorz.Vector2
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.PI
 import kotlin.random.Random
@@ -47,7 +46,6 @@ const val RAD_DEG = 57.29577951308232
 const val PI2 = PI * 2.0
 /** Used for floating point comparisons */
 const val EPSILON = 0.0001
-val ZERO_VECTOR = Vector2(0.0, 0.0)
 
 // THREAD LOCAL VARIABLES
 /**

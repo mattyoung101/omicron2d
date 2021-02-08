@@ -9,7 +9,6 @@
 
 package io.github.omicron2d.ai.world
 
-import io.github.omicron2d.utils.ZERO_VECTOR
 import mikera.vectorz.Vector2
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
 import org.tinylog.kotlin.Logger
@@ -43,7 +42,7 @@ class VelocityEstimator(private val ringBufferSize: Int = 16) {
      */
     fun pushMeasurement(currentPos: Vector2, currentTime: Int): Vector2 {
 
-        return ZERO_VECTOR.clone() // FIXME only for testing
+        return Vector2(0.0, 0.0).clone() // FIXME only for testing
     }
 
     companion object {
