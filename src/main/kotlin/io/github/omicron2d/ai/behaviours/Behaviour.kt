@@ -9,9 +9,9 @@
 
 package io.github.omicron2d.ai.behaviours
 
+import com.badlogic.gdx.math.Vector2
 import io.github.omicron2d.utils.AgentContext
 import io.github.omicron2d.utils.BehaviourStatus
-import mikera.vectorz.Vector2
 
 // FIXME Important note: we CANNOT turn while driving! Can only turn when not issuing a dash command!
 // This means that probably drive and orient behaviours need to be separate

@@ -9,12 +9,12 @@
 
 package io.github.omicron2d.ai.behaviours.lowlevel
 
+import com.badlogic.gdx.math.Vector2
 import io.github.omicron2d.ai.PDController
 import io.github.omicron2d.ai.behaviours.MovementBehaviour
 import io.github.omicron2d.utils.AgentContext
 import io.github.omicron2d.utils.BehaviourStatus
 import io.github.omicron2d.utils.CURRENT_CONFIG
-import mikera.vectorz.Vector2
 import org.tinylog.kotlin.Logger
 import kotlin.math.atan2
 
@@ -36,7 +36,7 @@ class MoveToPoint(val targetPoint: Vector2, val maxPower: Double, val staminaSav
 
     override fun reportStatus(ctx: AgentContext): BehaviourStatus {
         val myPos = ctx.world.getSelfPlayer().transform.pos
-        return if (myPos.distance(targetPoint) <= threshold) BehaviourStatus.SUCCESS else status
+        return if (myPos.dst(targetPoint) <= threshold) BehaviourStatus.SUCCESS else status
     }
 
     override fun calculateSteering(ctx: AgentContext): Vector2 {
@@ -61,7 +61,7 @@ class MoveToPoint(val targetPoint: Vector2, val maxPower: Double, val staminaSav
         // convert our relative cartesian correction vector into polar for the server
         val movementCart = Vector2(xCorrection, yCorrection)
         // for some reason we have to constrain this again to our max range
-        val r = movementCart.magnitude().coerceIn(-maxPower, maxPower)
+        val r = movementCart.len().coerceIn(-maxPower, maxPower)
         val theta = atan2(movementCart.y, movementCart.x)
 
         // note that the final output is still in radians, -pi to pi as well in this case

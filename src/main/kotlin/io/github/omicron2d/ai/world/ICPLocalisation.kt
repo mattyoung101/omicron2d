@@ -9,8 +9,8 @@
 
 package io.github.omicron2d.ai.world
 
+import com.badlogic.gdx.math.Vector2
 import io.github.omicron2d.utils.*
-import mikera.vectorz.Vector2
 import org.apache.commons.math3.linear.*
 import org.jfree.chart.ChartFactory
 import org.jfree.data.xy.XYSeries

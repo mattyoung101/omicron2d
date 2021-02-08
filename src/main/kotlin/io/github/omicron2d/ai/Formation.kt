@@ -9,10 +9,10 @@
 
 package io.github.omicron2d.ai
 
+import com.badlogic.gdx.math.Vector2
 import com.esotericsoftware.yamlbeans.YamlReader
 import com.esotericsoftware.yamlbeans.YamlWriter
 import com.google.gson.GsonBuilder
-import mikera.vectorz.Vector2
 import org.tinylog.kotlin.Logger
 import java.io.File
 import java.io.FileReader

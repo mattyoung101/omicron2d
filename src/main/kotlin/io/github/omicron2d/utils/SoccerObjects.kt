@@ -9,7 +9,7 @@
 
 package io.github.omicron2d.utils
 
-import mikera.vectorz.Vector2
+import com.badlogic.gdx.math.Vector2
 
 // Shame we can't use inheritance for data classes, oh well
 

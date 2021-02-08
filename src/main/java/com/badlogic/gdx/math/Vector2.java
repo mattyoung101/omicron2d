@@ -159,6 +159,18 @@ public class Vector2 implements Serializable {
         return this;
     }
 
+    public Vector2 div(double scalar){
+        this.x /= scalar;
+        this.y /= scalar;
+        return this;
+    }
+
+    public Vector2 div(Vector2 v){
+        this.x /= v.x;
+        this.y /= v.y;
+        return this;
+    }
+
     public Vector2 mulAdd (Vector2 vec, double scalar) {
         this.x += vec.x * scalar;
         this.y += vec.y * scalar;

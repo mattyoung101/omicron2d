@@ -9,10 +9,10 @@
 
 package io.github.omicron2d.utils
 
+import com.badlogic.gdx.math.Vector2
 import io.github.omicron2d.ai.behaviours.Behaviour
 import io.github.omicron2d.ai.world.HighLevelWorldModel
 import io.github.omicron2d.ai.world.ICPLocalisation
-import mikera.vectorz.Vector2
 import org.apache.commons.math3.linear.*
 import kotlin.math.*
 

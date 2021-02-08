@@ -9,10 +9,10 @@
 
 package io.github.omicron2d.communication.messages
 
+import com.badlogic.gdx.math.Vector2
 import io.github.omicron2d.utils.SERVER_PROTOCOL_VERSION
 import io.github.omicron2d.utils.ViewMode
 import io.github.omicron2d.utils.ViewQuality
-import mikera.vectorz.Vector2
 import java.text.DecimalFormat
 
 // Source for all protocol information: https://rcsoccersim.github.io/manual/soccerserver.html#protocols

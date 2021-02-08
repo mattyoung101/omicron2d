@@ -9,11 +9,11 @@
 
 package io.github.omicron2d.ai.behaviours.highlevel
 
+import com.badlogic.gdx.math.Vector2
 import io.github.omicron2d.ai.behaviours.MovementBehaviour
 import io.github.omicron2d.ai.behaviours.lowlevel.MoveToPoint
 import io.github.omicron2d.utils.AgentContext
 import io.github.omicron2d.utils.BehaviourStatus
-import mikera.vectorz.Vector2
 import org.tinylog.kotlin.Logger
 import java.util.*
 

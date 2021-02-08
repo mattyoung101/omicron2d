@@ -9,13 +9,13 @@
 
 package io.github.omicron2d.ai.testagents
 
+import com.badlogic.gdx.math.Vector2
 import io.github.omicron2d.ai.world.ICPLocalisation
 import io.github.omicron2d.communication.AbstractSoccerAgent
 import io.github.omicron2d.communication.messages.MoveMessage
 import io.github.omicron2d.communication.messages.SeeMessage
 import io.github.omicron2d.communication.messages.TurnMessage
 import io.github.omicron2d.utils.*
-import mikera.vectorz.Vector2
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
 import org.tinylog.kotlin.Logger
 import java.net.InetAddress
@@ -117,7 +117,7 @@ class LocalisationTesterAgent(host: InetAddress = InetAddress.getLocalHost(), po
                     val end = System.currentTimeMillis() - begin
 
                     // compute error statistics
-                    val dst = agentTransform.pos.distance(lastPosition)
+                    val dst = agentTransform.pos.dst(lastPosition)
                     if (testMode == TestMode.POSITION) {
                         Logger.debug("($i) Estimate pos: $agentTransform, dist err: $dst")
                         positionStats.addValue(dst)

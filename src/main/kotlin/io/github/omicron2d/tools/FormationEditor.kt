@@ -9,6 +9,7 @@
 
 package io.github.omicron2d.tools
 
+import com.badlogic.gdx.math.Vector2
 import com.esotericsoftware.yamlbeans.YamlWriter
 import javafx.application.Application
 import javafx.application.Platform
@@ -26,7 +27,6 @@ import javafx.scene.text.Text
 import javafx.scene.text.TextBoundsType
 import javafx.stage.FileChooser
 import javafx.stage.Stage
-import mikera.vectorz.Vector2
 import java.io.FileWriter
 import java.nio.file.Paths
 import kotlin.system.exitProcess
@@ -52,7 +52,7 @@ class FormationEditor : Application() {
     private val FIELD_LENGTH = 105.0
     private val FIELD_WIDTH = 68.0
 
-    private val FIELD_CENTRE = Vector2.of(FIELD_LENGTH / 2.0, FIELD_WIDTH / 2.0)
+    private val FIELD_CENTRE = Vector2(FIELD_LENGTH / 2.0, FIELD_WIDTH / 2.0)
     private val VERSION = "1.0"
 
     override fun start(stage: Stage) {
@@ -61,7 +61,7 @@ class FormationEditor : Application() {
         // setup the field, at the top of the file so that we can serialise players in the save dialogue
         val field = Pane()
         val fieldImage = ImageView("field.png")
-        val fieldScale = Vector2.of(fieldImage.image.width / FIELD_LENGTH, fieldImage.image.height / FIELD_WIDTH)
+        val fieldScale = Vector2(fieldImage.image.width / FIELD_LENGTH, fieldImage.image.height / FIELD_WIDTH)
         println("Field scale: ${fieldScale.x} by ${fieldScale.y}")
         field.children.add(fieldImage)
         val players = mutableListOf<Pane>()
@@ -152,10 +152,7 @@ class FormationEditor : Application() {
 
                 // collect positions
                 val positions = players.map {
-                    val pos = Vector2.of(it.layoutX, it.layoutY).apply {
-                        divide(fieldScale)
-                        sub(FIELD_CENTRE)
-                    }
+                    val pos = Vector2(it.layoutX, it.layoutY).div(fieldScale).sub(FIELD_CENTRE)
                     println("Position: (${it.layoutX}, ${it.layoutY}), scaled: (${pos.x}, ${pos.y})")
                     pos
                 }.toTypedArray()
@@ -213,10 +210,7 @@ class FormationEditor : Application() {
         scene.setOnKeyPressed {
             if (it.code == KeyCode.SPACE){
                 val goalie = players.last()
-                val pos = Vector2.of(goalie.layoutX, goalie.layoutY).apply {
-                    divide(fieldScale)
-                    sub(FIELD_CENTRE)
-                }
+                val pos = Vector2(goalie.layoutX, goalie.layoutY).div(fieldScale).sub(FIELD_CENTRE)
                 println("Goalie pos: (${pos.x}, ${pos.y})")
             }
         }

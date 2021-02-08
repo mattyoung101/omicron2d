@@ -9,10 +9,10 @@
 
 package io.github.omicron2d.ai.behaviours.lowlevel
 
+import com.badlogic.gdx.math.Vector2
 import io.github.omicron2d.ai.behaviours.MovementBehaviour
 import io.github.omicron2d.utils.AgentContext
 import io.github.omicron2d.utils.BehaviourStatus
-import mikera.vectorz.Vector2
 
 /**
  * This behaviour makes the agent sit still for a certain number of milliseconds.

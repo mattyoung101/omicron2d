@@ -9,14 +9,12 @@
 
 package io.github.omicron2d.ai.behaviours.lowlevel
 
+import com.badlogic.gdx.math.Vector2
 import io.github.omicron2d.ai.behaviours.MovementBehaviour
 import io.github.omicron2d.utils.AgentContext
 import io.github.omicron2d.utils.BehaviourStatus
 import io.github.omicron2d.utils.CURRENT_CONFIG
-import io.github.omicron2d.utils.PI2
-import mikera.vectorz.Vector2
 import org.tinylog.kotlin.Logger
-import kotlin.math.atan2
 
 /**
  * Combines [MoveToPoint] and [TurnBodyTo] to look in the direction we are moving to.
@@ -29,7 +27,7 @@ class MoveToPointLooking(val targetPoint: Vector2, val maxPower: Double, val sta
 
     override fun reportStatus(ctx: AgentContext): BehaviourStatus {
         val myPos = ctx.world.getSelfPlayer().transform.pos
-        return if (myPos.distance(targetPoint) <= threshold) BehaviourStatus.SUCCESS else status
+        return if (myPos.dst(targetPoint) <= threshold) BehaviourStatus.SUCCESS else status
     }
 
     override fun calculateSteering(ctx: AgentContext): Vector2 {
@@ -40,8 +38,7 @@ class MoveToPointLooking(val targetPoint: Vector2, val maxPower: Double, val sta
         if (reachedAngle) return 0.0
 
         val myPos = ctx.world.getSelfPlayer().transform.pos
-        val subtracted = myPos.subCopy(targetPoint)
-        val angleToTarget = (atan2(subtracted[1], subtracted[0]) + PI2) % PI2
+        val angleToTarget = myPos.angleRad(targetPoint)
 
         // if we don't currently have a turn body to behaviour, make a new one
         if (turnBodyTo == null){
