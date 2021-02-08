@@ -35,6 +35,7 @@ class TurnBodyTo(val targetAngle: Double) : MovementBehaviour {
     override fun calculateTurn(ctx: AgentContext): Double {
         if (!ctx.world.getSelfPlayer().isKnown || ctx.world.getSelfPlayer().transform.theta == -1.0) {
             Logger.warn("Cannot calculate orientation, self information unknown!")
+            status = BehaviourStatus.FAILURE
             return 0.0
         } else if (ctx.world.playMode == PlayMode.BEFORE_KICK_OFF) {
             // don't support any behaviours where the clock is not ticking up

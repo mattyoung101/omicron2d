@@ -151,18 +151,19 @@ abstract class AbstractSoccerAgent(private var host: InetAddress, private var de
      * Concatenates all messages into one string, and then transmits the bunch
      */
     fun transmit(messages: Array<OutgoingServerMessage>){
+        if (messages.isEmpty()) Logger.warn("Attempting to transmit empty message list!")
         val text = messages.joinToString("") { it.serialise() }
         transmitString(text)
     }
 
-    /** Adds the specified message to the current message batch. NOT THREAD SAFE! */
+    /** Adds the specified message to the current message batch. */
     fun pushBatch(message: OutgoingServerMessage){
         messageBatch.add(message)
     }
 
-    /** Sends the current batch to the server and clears it for new items. NOT THREAD SAFE! */
+    /** Sends the current batch to the server and clears it for new items. May not be thread safe? */
     fun flushBatch(){
-        transmit(messageBatch)
+        if (messageBatch.isNotEmpty()) transmit(messageBatch)
         messageBatch.clear()
     }
 

@@ -13,6 +13,7 @@ import io.github.omicron2d.ai.EventStates
 import io.github.omicron2d.ai.Formation
 import io.github.omicron2d.ai.behaviours.CommsManager
 import io.github.omicron2d.ai.behaviours.MovementManager
+import io.github.omicron2d.ai.behaviours.lowlevel.MoveToPointLooking
 import io.github.omicron2d.ai.behaviours.lowlevel.TurnBodyTo
 import io.github.omicron2d.ai.behaviours.lowlevel.Wait
 import io.github.omicron2d.ai.world.HighLevelWorldModel
@@ -21,6 +22,7 @@ import io.github.omicron2d.ai.world.LowLevelWorldModel
 import io.github.omicron2d.communication.AbstractSoccerAgent
 import io.github.omicron2d.communication.messages.*
 import io.github.omicron2d.utils.*
+import mikera.vectorz.Vector2
 import org.apache.commons.lang3.concurrent.BasicThreadFactory
 import org.tinylog.kotlin.Logger
 import java.net.InetAddress
@@ -41,11 +43,12 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
     private val highModel = HighLevelWorldModel()
     private val movementManager = MovementManager()
     private val commsManager = CommsManager()
-    private var errorCount = 0
+    private var errorScore = 0
     private val startingFormation = Formation(CURRENT_CONFIG.get().initialFormation)
     // we use this instead of timer, see https://stackoverflow.com/a/409993/5007892
     private val thinkTimer = Executors.newSingleThreadScheduledExecutor(namedThreadFactory)
     private val eventState = EventStates()
+    private var tick = 0
 
     /**
      * This function is intermittently called every 99ms, to send data to the server, since our message receive rate
@@ -57,26 +60,40 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
         val movement = movementManager.tickMovement(ctx)
         val comms = commsManager.tickCommunications(ctx)
 
+        // server actually does not allow dashing and turning at the same time, so report that
+        if (abs(movement.dash.x) >= EPSILON && abs(movement.turn) >= EPSILON){
+            Logger.warn("Illegal movement generated: cannot turn and dash at the same time!")
+        }
+
         // update agent movement
         // if the dash power here is too small, don't bother sending the message to the server to reduce spam
-        if (movement.dash != null && abs(movement.dash.x) >= EPSILON){
+        if (abs(movement.dash.x) >= EPSILON) {
             // convert radians to degrees, then 0-360 degrees to -180 to +180 degrees
             val dashDirDegrees = movement.dash.y.toDegrees()
             val dashDir = if (dashDirDegrees > 180.0) dashDirDegrees - 360.0 else dashDirDegrees
 
-            transmit(DashMessage(movement.dash.x, dashDir))
-        } else if (movement.turn != null && abs(movement.turn) >= EPSILON){
+            if (movement.dash.y == 0.0){
+                // no angle in use
+                pushBatch(DashMessage(movement.dash.x))
+            } else {
+                // using angle
+                pushBatch(DashMessage(movement.dash.x, dashDir))
+            }
+        }
+
+        if (abs(movement.turn) >= EPSILON){
             // same angle conversion as above, and also don't transmit if turn angle is too small
             val angleDeg = movement.turn.toDegrees()
             val angle = if (angleDeg > 180.0) angleDeg - 360.0 else angleDeg
-
-            transmit(TurnMessage(angle))
+            pushBatch(TurnMessage(angle))
         }
 
         // update agent communications
         if (comms.isNotEmpty()){
 
         }
+
+        flushBatch()
     }
 
     override fun run() {
@@ -119,13 +136,6 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
             eventState.hasKickedOff = true
 
             // fun testing code!
-            // move to four corners of field using MoveToPoint
-//            val coords = listOf(Vector2(-50.0, 32.0), Vector2(-50.0, -32.0), Vector2(45.0, -32.0),
-//                    Vector2(51.36, 32.31))
-//            for (coord in coords){
-//                behaviourManager.movementQueue.add(MoveToPoint(coord, 100.0))
-//                behaviourManager.movementQueue.add(Sit(10000))
-//            }
 
             // face increments of 90 degrees randomly
             val angles = mutableListOf(90.0, 180.0, 270.0, 0.0)
@@ -136,11 +146,13 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
             movementManager.queue.add(TurnBodyTo(0.0))
             movementManager.queue.add(Wait(2000))
 
-//            // move around in the centre using FollowPath
-//            val coords = arrayOf(Vector2(-7.0, -6.0), Vector2(-6.0, -6.0), Vector2(5.0, -7.0),
-//                    Vector2(7.0, 5.0), Vector2(-7.0, -6.0))
-//            val stamina = DoubleArray(coords.size) { 100.0 }
-//            behaviourManager.movementQueue.add(FollowPath(coords, stamina))
+            // move around in the centre using FollowPath
+            val coords = arrayOf(Vector2(-7.0, -6.0), Vector2(-6.0, -6.0), Vector2(5.0, -7.0),
+                    Vector2(7.0, 5.0), Vector2(-7.0, -6.0)
+            )
+            for (point in coords){
+                movementManager.queue.add(MoveToPointLooking(point, 100.0))
+            }
         }
     }
 
@@ -342,7 +354,9 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
         Logger.warn("Received server error: ${error.message}")
 
         // if we don't do this, the client and server will keep spamming each other and blow up
-        if (errorCount++ > 8){
+        // increment error score by two, any non error message only removes one off the score, errors weighted higher
+        errorScore += 2
+        if (errorScore > 8){
             Logger.error("Too many errors, performing emergency exit!")
             exitProcess(1)
         }
@@ -351,9 +365,8 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
     override fun handleAnyNonErrorMessage() {
         // decrease our error count, don't set to zero in case we get spaced out errors
         // (we still need to do the emergency exit then)
-        if (errorCount > 0){
-            errorCount--
-        }
+        errorScore--
+        if (errorScore < 0) errorScore = 0
     }
 
     override fun handleWarningMessage(warning: WarningMessage) {

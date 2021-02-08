@@ -29,7 +29,7 @@ movePointReachedThresh: 1.0
 # Number of degrees tolerance where we consider the body angle as being reached
 turnBodyToleranceDeg: 4.0
 # Multiplier of final output to smooth out the behaviour a little
-turnBodySmoothing: 0.9
+turnBodySmoothing: 0.90
 
 # Field definitions
 # Source: https://github.com/rcsoccersim/rcssserver/blob/master/src/serverparam.cpp#L130

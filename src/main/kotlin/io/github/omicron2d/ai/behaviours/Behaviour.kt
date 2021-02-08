@@ -69,9 +69,9 @@ interface CommunicationBehaviour : Behaviour {
 }
 
 /**
- * Encapsulates the result of a MovementBehaviour. Only either [dash] or [turn] should be non-null.
- * This means the robot is either turning or dashing (we cannot do both at the same time apparently).
- * @param dash if not null, indicates we are dashing and the values in order for the dash command
- * @param turn if not null, indicates we are issuing a turn and the amount of **radians** to turn
+ * Encapsulates the result of a MovementBehaviour. If both dash and turn are set, it is expected that [dash] contains
+ * only a power value (the server does not allow turning and angular dashes at the same time).
+ * @param dash values in order for the dash command, or zero if not dashing
+ * @param turn amount of **radians** to turn or zero if not turning
  */
-data class MovementResult(val dash: Vector2? = null, val turn: Double? = null)
+data class MovementResult(val dash: Vector2, val turn: Double)

@@ -61,7 +61,7 @@ data class DashMessage(var power: Double = 0.0, var direction: Double? = null): 
         return if (direction != null){
             "(dash ${fmt.format(power)} ${fmt.format(direction)})"
         } else {
-            "(dash ${fmt.format(power)}"
+            "(dash ${fmt.format(power)})"
         }
     }
 }

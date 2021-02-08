@@ -20,6 +20,7 @@ import kotlin.math.atan2
 
 /**
  * Behaviour which moves the agent to a given point using a PD controller.
+ * TODO add support for moving to point while not facing forwards.
  * @param targetPoint point to go to
  * @param maxPower maximum amount of power that can be used in any one dash command (this is NOT total stamina used)
  * @param staminaSaver only sends a move command every second tick to save some stamina
