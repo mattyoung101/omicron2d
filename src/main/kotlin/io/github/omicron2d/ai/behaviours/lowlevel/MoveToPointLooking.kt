@@ -45,7 +45,7 @@ class MoveToPointLooking(val targetPoint: Vector2, val maxPower: Double, val sta
     }
 
     // TODO if it keeps bugging, try using a PD controller on the angle instead (may be too inaccurate)
-    // TODO need to check in case angle gets disrupted, need to stop and re-look!
+
     override fun calculateTurn(ctx: AgentContext): Double {
         val currentAngle = ctx.world.getSelfPlayer().transform.theta
         val myPos = ctx.world.getSelfPlayer().transform.pos

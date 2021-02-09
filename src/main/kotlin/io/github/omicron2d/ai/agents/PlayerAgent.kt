@@ -14,7 +14,7 @@ import io.github.omicron2d.ai.EventStates
 import io.github.omicron2d.ai.Formation
 import io.github.omicron2d.ai.behaviours.CommsManager
 import io.github.omicron2d.ai.behaviours.MovementManager
-import io.github.omicron2d.ai.behaviours.highlevel.FollowPath
+import io.github.omicron2d.ai.behaviours.lowlevel.MoveToPointLooking
 import io.github.omicron2d.ai.behaviours.lowlevel.TurnBodyTo
 import io.github.omicron2d.ai.world.HighLevelWorldModel
 import io.github.omicron2d.ai.world.ICPLocalisation
@@ -150,10 +150,10 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
                     Vector2(7.0, 5.0), Vector2(-7.0, -6.0)
             )
             val stamina = DoubleArray(coords.size) { 100.0 }
-//            for (point in coords){
-//                movementManager.queue.add(MoveToPointLooking(point, 100.0))
-//            }
-            movementManager.queue.add(FollowPath(coords, stamina, true))
+            for (point in coords){
+                movementManager.queue.add(MoveToPointLooking(point, 100.0))
+            }
+//            movementManager.queue.add(FollowPath(coords, stamina, true))
             movementManager.queue.add(TurnBodyTo(0.0))
         }
     }

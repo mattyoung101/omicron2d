@@ -19,7 +19,8 @@ import java.util.*
  * @param onQueueDepleted called to request a new movement behaviour when the queue becomes empty
  */
 class MovementManager(private val onQueueDepleted: (AgentContext) -> MovementBehaviour? = { null }) {
-    private var currentMovement: MovementBehaviour = NullMovement()
+    var currentMovement: MovementBehaviour = NullMovement()
+        private set
 
     /**
      * Queue of behaviours to be executed after the current one finishes. Switching between these is handled automatically
@@ -30,7 +31,7 @@ class MovementManager(private val onQueueDepleted: (AgentContext) -> MovementBeh
     /**
      * Sets the current movement behaviour in the BehaviourManager. Handles exit and enter calls.
      */
-    fun setMovement(newBehaviour: MovementBehaviour, ctx: AgentContext){
+    fun changeMovement(newBehaviour: MovementBehaviour, ctx: AgentContext){
         Logger.debug("Setting behaviour to: $newBehaviour")
         currentMovement.onExit(ctx)
         currentMovement = newBehaviour
@@ -48,7 +49,7 @@ class MovementManager(private val onQueueDepleted: (AgentContext) -> MovementBeh
         // if we have new items in the queue and are doing nothing, switch to the new behaviour
         if (currentMovement::class.java == NullMovement::class.java && queue.isNotEmpty()){
             Logger.debug("New behaviour queued while in NullBehaviour, switching to it!")
-            setMovement(queue.remove(), ctx)
+            changeMovement(queue.remove(), ctx)
         }
 
         // check if the current behaviour is done
@@ -67,14 +68,14 @@ class MovementManager(private val onQueueDepleted: (AgentContext) -> MovementBeh
                 val next = onQueueDepleted(ctx)
                 if (next != null){
                     Logger.debug("Received valid behaviour from event listener: $next")
-                    setMovement(next, ctx)
+                    changeMovement(next, ctx)
                 } else {
                     Logger.warn("No more movement behaviours available! Reverting to NullBehaviour")
-                    setMovement(NullMovement(), ctx)
+                    changeMovement(NullMovement(), ctx)
                 }
             } else {
                 Logger.debug("Fetching next behaviour from queue")
-                setMovement(queue.remove(), ctx)
+                changeMovement(queue.remove(), ctx)
             }
         }
 

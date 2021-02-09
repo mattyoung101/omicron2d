@@ -62,8 +62,8 @@ class FollowPath(private val path: Array<Vector2>, private val stamina: DoubleAr
                 behaviour.targetPoint
             }
             else -> {
-                Logger.error("Unexpected behaviour class for: $behaviour, class: ${behaviour.javaClass.simpleName}")
-                Vector2(0.0, 0.0)
+                // can't happen
+                throw IllegalStateException("Illegal behaviour in move queue")
             }
         }
     }
