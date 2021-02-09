@@ -47,7 +47,7 @@ class MovementManager(private val onQueueDepleted: (AgentContext) -> MovementBeh
 
         // if we have new items in the queue and are doing nothing, switch to the new behaviour
         if (currentMovement::class.java == NullMovement::class.java && queue.isNotEmpty()){
-            Logger.info("New behaviour queued while in NullBehaviour, switching to it!")
+            Logger.debug("New behaviour queued while in NullBehaviour, switching to it!")
             setMovement(queue.remove(), ctx)
         }
 

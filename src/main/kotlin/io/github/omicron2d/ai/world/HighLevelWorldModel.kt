@@ -39,6 +39,7 @@ data class HighLevelWorldModel(
     var selfSide: Side = Side.UNKNOWN,
     var playMode: PlayMode = PlayMode.UNKNOWN
 ) : WorldModel {
+    /** @return the player representing the current agent */
     fun getSelfPlayer(): PlayerObject {
         if (selfId == -1) throw IllegalStateException("Self ID is not currently known!")
         return teamPlayers[selfId]

@@ -14,12 +14,20 @@
  * limitations under the License.
  ******************************************************************************/
 
+/*
+ * Omicron2D CHANGELOG:
+ * - Added divide methods
+ * - Converted types from float to double
+ * - Reduced dependencies (removed Vector generic class, NumberUtils and GdxRuntimeException)
+ */
+
 package com.badlogic.gdx.math;
 
 import java.io.Serializable;
 
 /** Encapsulates a 2D vector. Allows chaining methods by returning a reference to itself
- * @author badlogicgames@gmail.com */
+ * @author badlogicgames@gmail.com
+ * @author Matt Young (2021 Omicron2D modifications) */
 public class Vector2 implements Serializable {
     private static final long serialVersionUID = 913902788239530931L;
 

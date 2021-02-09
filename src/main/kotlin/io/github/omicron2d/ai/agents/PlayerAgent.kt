@@ -14,9 +14,8 @@ import io.github.omicron2d.ai.EventStates
 import io.github.omicron2d.ai.Formation
 import io.github.omicron2d.ai.behaviours.CommsManager
 import io.github.omicron2d.ai.behaviours.MovementManager
-import io.github.omicron2d.ai.behaviours.lowlevel.MoveToPoint
+import io.github.omicron2d.ai.behaviours.highlevel.FollowPath
 import io.github.omicron2d.ai.behaviours.lowlevel.TurnBodyTo
-import io.github.omicron2d.ai.behaviours.lowlevel.Wait
 import io.github.omicron2d.ai.world.HighLevelWorldModel
 import io.github.omicron2d.ai.world.ICPLocalisation
 import io.github.omicron2d.ai.world.LowLevelWorldModel
@@ -56,13 +55,14 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
      */
     private fun think(){
         val ctx = AgentContext(highModel, lowModel.time)
-
         val movement = movementManager.tickMovement(ctx)
         val comms = commsManager.tickCommunications(ctx)
 
         // server actually does not allow dashing and turning at the same time, so report that
         if (abs(movement.dash.x) >= EPSILON && abs(movement.turn) >= EPSILON){
             Logger.warn("Illegal movement generated: cannot turn and dash at the same time!")
+            // prioritise turn in these situations I think
+            movement.dash.x = 0.0
         }
 
         // update agent movement
@@ -136,24 +136,25 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
             eventState.hasKickedOff = true
 
             // fun testing code!
-
-            // face increments of 90 degrees randomly
+            // face increments of 90 degrees
             val angles = mutableListOf(90.0, 180.0, 270.0, 0.0)
             angles.addAll(angles.reversed())
             for (angle in angles){
                 movementManager.queue.add(TurnBodyTo(angle.toRadians()))
             }
             movementManager.queue.add(TurnBodyTo(0.0))
-            movementManager.queue.add(Wait(2000))
 
             // move around in the centre using FollowPath
             val coords = arrayOf(
                 Vector2(-7.0, -6.0), Vector2(-6.0, -6.0), Vector2(5.0, -7.0),
                     Vector2(7.0, 5.0), Vector2(-7.0, -6.0)
             )
-            for (point in coords){
-                movementManager.queue.add(MoveToPoint(point, 100.0))
-            }
+            val stamina = DoubleArray(coords.size) { 100.0 }
+//            for (point in coords){
+//                movementManager.queue.add(MoveToPointLooking(point, 100.0))
+//            }
+            movementManager.queue.add(FollowPath(coords, stamina, true))
+            movementManager.queue.add(TurnBodyTo(0.0))
         }
     }
 
@@ -338,7 +339,7 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
 
                 if (hear.message.toUpperCase() in playModes){
                     val newPlayMode = PlayMode.valueOf(hear.message.toUpperCase())
-                    Logger.debug("Referee changing play mode to: $newPlayMode")
+                    Logger.info("Referee changing play mode to: $newPlayMode")
                     onPlayModeChange(newPlayMode)
                 }
             }

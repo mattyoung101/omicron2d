@@ -31,4 +31,6 @@ data class GeneralConfig(
     var movePointReachedThresh: Double = 0.0,
     var turnBodyToleranceDeg: Double = 0.0,
     var turnBodySmoothing: Double = 0.0,
+    var moveLookingKp: Double = 0.0,
+    var moveLookingKd: Double = 0.0,
 )

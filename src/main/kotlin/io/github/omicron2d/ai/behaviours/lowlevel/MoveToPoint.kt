@@ -74,7 +74,7 @@ class MoveToPoint(val targetPoint: Vector2, val maxPower: Double, val staminaSav
     }
 
     override fun toString(): String {
-        return "MoveToPoint(targetPoint=$targetPoint, maxPower=$maxPower)"
+        return "MoveToPoint(targetPoint=$targetPoint, maxPower=$maxPower, staminaSaver=$staminaSaver)"
     }
 
 
