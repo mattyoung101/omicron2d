@@ -101,12 +101,9 @@ class SyncSeeMessage: OutgoingServerMessage {
     }
 }
 
-/**
- * @param angle -180 to 180
- */
-data class TurnNeckMessage(var angle: Int = 0): OutgoingServerMessage {
+data class TurnNeckMessage(var angle: Double = 0.0): OutgoingServerMessage {
     override fun serialise(): String {
-        return "(turn_neck $angle)"
+        return "(turn_neck ${fmt.format(angle)})"
     }
 }
 

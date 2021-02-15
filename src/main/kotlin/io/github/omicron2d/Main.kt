@@ -26,12 +26,6 @@ object Main {
         Logger.info("Omicron2D v$OMICRON2D_VERSION: Copyright (c) 2019-2021 Matt Young.")
 
         AgentLauncher.maybeStartRcsoccersim()
-
-//        println("Message w/ librcsc encoder: ${SayEncoder.rcscInt64ToStr(64271744, 8)}")
-//        val bytes = byteArrayOf(0x03, 0xD4.toByte(), 0xB5.toByte(), 0x80.toByte())
-//        println("Message w/ Omicron encoder: ${SayEncoder.encodeMessage(bytes)}")
-
-        // I have abstracted this out to the AgentLauncher object so that it's easier to launch multiple agents
         // This method will block until the agent exits (due to the game finishing, an error, a timeout, etc).
         AgentLauncher.launchPlayerAgent()
     }

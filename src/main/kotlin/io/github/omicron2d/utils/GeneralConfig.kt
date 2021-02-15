@@ -21,7 +21,6 @@ data class GeneralConfig(
     var coachPort: Int = 0,
     var timeout: Int = 0,
     var showDebugDisplay: Boolean = false,
-    /** initial formation path */
     var initialFormation: String = "",
     var fieldLength: Double = 0.0,
     var fieldWidth: Double = 0.0,
@@ -33,4 +32,6 @@ data class GeneralConfig(
     var turnBodySmoothing: Double = 0.0,
     var moveLookingKp: Double = 0.0,
     var moveLookingKd: Double = 0.0,
+    var turnNeckToleranceDeg: Double = 0.0,
+    var turnNeckSmoothing: Double = 0.0,
 )

@@ -13,8 +13,10 @@ import com.badlogic.gdx.math.Vector2
 import io.github.omicron2d.ai.EventStates
 import io.github.omicron2d.ai.Formation
 import io.github.omicron2d.ai.behaviours.CommsManager
+import io.github.omicron2d.ai.behaviours.HeadManager
 import io.github.omicron2d.ai.behaviours.MovementManager
 import io.github.omicron2d.ai.behaviours.lowlevel.MoveToPointLooking
+import io.github.omicron2d.ai.behaviours.lowlevel.Spin
 import io.github.omicron2d.ai.behaviours.lowlevel.TurnBodyTo
 import io.github.omicron2d.ai.world.HighLevelWorldModel
 import io.github.omicron2d.ai.world.ICPLocalisation
@@ -42,6 +44,7 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
     private val highModel = HighLevelWorldModel()
     private val movementManager = MovementManager()
     private val commsManager = CommsManager()
+    private val headManager = HeadManager()
     private var errorScore = 0
     private val startingFormation = Formation(CURRENT_CONFIG.get().initialFormation)
     // we use this instead of timer, see https://stackoverflow.com/a/409993/5007892
@@ -56,11 +59,12 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
     private fun think(){
         val ctx = AgentContext(highModel, lowModel.time)
         val movement = movementManager.tickMovement(ctx)
+        val head = headManager.tickHead(ctx)
         val comms = commsManager.tickCommunications(ctx)
 
         // server actually does not allow dashing and turning at the same time, so report that
         if (abs(movement.dash.x) >= EPSILON && abs(movement.turn) >= EPSILON){
-            Logger.warn("Illegal movement generated: cannot turn and dash at the same time!")
+            Logger.warn("Illegal movement generated: $movement")
             // prioritise turn in these situations I think
             movement.dash.x = 0.0
         }
@@ -88,6 +92,12 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
             pushBatch(TurnMessage(angle))
         }
 
+        if (abs(head) >= EPSILON){
+            val angleDeg = movement.turn.toDegrees()
+            val angle = if (angleDeg > 180.0) angleDeg - 360.0 else angleDeg
+            pushBatch(TurnNeckMessage(angle))
+        }
+
         // update agent communications
         if (comms.isNotEmpty()){
 
@@ -101,8 +111,9 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
 
         while (true) {
             // Receive message from server and parse
-            // this timeUnit thing is a hack so that when we're debugging it doesn't keep quitting
-            val timeUnit = if (System.getProperty("ignoreNullServerMessages") == null) TimeUnit.SECONDS else TimeUnit.HOURS
+            // this timeUnit thing is a hack so that when we're debugging it doesn't keep quitting due to timeouts
+            // basically just set the timeout to a super long ass time if we're in debug
+            val timeUnit = if (System.getProperty("ignoreNullServerMessages") == null) TimeUnit.SECONDS else TimeUnit.DAYS
             val msgStr = messages.poll(30, timeUnit)
             if (msgStr == null) {
                 Logger.warn("Unexpected null message from message queue, server dead? Terminating!")
@@ -134,15 +145,16 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
         if (highModel.playMode == PlayMode.PLAY_ON && !eventState.hasKickedOff){
             Logger.debug("First PLAY_ON, starting kick off behaviours")
             eventState.hasKickedOff = true
+            movementManager.clear()
 
             // fun testing code!
             // face increments of 90 degrees
-            val angles = mutableListOf(90.0, 180.0, 270.0, 0.0)
-            angles.addAll(angles.reversed())
-            for (angle in angles){
-                movementManager.queue.add(TurnBodyTo(angle.toRadians()))
-            }
-            movementManager.queue.add(TurnBodyTo(0.0))
+//            val angles = mutableListOf(90.0, 180.0, 270.0, 0.0)
+//            angles.addAll(angles.reversed())
+//            for (angle in angles){
+//                movementManager.queue.add(TurnBodyTo(angle.toRadians()))
+//            }
+//            movementManager.queue.add(TurnBodyTo(0.0))
 
             // move around in the centre using FollowPath
             val coords = arrayOf(
@@ -150,10 +162,13 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
                     Vector2(7.0, 5.0), Vector2(-7.0, -6.0)
             )
             val stamina = DoubleArray(coords.size) { 100.0 }
-            for (point in coords){
-                movementManager.queue.add(MoveToPointLooking(point, 100.0))
-            }
+            movementManager.queue.add(MoveToPointLooking(Vector2(0.0, 0.0), 100.0))
 //            movementManager.queue.add(FollowPath(coords, stamina, true))
+            movementManager.queue.add(TurnBodyTo(0.0))
+//            movementManager.queue.add(FollowPath(coords.reversedArray(), stamina, true))
+//            movementManager.queue.add(TurnBodyTo(0.0))
+            val initialPos = startingFormation.getPosition(highModel.selfId)
+            movementManager.queue.add(MoveToPointLooking(initialPos, 100.0))
             movementManager.queue.add(TurnBodyTo(0.0))
         }
     }
@@ -189,6 +204,8 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
         // it is objectively trash and doesn't work with the localiser
         pushBatch(SyncSeeMessage())
         flushBatch()
+
+        movementManager.changeMovement(Spin(45.0), AgentContext(highModel, lowModel.time))
     }
 
     override fun handleSeeMessage(see: SeeMessage){
@@ -203,6 +220,9 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
         lowModel.ball = see.objects.firstOrNull { it.type == ObjectType.BALL }
         lowModel.updateTime(see.time)
         Logger.trace("Received see message: $see")
+
+        // calculate busiest quadrants for our agent
+        val counter = QuadrantCounter()
 
         // check to make sure we have enough flags to perform a decent localisation with, about three should
         // be fine - I can't imagine it would work with any less

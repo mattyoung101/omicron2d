@@ -16,21 +16,18 @@ import io.github.omicron2d.utils.BehaviourStatus
 import org.tinylog.kotlin.Logger
 
 /**
- * Behaviour to rotate around in a circle, scanning the world for things.
- * TODO refactor to use TurnBodyTo
- * @param isFastScan should we use wider vision, less accurate but we can complete a scan faster?
+ * Scans the world around the agent when it is stationary, using `turn` commands.
+ * It also calculates the busiest sections of the world to look at first.
  * @param numScans number of scans or complete spins to do before exiting
  */
-class WorldScan(private val isFastScan: Boolean, private val numScans: Int) : MovementBehaviour {
-    private var startOrientation = -1.0
+class StationaryScan(private val numScans: Int = 1) : MovementBehaviour {
+    private var status = BehaviourStatus.RUNNING
 
-    override fun onEnter(ctx: AgentContext) {
-        startOrientation = ctx.world.getSelfPlayer().transform.theta
-        Logger.debug("World scan behaviour started at orientation $startOrientation rad")
-    }
-
-    override fun calculateSteering(ctx: AgentContext): Vector2 {
-        return Vector2(0.0, 0.0) // don't move while scanning
+    init {
+        if (numScans <= 0){
+            Logger.error("Number of scans must be >= 0")
+            status = BehaviourStatus.FAILURE
+        }
     }
 
     override fun calculateTurn(ctx: AgentContext): Double {
@@ -39,7 +36,10 @@ class WorldScan(private val isFastScan: Boolean, private val numScans: Int) : Mo
     }
 
     override fun reportStatus(ctx: AgentContext): BehaviourStatus {
-        // TODO return true when we have finished the number of scans.
-        return BehaviourStatus.RUNNING
+        return status
+    }
+
+    override fun calculateSteering(ctx: AgentContext): Vector2 {
+        return Vector2(0.0, 0.0)
     }
 }

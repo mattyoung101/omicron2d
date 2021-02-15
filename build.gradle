@@ -42,7 +42,7 @@ dependencies {
     implementation group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: '1.4.30'
     // implementation group: 'com.esotericsoftware', name: 'kryo', version: '5.0.0-RC4'
     // implementation 'com.github.ajalt:clikt:2.1.0'
-    //implementation group: 'net.mikera', name: 'vectorz', version: '0.67.0'
+    // implementation group: 'net.mikera', name: 'vectorz', version: '0.67.0'
     implementation group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1' // note: watch for math4 release
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
     implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
@@ -51,7 +51,7 @@ dependencies {
     // implementation 'org.greenrobot:eventbus:3.1.1'
     implementation group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.14'
     implementation group: 'net.objecthunter', name: 'exp4j', version: '0.4.8'
-    implementation group: 'org.locationtech.jts', name: 'jts-core', version: '1.17.1'
+    implementation group: 'org.locationtech.jts', name: 'jts-core', version: '1.18.0'
     implementation group: 'org.jfree', name: 'jfreechart', version: '1.5.0'
     implementation group: 'org.jfree', name: 'jfreechart-fx', version: '1.0.1'
     implementation 'com.github.fzakaria:ascii85:1.2'

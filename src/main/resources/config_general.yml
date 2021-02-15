@@ -19,21 +19,30 @@ initialFormation: formations/starting433.yml
 # There's currently no good reason to listen to the opposition, but in future it would be interesting to
 # intercept agent2d messages and attempt to decode them
 listenToOpposition: false
+
 # Move to Point behaviour
 # P-D controller for x and y diff
 moveKp: 75.0
 moveKd: 0.1
 # Distance at which to consider the point as being reached
 movePointReachedThresh: 2.0
+
 # Turn Body To behaviour
 # Number of degrees tolerance where we consider the body angle as being reached
 turnBodyToleranceDeg: 4.0
 # Multiplier of final output to smooth out the behaviour a little
 turnBodySmoothing: 0.9
+
 # Move To Point Looking behaviour
 # P-D controller for distance
 moveLookingKp: 25.0
 moveLookingKd: 1.0
+
+# Turn Neck To behaviour
+# Number of degrees tolerance where we consider the head angle as being reached
+turnNeckToleranceDeg: 4.0
+# Multiplier of final output to smooth out the behaviour a little
+turnNeckSmoothing: 0.9
 
 # Field definitions
 # Source: https://github.com/rcsoccersim/rcssserver/blob/master/src/serverparam.cpp#L130

@@ -29,6 +29,19 @@ class NullMovement : MovementBehaviour {
 }
 
 /**
+ * Head behaviour which does nothing.
+ */
+class NullHead : HeadBehaviour {
+    override fun calculateHeadTurn(ctx: AgentContext): Double = 0.0
+
+    override fun reportStatus(ctx: AgentContext): BehaviourStatus = BehaviourStatus.RUNNING
+
+    override fun toString(): String {
+        return "NullHead()"
+    }
+}
+
+/**
  * Communication behaviour which does nothing.
  */
 class NullCommunication : CommunicationBehaviour {

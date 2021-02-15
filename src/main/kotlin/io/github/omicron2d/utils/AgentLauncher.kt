@@ -70,13 +70,13 @@ object AgentLauncher {
     fun launchCoachAgent(){}
 
     /**
-     * Starts rcsoccersim when the application launches to make debugging easier (only if `startSimTool` is set).
+     * Starts rcsoccersim when the application launches to make debugging easier (only if the `-DstartSimTool` is a launch flag).
      * Output directory is set to a generated folder in the temp directory.
      */
     fun maybeStartRcsoccersim(){
         if (System.getProperty("startSimTool") != null){
             // incredibly lazy and bad way of doing this
-            thread {
+            thread(name = "rcsoccersim") {
                 val path = Files.createTempDirectory("omicron2d")
                 Logger.info("Starting rcsoccersim (working directory: $path)")
                 val builder = ProcessBuilder().command("/usr/local/bin/rcsoccersim").directory(path.toFile())

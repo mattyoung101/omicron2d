@@ -22,6 +22,7 @@ import com.badlogic.gdx.math.Vector2
  * @param id ID, zero indexed
  * @param lastSeen server tick when the object was last visible
  * @param isSelf true if this PlayerObject represents the current agent
+ * @param headAngle head angle of the player according to the `sense_body` command
  */
 data class PlayerObject(
     var transform: Transform2D = Transform2D(Vector2(0.0, 0.0), 0.0),
@@ -31,7 +32,9 @@ data class PlayerObject(
     var id: Int = -1,
     var lastSeen: Int = -1,
     var isGoalie: Boolean = false,
-    var isSelf: Boolean = false)
+    var isSelf: Boolean = false,
+    var headAngle: Double = 0.0
+)
 
 /**
  * Class for the ball - the only other moving object other than the players (I think at least).
@@ -45,7 +48,8 @@ data class BallObject(
     var lastPos: Vector2 = Vector2(0.0, 0.0),
     var vel: Vector2 = Vector2(0.0, 0.0),
     var isKnown: Boolean = false,
-    var lastSeen: Int = -1)
+    var lastSeen: Int = -1
+)
 
 /**
  * Contains an observation of a soccer object in polar coordinates

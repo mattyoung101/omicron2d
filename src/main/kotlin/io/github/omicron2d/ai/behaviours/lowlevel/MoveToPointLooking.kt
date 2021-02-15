@@ -17,7 +17,6 @@ import io.github.omicron2d.utils.BehaviourStatus
 import io.github.omicron2d.utils.CURRENT_CONFIG
 import io.github.omicron2d.utils.angleUnsignedDistance
 import org.tinylog.kotlin.Logger
-import kotlin.math.PI
 import kotlin.math.abs
 
 /**
@@ -44,16 +43,17 @@ class MoveToPointLooking(val targetPoint: Vector2, val maxPower: Double, val sta
         return if (reachedAngle) Vector2(correction, 0.0) else Vector2(0.0, 0.0)
     }
 
-    // TODO if it keeps bugging, try using a PD controller on the angle instead (may be too inaccurate)
+    // if it keeps bugging, try using a PD controller on the angle instead (may be too inaccurate)
 
     override fun calculateTurn(ctx: AgentContext): Double {
         val currentAngle = ctx.world.getSelfPlayer().transform.theta
         val myPos = ctx.world.getSelfPlayer().transform.pos
-        val angleToTarget = myPos.cpy().sub(targetPoint).angleRad() - PI
+        val angleToTarget = targetPoint.cpy().sub(myPos).angleRad()
 
         // sometimes, the agent gets repositioned by the server and this breaks the angle
         // detect if the distance between our current angle and the target angle is off by more than the threshold
         // plus a small buffer, and if so, realign ourselves
+        // TODO make this buffer a define
         if (reachedAngle && angleUnsignedDistance(currentAngle, angleToTarget) > threshold + 0.1){
             Logger.warn("Angle disruption detected! Realigning to $angleToTarget rad")
             reachedAngle = false

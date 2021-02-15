@@ -13,10 +13,6 @@ import com.badlogic.gdx.math.Vector2
 import io.github.omicron2d.utils.AgentContext
 import io.github.omicron2d.utils.BehaviourStatus
 
-// FIXME Important note: we CANNOT turn while driving! Can only turn when not issuing a dash command!
-// This means that probably drive and orient behaviours need to be separate
-// TODO maybe consider bringing back head turning for when we're driving around so we can scan a little?
-
 /**
  * Root class for all behaviours. A behaviour is essentially what the robot "does".
  *
@@ -30,8 +26,8 @@ interface Behaviour {
     /** Called when the behaviour is started. Default method does nothing. */
     fun onEnter(ctx: AgentContext){}
 
-    // Note that there is no onUpdate method, because each implementing Behaviour has its own methods for getting
-    // specific info related to itself (like getAgentVelocity)
+    /** Called just before the behaviour specific manager requests info, e.g. just before calculateSteering(). */
+    fun onUpdate(ctx: AgentContext){}
 
     /** Called when the behaviour is exited. Default does nothing. */
     fun onExit(ctx: AgentContext){}
@@ -57,7 +53,7 @@ interface MovementBehaviour : Behaviour {
  */
 interface HeadBehaviour : Behaviour {
     /** @return number of **radians** to add to current head angle (turn_neck command) */
-    fun calculateHeadTurn(): Double
+    fun calculateHeadTurn(ctx: AgentContext): Double
 }
 
 /**

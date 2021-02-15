@@ -15,51 +15,50 @@ import org.tinylog.kotlin.Logger
 import java.util.*
 
 /**
- * This class manages the agent's steering behaviours (dashing, body angle).
- * @param onQueueDepleted called to request a new movement behaviour when the queue becomes empty
+ * Manages head turning behaviours, like [MovementManager].
+ * @param onQueueDepleted called to request a new head behaviour when the queue becomes empty
  */
-class MovementManager(private val onQueueDepleted: (AgentContext) -> MovementBehaviour? = { null }) {
-    var currentMovement: MovementBehaviour = NullMovement()
+class HeadManager(private val onQueueDepleted: (AgentContext) -> HeadBehaviour? = { null }) {
+    var currentHead: HeadBehaviour = NullHead()
         private set
 
     /**
      * Queue of behaviours to be executed after the current one finishes. Switching between these is handled automatically
-     * when [tickMovement] is called.
+     * when [tickHead] is called.
      */
-    val queue: Queue<MovementBehaviour> = LinkedList()
+    val queue: Queue<HeadBehaviour> = LinkedList()
 
     /**
-     * Sets the current movement behaviour in the BehaviourManager. Handles exit and enter calls.
+     * Sets the current head behaviour in the BehaviourManager. Handles exit and enter calls.
      */
-    fun changeMovement(newBehaviour: MovementBehaviour, ctx: AgentContext){
+    fun changeHead(newBehaviour: HeadBehaviour, ctx: AgentContext){
         Logger.debug("Setting behaviour to: $newBehaviour")
-        currentMovement.onExit(ctx)
-        currentMovement = newBehaviour
-        currentMovement.onEnter(ctx)
+        currentHead.onExit(ctx)
+        currentHead = newBehaviour
+        currentHead.onEnter(ctx)
     }
 
     /**
-     * Calculates steering for the agent using the current steering behaviour. Returns a [MovementResult] with
-     * either turn or dash non-null (but never both).
+     * Calculates steering for the agent using the current steering behaviour. Returns a double which is the number of
+     * **radians** to add to the current head angle (or zero if not turning head).
      */
-    fun tickMovement(ctx: AgentContext): MovementResult {
-        currentMovement.onUpdate(ctx)
-        val steering = currentMovement.calculateSteering(ctx)
-        val turn = currentMovement.calculateTurn(ctx)
+    fun tickHead(ctx: AgentContext): Double {
+        currentHead.onUpdate(ctx)
+        val angle = currentHead.calculateHeadTurn(ctx)
 
         // if we have new items in the queue and are doing nothing, switch to the new behaviour
-        if (currentMovement is NullMovement && queue.isNotEmpty()){
+        if (currentHead is NullHead && queue.isNotEmpty()){
             Logger.debug("New behaviour queued while in NullBehaviour, switching to it!")
-            changeMovement(queue.remove(), ctx)
+            changeHead(queue.remove(), ctx)
         }
 
         // check if the current behaviour is done
-        val status = currentMovement.reportStatus(ctx)
+        val status = currentHead.reportStatus(ctx)
         if (status != BehaviourStatus.RUNNING){
             if (status == BehaviourStatus.SUCCESS) {
-                Logger.debug("Current behaviour $currentMovement finished successfully")
+                Logger.debug("Current behaviour $currentHead finished successfully")
             } else {
-                Logger.warn("Current behaviour $currentMovement has failed!")
+                Logger.warn("Current behaviour $currentHead has failed!")
             }
 
             if (queue.isEmpty()){
@@ -69,23 +68,17 @@ class MovementManager(private val onQueueDepleted: (AgentContext) -> MovementBeh
                 val next = onQueueDepleted(ctx)
                 if (next != null){
                     Logger.debug("Received valid behaviour from event listener: $next")
-                    changeMovement(next, ctx)
+                    changeHead(next, ctx)
                 } else {
                     Logger.warn("No more movement behaviours available! Reverting to NullBehaviour")
-                    changeMovement(NullMovement(), ctx)
+                    changeHead(NullHead(), ctx)
                 }
             } else {
                 Logger.debug("Fetching next behaviour from queue")
-                changeMovement(queue.remove(), ctx)
+                changeHead(queue.remove(), ctx)
             }
         }
 
-        return MovementResult(dash = steering, turn = turn)
-    }
-
-    /** Resets the MovementManager and its queue */
-    fun clear(){
-        queue.clear()
-        currentMovement = NullMovement()
+        return angle
     }
 }

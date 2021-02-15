@@ -118,7 +118,7 @@ abstract class AbstractSoccerAgent(private var host: InetAddress, private var de
      */
     protected fun transmitString(str: String){
         if (!isConnected){
-            throw IllegalStateException("Tried to send message on unconnected socket")
+            Logger.error("Tried to send message on unconnected socket")
         }
         Logger.trace("Outgoing message (to ${host}:${respondTo ?: defaultPort}): $str")
 

@@ -14,13 +14,12 @@ or assistance is welcomed (just open a GitHub issue).
 
 ## Project status
 
-Updated: 4 February 2021
+Updated: 15 February 2021
 
-Agents can now move around properly using a MoveToPoint behaviour! This internally uses a PD (proportional derivative)
-controller to smooth out movements. Working on adding some more basic movement behaviours, then will work on higher
-level ones in the future.
+Working on basic movement behaviours, then will do some higher level ones. Currently have MoveToPoint, MoveToPointLooking,
+TurnBodyTo and Wait behaviours implemented.
 
-Previously:
+Previously finished:
 
 - STRIPS planner and custom plan definition DSL mostly implemented
 - Agent can localise its position with high accuracy
@@ -39,6 +38,8 @@ Novel features of Omicron2D plan to be:
 - Iterative Closest Point (ICP) for efficient and accurate localisation
 - Complex data exchange with fellow teammates using the `say` command with only 10 characters per message
 - Implemented from scratch using Kotlin, rather than librcsc/agent2d and C++ as is done normally
+
+As well as standard features like behaviours/skills, networking, parsing, etc.
 
 ## Building/running
 
