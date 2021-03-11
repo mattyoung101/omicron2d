@@ -7,7 +7,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package io.github.omicron2d.ai.behaviours.lowlevel
+package io.github.omicron2d.ai.planning
 
-class MaintainPos {
+/**
+ * A more efficient [STRIPSPlanner]. Still uses BFS, but traverses the node queue using worker threads or coroutines
+ * (haven't decided which yet).
+ * @param threads number of threads to use to traverse queue (default: 2)
+ */
+class ParallelSTRIPSPlanner(private val threads: Int = 2) {
+
 }

@@ -23,7 +23,7 @@ import io.github.omicron2d.utils.Side
  * @param allFlags all flags, including bad/weird ones AND ones that we give to the localiser
  * @param players list of seen objects who are players (regardless of info)
  * @param ball the ball if we see it, otherwise null
- * @param time server time as received by a few messages
+ * @param time server time as received by a few messages, must update with [updateTime]
  */
 data class LowLevelWorldModel(
     var selfSide: Side = Side.UNKNOWN,

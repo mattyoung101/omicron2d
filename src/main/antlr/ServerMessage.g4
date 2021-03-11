@@ -119,7 +119,7 @@ pointDir
 
 // no idea what this is, apparently it's a new thing since it's not in the 2003 manual.
 // TODO find out what this thing is: https://github.com/rcsoccersim/manual/issues/43
-unknownThing
+kickingTackling
     : 't'
     | 'k' ;
 
@@ -156,7 +156,7 @@ objectName
     | playerBehind ;
 
 objectContents
-    : distance? direction? distChange? dirChange? headFaceDir? bodyFaceDir? pointDir? unknownThing? unknownThing? ;
+    : distance? direction? distChange? dirChange? headFaceDir? bodyFaceDir? pointDir? kickingTackling? kickingTackling? ;
 
 seeObject
     : LPAREN LPAREN objectName RPAREN objectContents RPAREN ;

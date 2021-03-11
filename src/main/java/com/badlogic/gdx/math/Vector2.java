@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2011 See AUTHORS file.
+ * Copyright 2011 libGDX authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -288,6 +288,7 @@ public class Vector2 implements Serializable {
         throw new RuntimeException("Malformed Vector2: " + v);
     }
 
+    // we do not import Matrix3 so this method cannot exist
 //    /** Left-multiplies this vector by the given matrix
 //     * @param mat the matrix
 //     * @return this vector */

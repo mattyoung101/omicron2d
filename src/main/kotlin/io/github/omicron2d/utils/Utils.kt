@@ -60,8 +60,7 @@ fun angleUnsignedDistance(a: Double, b: Double): Double {
 }
 
 /**
- * Signed distance between two angles in radians.
- * Source: [https://stackoverflow.com/a/2007279/5007892]
+ * Signed distance between two angles in radians. Source: [https://stackoverflow.com/a/2007279/5007892]
  * @param y current angle
  * @param x target angle
  */

@@ -76,7 +76,7 @@ class MovementManager(private val onQueueDepleted: (AgentContext) -> MovementBeh
                 }
             } else {
                 Logger.debug("Fetching next behaviour from queue")
-                changeMovement(queue.remove(), ctx)
+                changeMovement(queue.poll(), ctx)
             }
         }
 

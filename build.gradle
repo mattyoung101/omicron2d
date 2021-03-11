@@ -15,8 +15,7 @@ apply plugin: 'antlr'
 sourceCompatibility = 1.8
 
 // fix to stop gradle from nuking my source code due to some random bug
-// NOTE: inherited from our last Kotlin project, Omicontrol, since this *lovely* IDE (IntelliJ) is doing it again.
-// WHEN WILL THIS BE FIXED??? AM I DOING SOMETHING WRONG??? WHY JETBRAINS? WHY? GRADLE? WHO IS IT?????
+// NOTE: inherited from our last Kotlin project, Omicontrol, may be fixed by now? please?
 apply plugin: 'idea'
 idea {
     module {
@@ -40,15 +39,11 @@ dependencies {
     implementation 'org.tinylog:tinylog-api-kotlin:2.0.0'
     implementation 'org.tinylog:tinylog-impl:2.0.0'
     implementation group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: '1.4.30'
-    // implementation group: 'com.esotericsoftware', name: 'kryo', version: '5.0.0-RC4'
-    // implementation 'com.github.ajalt:clikt:2.1.0'
-    // implementation group: 'net.mikera', name: 'vectorz', version: '0.67.0'
     implementation group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1' // note: watch for math4 release
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
     implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
     implementation group: 'commons-io', name: 'commons-io', version: '2.6'
     implementation 'com.google.code.gson:gson:2.8.6'
-    // implementation 'org.greenrobot:eventbus:3.1.1'
     implementation group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.14'
     implementation group: 'net.objecthunter', name: 'exp4j', version: '0.4.8'
     implementation group: 'org.locationtech.jts', name: 'jts-core', version: '1.18.0'
@@ -75,7 +70,11 @@ mainClassName = "io.github.omicron2d.Main"
 
 compileKotlin {
     kotlinOptions.jvmTarget = "1.8"
+    // use new Kotlin IR backend
+    // ref: https://blog.jetbrains.com/kotlin/2021/02/the-jvm-backend-is-in-beta-let-s-make-it-stable-together/
+    kotlinOptions.useIR = true
 }
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.useIR = true
 }

@@ -25,10 +25,16 @@ class STRIPSPlannerTest {
         initialState["IsBad"] = false
         val targetState = mapOf(Pair("A3Done", true))
 
+        val begin = System.currentTimeMillis()
         val plan = planner.calculatePlan(initialState, targetState, actions)
+        val time = System.currentTimeMillis() - begin
+
         println("Plan calculated:")
         println(plan.map { it.name })
 
+        // ensure we can plan in 30ms
+        println("Simple planner test took: $time ms")
+        assertTrue(time <= 30)
         assertTrue(plan.isNotEmpty())
     }
 
@@ -57,6 +63,7 @@ class STRIPSPlannerTest {
         val targetState = mapOf(Pair("BuiltHouse", true))
 
         val plan = planner.calculatePlan(initialState, targetState, actions)
+
         println("Plan calculated!")
         println(plan.map { it.name })
 

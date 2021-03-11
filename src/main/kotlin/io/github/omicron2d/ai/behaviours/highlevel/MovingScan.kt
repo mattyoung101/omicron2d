@@ -10,7 +10,7 @@
 package io.github.omicron2d.ai.behaviours.highlevel
 
 /**
- * Basically WorldScan while music
+ * Basically WorldScan while moving
  */
 class MovingScan {
 }

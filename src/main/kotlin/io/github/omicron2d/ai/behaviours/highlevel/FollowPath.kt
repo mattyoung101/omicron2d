@@ -62,6 +62,7 @@ class FollowPath(private val path: Array<Vector2>, private val stamina: DoubleAr
 
     override fun reportStatus(ctx: AgentContext): BehaviourStatus {
         // check that we have no more points to visit, and the last point is done being moved to
+        // TODO return error if isDone but status == BehaviourStatus.FAILURE
         return if (isDone) BehaviourStatus.SUCCESS else BehaviourStatus.RUNNING
     }
 

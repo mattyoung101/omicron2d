@@ -49,7 +49,7 @@ class SamplerAgent(private val stream: PrintStream,
 
         // move to random position and turn head to random angle
         pushBatch(MoveMessage(x, y))
-        pushBatch(TurnNeckMessage(angle))
+        pushBatch(TurnNeckMessage(angle.toDouble()))
         pushBatch(ChangeViewMessage(mode, quality))
         flushBatch()
     }

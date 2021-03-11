@@ -21,6 +21,8 @@ import java.util.*
  *
  * Note that we used a breadth-first search as our algorithm, nothing smart like A* because we currently have no
  * costs on our actions (and also BFS is simple to implement).
+ *
+ * This implementation tends to be very slow, for a faster version see [ParallelSTRIPSPlanner].
  */
 class STRIPSPlanner : Planner {
     override fun calculatePlan(initialState: ImmutableWorldState, targetState: ImmutableWorldState, actions: List<PlanAction>): Queue<PlanAction> {
@@ -31,7 +33,7 @@ class STRIPSPlanner : Planner {
         }
 
         // ok for reference: the linked GOAP implementation uses a stack instead of a queue (hence why it is a
-        // depth first search)
+        // depth first search). we use a queue, so we are BFS.
         val queue: Queue<Node> = LinkedList()
         val solutions = mutableListOf<Node>()
 
@@ -41,27 +43,27 @@ class STRIPSPlanner : Planner {
         var count = 0
 
         while (queue.isNotEmpty()){
-            println("Queue has ${queue.size} elements")
+            Logger.debug("Queue has ${queue.size} elements")
             val node = queue.remove()
             count++
 
             // (just debug stuff)
-            println("Visiting node with ${node.parents.size} parents")
+            Logger.debug("Visiting node with ${node.parents.size} parents")
             if (node.parents.isNotEmpty()){
-                println("Parents are:\n${dumpActionList(node.parents)}")
+                Logger.debug("Parents are:\n${dumpActionList(node.parents)}")
             }
-            println("World state of this node is:\n${dumpWorldState(node.worldState)}")
+            Logger.debug("World state of this node is:\n${dumpWorldState(node.worldState)}")
 
             // let's see what actions we can execute in the current world state of the node
             val neighbours = findExecutableActions(node, actions)
-            println("List of actions we can perform from this state:\n${dumpActionList(neighbours)}")
+            Logger.debug("List of actions we can perform from this state:\n${dumpActionList(neighbours)}")
 
             // iterate through each available action and put a new node on the search list
             for (neighbour in neighbours){
                 // create a copy of the map and pretend we executed the action
                 val worldClone = node.worldState.toMutableMap()
                 executeAction(neighbour, worldClone)
-                println("After performing ${neighbour.name}, new world state is:\n${dumpWorldState(worldClone)}")
+                Logger.debug("After performing ${neighbour.name}, new world state is:\n${dumpWorldState(worldClone)}")
 
                 // add our current considered neighbour to the node in the queue's parent actions
                 // this is for when we add it to the queue later
@@ -73,15 +75,15 @@ class STRIPSPlanner : Planner {
 
                 // and finally, decide which list to add our node to
                 if (compareWorldState(worldClone, targetState)){
-                    println("Reached goal! Adding to solutions list")
+                    Logger.debug("Reached goal! Adding to solutions list")
                     solutions.add(newNode)
                 } else {
-                    println("Adding new node with ${newNode.parents.size} to queue")
+                    Logger.debug("Adding new node with ${newNode.parents.size} to queue")
                     queue.add(newNode)
                 }
             }
         }
-        println("Search is complete. Visited $count nodes, found ${solutions.size} solutions")
+        Logger.debug("Search is complete. Visited $count nodes, found ${solutions.size} solutions")
 
         // check for no solutions
         if (solutions.isEmpty()){

@@ -14,7 +14,11 @@ or assistance is welcomed (just open a GitHub issue).
 
 ## Project status
 
-Updated: 15 February 2021
+Updated: March 2020
+
+**Note:** As it turns out, university life is actually quite busy - so I can probably only work on Omicron2D on the 
+holidays and weekends if I'm free and motivated. This means that development will be a lot slower since I'm only a 
+one man team. Hopefully we'll have acceptable gameplay by the time I graduate (~3 years from now!!)
 
 Working on basic movement behaviours, then will do some higher level ones. Currently have MoveToPoint, MoveToPointLooking,
 TurnBodyTo and Wait behaviours implemented.
@@ -28,7 +32,7 @@ Previously finished:
 
 ## About the agents
 
-If you want to know more about our agents, please check out some Markdown files in the docs folder (such as PLANNING.md)
+If you want to know more about the agents, please check out some Markdown files in the docs folder (such as PLANNING.md)
 and/or read the code. In the future when I'm closer to the tournament, a team description paper (TDP) will be
 prepared.
 

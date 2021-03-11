@@ -35,6 +35,8 @@ class MoveToPoint(val targetPoint: Vector2, val maxPower: Double, val staminaSav
     // TODO add better stamina planning instead of just max power
 
     override fun reportStatus(ctx: AgentContext): BehaviourStatus {
+        if (status == BehaviourStatus.FAILURE) return BehaviourStatus.FAILURE
+
         val myPos = ctx.world.getSelfPlayer().transform.pos
         return if (myPos.dst(targetPoint) <= threshold) BehaviourStatus.SUCCESS else status
     }

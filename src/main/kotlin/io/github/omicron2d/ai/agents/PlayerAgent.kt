@@ -38,7 +38,7 @@ import kotlin.system.exitProcess
  * @param isGoalie if the agent joined as a goalie
  */
 class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DEFAULT_PLAYER_PORT,
-    private val isGoalie: Boolean = false) : AbstractSoccerAgent(host, port), PlayerMessageHandler {
+        private val isGoalie: Boolean = false) : AbstractSoccerAgent(host, port), PlayerMessageHandler {
 
     private val lowModel = LowLevelWorldModel()
     private val highModel = HighLevelWorldModel()
@@ -148,14 +148,6 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
             movementManager.clear()
 
             // fun testing code!
-            // face increments of 90 degrees
-//            val angles = mutableListOf(90.0, 180.0, 270.0, 0.0)
-//            angles.addAll(angles.reversed())
-//            for (angle in angles){
-//                movementManager.queue.add(TurnBodyTo(angle.toRadians()))
-//            }
-//            movementManager.queue.add(TurnBodyTo(0.0))
-
             // move around in the centre using FollowPath
             val coords = arrayOf(
                 Vector2(-7.0, -6.0), Vector2(-6.0, -6.0), Vector2(5.0, -7.0),
@@ -205,7 +197,8 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
         pushBatch(SyncSeeMessage())
         flushBatch()
 
-        movementManager.changeMovement(Spin(45.0), AgentContext(highModel, lowModel.time))
+        // grab some info on the world while we're waiting
+        movementManager.changeMovement(Spin(90.0), AgentContext(highModel, lowModel.time))
     }
 
     override fun handleSeeMessage(see: SeeMessage){
@@ -270,6 +263,9 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
                     val bodyDirection = calcBodyFaceDir(player.bodyFaceDir)
                     array[id].transform = Transform2D(absolute, bodyDirection)
 
+                    counter.incrementScore(dir, if (isOurSide) QuadrantCounter.FRIENDLY_PLAYER else
+                                QuadrantCounter.ENEMY_OR_UNKNOWN_PLAYER)
+
                 } else if (info?.unum != null){
                     // we know this player's id, we might be able to infer which team they're on
                     // TODO work out a way to infer team for certain players
@@ -286,6 +282,7 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
                         isGoalie = info.goalie
                     }
                     highModel.unknownTeamPlayers.add(obj)
+                    counter.incrementScore(dir, QuadrantCounter.ENEMY_OR_UNKNOWN_PLAYER)
                 } else {
                     // we don't know anything about this player, but still set them up for obstacle avoidance
                     val absolute = calculateAbsolutePosition(dir, dist, agentTransform)
@@ -298,6 +295,7 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
                         isKnown = true
                     }
                     highModel.unknownPlayers.add(obj)
+                    counter.incrementScore(dir, QuadrantCounter.ENEMY_OR_UNKNOWN_PLAYER)
                 }
             }
 
@@ -314,6 +312,7 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
                     highModel.ball.isKnown = true
                     highModel.ball.lastSeen = lowModel.time
                     // TODO calculate velocity vector?
+                    counter.incrementScore(ball.direction!!, QuadrantCounter.BALL)
                 }
             } else {
                 highModel.ball.isKnown = false

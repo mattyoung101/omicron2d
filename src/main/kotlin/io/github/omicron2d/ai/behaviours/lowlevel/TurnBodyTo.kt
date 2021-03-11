@@ -25,6 +25,9 @@ class TurnBodyTo(val targetAngle: Double) : MovementBehaviour {
     private var status = BehaviourStatus.RUNNING
 
     override fun reportStatus(ctx: AgentContext): BehaviourStatus {
+        // check for failure and fail instantly
+        if (status == BehaviourStatus.FAILURE) return BehaviourStatus.FAILURE
+
         return if (angleUnsignedDistance(ctx.world.getSelfPlayer().transform.theta, targetAngle) <= tolerance){
             BehaviourStatus.SUCCESS
         } else {

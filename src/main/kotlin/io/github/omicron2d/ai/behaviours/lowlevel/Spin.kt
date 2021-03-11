@@ -17,6 +17,7 @@ import io.github.omicron2d.utils.toRadians
 
 /**
  * Very basic behaviour to spin the robot on the spot for an unlimited time
+ * @param degreesPerTick number of degrees to spin each tick
  */
 class Spin(val degreesPerTick: Double) : MovementBehaviour {
     override fun reportStatus(ctx: AgentContext): BehaviourStatus {
@@ -29,5 +30,9 @@ class Spin(val degreesPerTick: Double) : MovementBehaviour {
 
     override fun calculateTurn(ctx: AgentContext): Double {
         return degreesPerTick.toRadians()
+    }
+
+    override fun toString(): String {
+        return "Spin(degreesPerTick=$degreesPerTick)"
     }
 }

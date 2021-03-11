@@ -33,6 +33,8 @@ class MoveToPointLooking(val targetPoint: Vector2, val maxPower: Double, val sta
     private var reachedAngle = false
 
     override fun reportStatus(ctx: AgentContext): BehaviourStatus {
+        if (status == BehaviourStatus.FAILURE) return BehaviourStatus.FAILURE
+
         val myPos = ctx.world.getSelfPlayer().transform.pos
         return if (myPos.dst(targetPoint) <= threshold) BehaviourStatus.SUCCESS else status
     }

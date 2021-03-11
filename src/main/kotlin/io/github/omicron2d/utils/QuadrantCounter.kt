@@ -33,10 +33,10 @@ class QuadrantCounter {
 
     /**
      * Increment score of quadrant.
-     * @param angle angle in **radians**
+     * @param angle angle in **DEGREES** from server, -180 to 180
      * @param score score to increment quadrant by
      */
-    fun assignScore(angle: Double, score: Int){
+    fun incrementScore(angle: Double, score: Int){
         val degrees = ((angle.toDegrees() + 360.0) % 360.0).roundToInt()
         when (degrees) {
             in 0..90 -> {
@@ -54,8 +54,14 @@ class QuadrantCounter {
         }
     }
 
-    fun assignScore(selfPos: Vector2, targetPos: Vector2, score: Int){
-        assignScore(selfPos.angleRad(targetPos), score)
+    /** Same as [incrementScore] */
+    fun incrementScore(angle: Int, score: Int){
+        incrementScore(angle.toDouble(), score)
+    }
+
+    /** Same as [incrementScore] but calculates the angle between the two vectors automatically */
+    fun incrementScore(selfPos: Vector2, targetPos: Vector2, score: Int){
+        incrementScore(selfPos.angleDeg(targetPos), score)
     }
 
     /**
@@ -67,10 +73,14 @@ class QuadrantCounter {
         return arrayOf()
     }
 
+    override fun toString(): String {
+        return "QuadrantCounter(quadrants=$quadrants)"
+    }
+
     companion object {
         // scores for each type of object
-        const val FRIENDLY_PLAYER = 1
-        const val ENEMY_PLAYER = 2
-        const val BALL = 3
+        const val FRIENDLY_PLAYER = 1 // we don't really care too much where they are
+        const val ENEMY_OR_UNKNOWN_PLAYER = 2 // could be important
+        const val BALL = 3 // very important
     }
 }
