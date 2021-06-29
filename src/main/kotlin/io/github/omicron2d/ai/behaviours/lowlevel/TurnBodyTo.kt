@@ -21,6 +21,7 @@ import org.tinylog.kotlin.Logger
 class TurnBodyTo(val targetAngle: Double) : MovementBehaviour {
     private val tolerance = CURRENT_CONFIG.get().turnBodyToleranceDeg.toRadians()
     private val smoothing = CURRENT_CONFIG.get().turnBodySmoothing
+    /** tick when the self player was last observed */
     private var lastObservedTick = -1
     private var status = BehaviourStatus.RUNNING
 

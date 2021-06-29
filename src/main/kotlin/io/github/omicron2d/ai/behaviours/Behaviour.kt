@@ -16,9 +16,8 @@ import io.github.omicron2d.utils.BehaviourStatus
 /**
  * Root class for all behaviours. A behaviour is essentially what the robot "does".
  *
- * The planner will choose what behaviours we should execute in which order to succeed at our goal. We will
- * probably give the planner access to all behaviours, low level ones such as ScanWorld and high level ones such as
- * DefendGoal. We hope that the planner is smart enough to figure everything out by itself.
+ * A planning algorithm will decide which behaviours to execute in some sort of sequence, to achieve an overall aim
+ * like "score a goal".
  *
  * The robot can execute one movement behaviour and one communication behaviour at a time.
  */
@@ -37,7 +36,7 @@ interface Behaviour {
 }
 
 /**
- * A task which controls the agent's movement by controlling dash speed and turn angle.
+ * A behaviour which controls the agent's movement by controlling dash speed and turn angle.
  * We group together dash and turn angle because they are most often necessary together.
  */
 interface MovementBehaviour : Behaviour {
@@ -49,7 +48,7 @@ interface MovementBehaviour : Behaviour {
 }
 
 /**
- * A task which controls the agent's head orientation. Separate from MovementBehaviour since rarely used
+ * A behaviour which controls the agent's head orientation. Separate from MovementBehaviour since rarely used
  */
 interface HeadBehaviour : Behaviour {
     /** @return number of **radians** to add to current head angle (turn_neck command) */
@@ -57,7 +56,7 @@ interface HeadBehaviour : Behaviour {
 }
 
 /**
- * A task which controls the agent's communication (say command)
+ * A behaviour which controls the agent's communication (say command)
  */
 interface CommunicationBehaviour : Behaviour {
     /** @return the encoded bytes of the message */

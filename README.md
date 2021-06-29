@@ -2,15 +2,14 @@
 
 Omicron2D aims to be a team competing in the [RoboCup Soccer 2D Simulation league](https://rcsoccersim.github.io/). It
 is currently in early stages of development. This project is written entirely from scratch in Kotlin, and runs on the
-JVM (whereas most other teams in 2D use the librcsc library and C++ as their language of choice).
-
-Omicron2D derives its name from [Team Omicron](http://teamomicron.github.io/), a team who would have been competing in
-RoboCup Jr Open Soccer Internationals in Bordeaux, France in 2020. Unfortunately, this was cancelled due to the COVID-19
-pandemic. Other than the name and developer, this project has no similarity or relation to Team Omicron.
+JVM. Whereas most teams in RoboCup 2D are a fork of HELIOS' C++ source code (or use librcsc/agent2d in some form),
+Omicron2D aims to be completely original and written from the ground up.
 
 Omicron2D is currently an independent project consisting of only one developer: me, Matt Young (previously
 software engineer on the RoboCup Jr team). This means development will likely be very slow! However, any feedback
 or assistance is welcomed (just open a GitHub issue).
+
+The project is licenced under the Mozilla Public License v2.0, see LICENSE.txt for info.
 
 ## Project status
 
@@ -62,7 +61,10 @@ TODO
 TODO
 
 ## Licence
+This repo is licenced under the Mozilla Public License v2.0, see LICENSE.txt. For info on complying with the MPL 2.0
+see [this FAQ](https://www.mozilla.org/en-US/MPL/2.0/FAQ/).
 
-This repo is licenced under the Mozilla Public License v2.0, see LICENSE.txt.
+If you use any part of Omicron2D in competition or research, please reference it in a noteworthy place in your TDP. If
+you make any modifications to MPL 2.0 licenced files, those modifications must be released under the MPL 2.0 as well.
 
-See ATTRIBUTION.txt for libraries which require attribution in project documentation.
+See ATTRIBUTION.txt for libraries used in the project which require attribution in project documentation.
