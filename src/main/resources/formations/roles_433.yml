@@ -1,0 +1,15 @@
+# This file is part of the Omicron2D RoboCup 2D Soccer Simulation team.
+# Contains role mapping for the 433 formation
+
+# These are all IDs! Not unums.
+0: RIGHT_WING
+1: CENTRE_LEFT_BACK
+2: CENTRE_RIGHT_BACK
+3: LEFT_BACK
+4: RIGHT_BACK
+5: CENTRE_LEFT
+6: CENTRE_RIGHT
+7: STRIKER
+8: CENTRE_FORWARD
+9: LEFT_WING
+10: GOALIE

@@ -102,6 +102,7 @@ fun calculateAbsolutePosition(direction: Int, distance: Double, transform: Trans
  * @param theta angle **in radians**, counter-clockwise (standard trig format). If exactly -1.0, it is not known.
  */
 data class Transform2D(val pos: Vector2 = Vector2(0.0, 0.0), val theta: Double = 0.0)
+// TODO move the above to SoccerAgents
 
 /**
  * Data class that holds the context that something, usually a [Behaviour], is executing in.

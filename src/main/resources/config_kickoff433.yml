@@ -1,0 +1,11 @@
+# This file is part of the Omicron2D RoboCup 2D Soccer Simulation team.
+# Contains information for handling kickoff when the team starts using the formation starting433.yml
+
+# Must be using this formation to use this config file
+startingFormation: "starting433.yml"
+# Agent ID which visits the ball first and passes it
+primary: 7
+# Agent ID which prepares to receive the ball from the primary
+receiver: 8
+# Backup agent ID to receive the ball, in case receivingStriker fails
+backupReceiverr: 7

@@ -4,8 +4,8 @@ This document contains my new plan for server communications.
 We will use a Java `BitSet` to construct a message. This stream of bits will then be encoded into a sequence of bytes,
 which in turn will be encoded into a sequence of characters to be sent using the `say` command.
 
-## Protocol description
-### Message header
+# Protocol description
+## Message header
 
 | Indices (inclusive)     | Size | Description                     |
 |-------------------------|------|---------------------------------|
@@ -22,12 +22,11 @@ extra bit.
 Message priorities are 0, 1, 2 or 3 with 3 being the highest and 0 the lowest. They control which messages the
 agent should relay to other agents.
 
-### Messages
+## Messages
 Note that from here on in, we reset the index counter. This is all from bit 17 onwards in the message, it's the 
 message contents field.
 
-#### Object location message
-**Message ID: 0**
+### Object location message (ID: 0)
 
 | Indices (inclusive)     | Size     | Description                     |
 |-------------------------|----------|---------------------------------|
@@ -55,7 +54,7 @@ Grids:
 
 The grid index size will change based on the grid selected.
 
-## Example message
+# Example message
 Not relayed, sent by agent 7, needs to be received by agent 10, priority 2, object location message. The object is
 a ball, grid size 2, index 384.
 
@@ -65,6 +64,8 @@ Header                Contents
 ```
 
 Final message bits: `011110101001011010110000000` (27 bits). Could fit in a 32-bit integer or 4 bytes.
+
+Hex: 0x3D4B580, Decimal: 64271744
 
 Using the rcsc encoder, this generates the string `(3ptc` which is only 5 chars.
 

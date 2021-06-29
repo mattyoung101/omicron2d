@@ -27,6 +27,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+------------------------------
+
 Project: Java Topology Suite (https://locationtech.github.io/jts/)
 Copyright (c) 2007, Eclipse Foundation, Inc. and its licensors.
 

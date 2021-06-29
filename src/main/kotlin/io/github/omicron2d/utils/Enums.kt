@@ -9,6 +9,7 @@
 
 package io.github.omicron2d.utils
 
+
 /**
  * Field positions in the 4-3-3 formation. This will be used by the behaviour and movement planners.
  * Sources:
@@ -16,36 +17,41 @@ package io.github.omicron2d.utils
  * - http://www.soccercoachingpro.com/4-3-3-formation/
  * - https://www.active.com/soccer/articles/4-3-3-team
  * - https://en.wikipedia.org/wiki/Formation_(association_football)#4%E2%80%933%E2%80%933
- **/
-enum class Roles433 {
-    // Defence
-    LEFT_BACK, // 1
-    CENTRE_BACK_LEFT, // 2
-    CENTRE_BACK_RIGHT, // 3
-    RIGHT_BACK, // 4
-
-    // Centre
-    CENTRE_MID_LEFT, // 5
-    CENTRE_MID_RIGHT, // 6
-    CENTRE_MID_CENTRE, // 7
-
-    // Attack
-    STRIKER, // 8, aka centre forward
-    LEFT_WING, // 9
-    RIGHT_WING, // 10,
-
-    // Goal keeper
-    KEEPER, // 11
-}
-
-enum class PlayerRoles {
-    DEFENDER,
-    CENTRE_MID,
-    STRIKER,
-    LEFT_WING,
+ */
+enum class SoccerRole {
     RIGHT_WING,
-    KEEPER
+    CENTRE_LEFT_BACK,
+    CENTRE_RIGHT_BACK,
+    LEFT_BACK,
+    RIGHT_BACK,
+    CENTRE_LEFT,
+    CENTRE_RIGHT,
+    STRIKER,
+    CENTRE_FORWARD,
+    LEFT_WING,
+    GOALIE,
 }
+
+//enum class Roles433 {
+//    // Defence
+//    LEFT_BACK, // 1
+//    CENTRE_BACK_LEFT, // 2
+//    CENTRE_BACK_RIGHT, // 3
+//    RIGHT_BACK, // 4
+//
+//    // Centre
+//    CENTRE_MID_LEFT, // 5
+//    CENTRE_MID_RIGHT, // 6
+//    CENTRE_MID_CENTRE, // 7
+//
+//    // Attack
+//    STRIKER, // 8, aka centre forward
+//    LEFT_WING, // 9
+//    RIGHT_WING, // 10,
+//
+//    // Goal keeper
+//    KEEPER, // 11
+//}
 
 enum class Side {
     UNKNOWN,

@@ -178,7 +178,7 @@ class FormationEditor : Application() {
             accelerator = KeyCodeCombination(KeyCode.H, KeyCombination.CONTROL_DOWN)
         }
         about.setOnAction {
-            val alert = Alert(Alert.AlertType.INFORMATION, "Copyright (c) 2019-2020 Matt Young. MPL 2.0 licence.",
+            val alert = Alert(Alert.AlertType.INFORMATION, "Copyright (c) 2020 Matt Young. MPL 2.0 licence.",
                 ButtonType.OK).apply {
                 headerText = "Omicron2D Formation Editor v$VERSION"
                 title = "About"

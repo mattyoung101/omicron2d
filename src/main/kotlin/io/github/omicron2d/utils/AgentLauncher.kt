@@ -70,7 +70,8 @@ object AgentLauncher {
     fun launchCoachAgent(){}
 
     /**
-     * Starts rcsoccersim when the application launches to make debugging easier (only if the `-DstartSimTool` is a launch flag).
+     * Starts rcsoccersim when the application launches to make debugging easier (only if the `-DstartSimTool` is a
+     * launch flag).
      * Output directory is set to a generated folder in the temp directory.
      */
     fun maybeStartRcsoccersim(){
@@ -86,7 +87,7 @@ object AgentLauncher {
                 exitProcess(0)
             }
 
-            // prevent race condition
+            // prevent race condition (update: lmfao this is seriously dreadful, does this actually work????)
             Thread.sleep(1000)
         }
     }

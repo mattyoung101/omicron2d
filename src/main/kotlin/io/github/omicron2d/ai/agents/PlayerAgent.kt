@@ -153,7 +153,7 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
                 Vector2(-7.0, -6.0), Vector2(-6.0, -6.0), Vector2(5.0, -7.0),
                     Vector2(7.0, 5.0), Vector2(-7.0, -6.0)
             )
-            val stamina = DoubleArray(coords.size) { 100.0 }
+//            val stamina = DoubleArray(coords.size) { 100.0 }
             movementManager.queue.add(MoveToPointLooking(Vector2(0.0, 0.0), 100.0))
 //            movementManager.queue.add(FollowPath(coords, stamina, true))
             movementManager.queue.add(TurnBodyTo(0.0))

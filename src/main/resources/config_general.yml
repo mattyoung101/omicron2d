@@ -13,7 +13,7 @@ timeout: 10000 # milliseconds
 showDebugDisplay: false
 
 # Formations
-initialFormation: formations/starting433.yml
+initialFormation: 433
 
 # Agent AI config
 # There's currently no good reason to listen to the opposition, but in future it would be interesting to

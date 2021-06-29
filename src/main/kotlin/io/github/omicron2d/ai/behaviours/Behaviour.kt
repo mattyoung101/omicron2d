@@ -60,7 +60,7 @@ interface HeadBehaviour : Behaviour {
  * A task which controls the agent's communication (say command)
  */
 interface CommunicationBehaviour : Behaviour {
-    /** @return the encoded bytes of the message (will be enco */
+    /** @return the encoded bytes of the message */
     fun getBytes(ctx: AgentContext): ByteArray
 }
 

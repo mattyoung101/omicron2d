@@ -11,54 +11,41 @@ package io.github.omicron2d.ai
 
 import com.badlogic.gdx.math.Vector2
 import com.esotericsoftware.yamlbeans.YamlReader
-import com.esotericsoftware.yamlbeans.YamlWriter
-import com.google.gson.GsonBuilder
+import io.github.omicron2d.utils.SoccerRole
 import org.tinylog.kotlin.Logger
-import java.io.File
 import java.io.FileReader
-import java.io.FileWriter
 
 /**
- * Loads a formation file created with the Formation Editor (FormationEditor.kt).
- * The positions array is zero indexed, you must use ID (not unum).
- * Note that the last agent (id 10) is considered the goalie.
- * @param name the name of the file to load, with extension
+ * A formation currently consists of two YAML files: positions_%name%.yml, and roles_%name%.yml, where %name% is the
+ * name of the formation. For example, "433" yields positions_433.yml and roles_433.yml
+ *
+ * The positions file is an array of each agent's position and is created with the Formation Editor
+ * (FormationEditor.kt in the utils package). The roles file contains the SoccerRole enum instance to which each agent
+ * will be assigned, and has to be manually created.
+ *
+ * Note that the last agent (id 10, unum 11) is considered the goalie.
+ * @param name name of the formation, WITHOUT extension. For example, for the 433 formation, just use "433".
  */
 class Formation(val name: String) {
     private val positions: Array<Vector2>
+    private val roles = mutableMapOf<Int, SoccerRole>()
 
     init {
-        Logger.debug("Loading formation: $name")
-        val reader = YamlReader(FileReader(name))
+        val formationsName = "formations/positions_$name.yml"
+        Logger.debug("Loading formation from file: $formationsName")
+        val reader = YamlReader(FileReader(formationsName))
         positions = reader.read(Array<Vector2>::class.java)
     }
 
-    /**
-     * Legacy function used to bootstrap between Kryo and GSON output
-     * @param name file name
-     */
-    @Deprecated("No longer used, file format is now YAML")
-    fun convertToJson(name: String){
-        val file = File(name)
-        file.createNewFile()
-        val stream = FileWriter(file)
-        val json = GsonBuilder().setPrettyPrinting().create().toJson(positions)
-        stream.write(json)
-        stream.close()
-        Logger.debug("Converted to JSON successfully")
-    }
+    init {
+        val rolesName = "formations/roles_$name.yml"
+        Logger.debug("Loading formation roles from file: $rolesName")
+        val reader = YamlReader(FileReader(rolesName))
+        val rolesStr = reader.read(HashMap::class.java)
 
-    /**
-     * Writes this formation to disk as a YAML file. Not currently used.
-     * @param name file name
-     */
-    fun writeToYaml(name: String){
-        val file = File(name)
-        file.createNewFile()
-        val writer = YamlWriter(FileWriter(file))
-        writer.write(positions)
-        writer.close()
-        Logger.debug("Converted to YAML successfully")
+        for ((key, value) in rolesStr){
+            roles[key.toString().toInt()] = SoccerRole.valueOf(value.toString())
+        }
     }
 
     /**
@@ -68,5 +55,14 @@ class Formation(val name: String) {
      */
     fun getPosition(agent: Int): Vector2 {
         return positions[agent]
+    }
+
+    /**
+     * Returns the role for the given agent
+     * @param agent ID of the agent (NOT unum!)
+     * @return the role the agent has been assigned in roles_%formation%.yml
+     */
+    fun getRole(agent: Int): SoccerRole {
+        return roles[agent] ?: throw IllegalArgumentException("Agent ID $agent not in roles file")
     }
 }
