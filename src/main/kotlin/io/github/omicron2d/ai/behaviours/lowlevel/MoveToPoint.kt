@@ -11,7 +11,7 @@ package io.github.omicron2d.ai.behaviours.lowlevel
 
 import com.badlogic.gdx.math.Vector2
 import io.github.omicron2d.ai.PDController
-import io.github.omicron2d.ai.behaviours.MovementBehaviour
+import io.github.omicron2d.ai.behaviours.Behaviour
 import io.github.omicron2d.utils.AgentContext
 import io.github.omicron2d.utils.BehaviourStatus
 import io.github.omicron2d.utils.CURRENT_CONFIG
@@ -25,7 +25,7 @@ import kotlin.math.atan2
  * @param maxPower maximum amount of power that can be used in any one dash command (this is NOT total stamina used)
  * @param staminaSaver only sends a move command every second tick to save some stamina
  */
-class MoveToPoint(val targetPoint: Vector2, val maxPower: Double, val staminaSaver: Boolean = false) : MovementBehaviour {
+class MoveToPoint(val targetPoint: Vector2, val maxPower: Double, val staminaSaver: Boolean = false) : Behaviour() {
     private val xPD = PDController(CURRENT_CONFIG.get().moveKp, CURRENT_CONFIG.get().moveKd, -maxPower, maxPower)
     private val yPD = PDController(CURRENT_CONFIG.get().moveKp, CURRENT_CONFIG.get().moveKd, -maxPower, maxPower)
     private val threshold = CURRENT_CONFIG.get().movePointReachedThresh
@@ -34,25 +34,19 @@ class MoveToPoint(val targetPoint: Vector2, val maxPower: Double, val staminaSav
 
     // TODO add better stamina planning instead of just max power
 
-    override fun reportStatus(ctx: AgentContext): BehaviourStatus {
-        if (status == BehaviourStatus.FAILURE) return BehaviourStatus.FAILURE
-
-        val myPos = ctx.world.getSelfPlayer().transform.pos
-        return if (myPos.dst(targetPoint) <= threshold) BehaviourStatus.SUCCESS else status
-    }
-
-    override fun calculateSteering(ctx: AgentContext): Vector2 {
+    override fun onUpdate(ctx: AgentContext): BehaviourStatus {
         // can't do much if we don't know anything about ourselves (words of wisdom right there!)
         if (!ctx.world.getSelfPlayer().isKnown){
             Logger.warn("Cannot calculate movement, self position unknown!")
-            status = BehaviourStatus.FAILURE
-            return Vector2(0.0, 0.0)
+            ctx.moveResult.dash = Vector2(0.0, 0.0)
+            return BehaviourStatus.FAILURE
         }
 
         // stamina saver code
         // TODO this could be more advanced in future by analysing our velocity
         if (currentTicks++ % 2 == 0 && staminaSaver){
-            return Vector2(0.0, 0.0)
+            ctx.moveResult.dash = Vector2(0.0, 0.0)
+            return BehaviourStatus.RUNNING
         }
 
         // apply PD controller in cartesian first
@@ -67,17 +61,12 @@ class MoveToPoint(val targetPoint: Vector2, val maxPower: Double, val staminaSav
         val theta = atan2(movementCart.y, movementCart.x)
 
         // note that the final output is still in radians, -pi to pi as well in this case
-        return Vector2(r, theta)
-    }
+        ctx.moveResult.dash = Vector2(r, theta)
 
-    override fun calculateTurn(ctx: AgentContext): Double {
-        // use omnidirectional dash instead of turn
-        return 0.0
+        return if (myPos.dst(targetPoint) <= threshold) BehaviourStatus.SUCCESS else status
     }
 
     override fun toString(): String {
         return "MoveToPoint(targetPoint=$targetPoint, maxPower=$maxPower, staminaSaver=$staminaSaver)"
     }
-
-
 }

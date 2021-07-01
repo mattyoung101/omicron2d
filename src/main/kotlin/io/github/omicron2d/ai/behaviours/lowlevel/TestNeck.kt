@@ -9,17 +9,14 @@
 
 package io.github.omicron2d.ai.behaviours.lowlevel
 
-import io.github.omicron2d.ai.behaviours.HeadBehaviour
+import io.github.omicron2d.ai.behaviours.Behaviour
 import io.github.omicron2d.utils.AgentContext
 import io.github.omicron2d.utils.BehaviourStatus
 import io.github.omicron2d.utils.RAND
 
-class TestNeck : HeadBehaviour {
-    override fun reportStatus(ctx: AgentContext): BehaviourStatus {
+class TestNeck : Behaviour() {
+    override fun onUpdate(ctx: AgentContext): BehaviourStatus {
+        ctx.neckResult = RAND.get().nextDouble(-180.0, 180.0)
         return BehaviourStatus.RUNNING
-    }
-
-    override fun calculateHeadTurn(ctx: AgentContext): Double {
-        return RAND.get().nextDouble(-180.0, 180.0)
     }
 }

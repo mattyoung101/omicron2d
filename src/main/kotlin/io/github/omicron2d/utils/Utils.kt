@@ -105,11 +105,27 @@ data class Transform2D(val pos: Vector2 = Vector2(0.0, 0.0), val theta: Double =
 // TODO move the above to SoccerAgents
 
 /**
- * Data class that holds the context that something, usually a [Behaviour], is executing in.
+ * Encapsulates the result of a MovementBehaviour. If both dash and turn are set, it is expected that [dash] contains
+ * only a power value (the server does not allow turning and angular dashes at the same time).
+ * @param dash values in order for the dash command, or zero if not dashing
+ * @param turn amount of **radians** to turn or zero if not turning
  */
-data class AgentContext(val world: HighLevelWorldModel, val time: Int){
-    // TODO only for the debugger!!
+data class MovementResult(var dash: Vector2 = Vector2(), var turn: Double = 0.0)
+
+/**
+ * Data class that holds the context that something, usually a [Behaviour], is executing in.
+ * @param time world ticks
+ * @param moveResult output movement result, updated by behaviours. if all params are zero this was not set.
+ * @param neckResult neck movement angle, if non-zero. otherwise if it is zero, neck was not set.
+ */
+data class AgentContext(
+    val world: HighLevelWorldModel,
+    val time: Int,
+    val moveResult: MovementResult = MovementResult(),
+    var neckResult: Double = 0.0
+) {
     override fun toString(): String {
+        // TODO only for the debugger!!
         return ""
     }
 }

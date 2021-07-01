@@ -12,9 +12,9 @@ package io.github.omicron2d.ai.agents
 import com.badlogic.gdx.math.Vector2
 import io.github.omicron2d.ai.EventStates
 import io.github.omicron2d.ai.Formation
+import io.github.omicron2d.ai.behaviours.Behaviour
 import io.github.omicron2d.ai.behaviours.CommsManager
-import io.github.omicron2d.ai.behaviours.HeadManager
-import io.github.omicron2d.ai.behaviours.MovementManager
+import io.github.omicron2d.ai.behaviours.generic.Sequence
 import io.github.omicron2d.ai.behaviours.lowlevel.MoveToPointLooking
 import io.github.omicron2d.ai.behaviours.lowlevel.Spin
 import io.github.omicron2d.ai.behaviours.lowlevel.TurnBodyTo
@@ -42,9 +42,8 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
 
     private val lowModel = LowLevelWorldModel()
     private val highModel = HighLevelWorldModel()
-    private val movementManager = MovementManager()
     private val commsManager = CommsManager()
-    private val headManager = HeadManager()
+    private var currentBehaviour: Behaviour? = null
     private var errorScore = 0
     private val startingFormation = Formation(CURRENT_CONFIG.get().initialFormation)
     // we use this instead of timer, see https://stackoverflow.com/a/409993/5007892
@@ -58,47 +57,63 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
      */
     private fun think(){
         val ctx = AgentContext(highModel, lowModel.time)
-        val movement = movementManager.tickMovement(ctx)
-        val head = headManager.tickHead(ctx)
-        val comms = commsManager.tickCommunications(ctx)
 
-        // server actually does not allow dashing and turning at the same time, so report that
-        if (abs(movement.dash.x) >= EPSILON && abs(movement.turn) >= EPSILON){
-            Logger.warn("Illegal movement generated: $movement")
-            // prioritise turn in these situations I think
-            movement.dash.x = 0.0
-        }
+        if (currentBehaviour != null) {
+            val result = currentBehaviour!!.onUpdate(ctx)
+            val movement = ctx.moveResult
+            val head = ctx.neckResult
 
-        // update agent movement
-        // if the dash power here is too small, don't bother sending the message to the server to reduce spam
-        if (abs(movement.dash.x) >= EPSILON) {
-            // convert radians to degrees, then 0-360 degrees to -180 to +180 degrees
-            val dashDirDegrees = movement.dash.y.toDegrees()
-            val dashDir = if (dashDirDegrees > 180.0) dashDirDegrees - 360.0 else dashDirDegrees
+            // server actually does not allow dashing and turning at the same time, so report that
+            if (abs(movement.dash.x) >= EPSILON && abs(movement.turn) >= EPSILON) {
+                Logger.warn("Illegal movement generated: $movement")
+                // prioritise turn in these situations I think
+                movement.dash.x = 0.0
+            }
 
-            if (movement.dash.y == 0.0){
-                // no angle in use
-                pushBatch(DashMessage(movement.dash.x))
-            } else {
-                // using angle
-                pushBatch(DashMessage(movement.dash.x, dashDir))
+            // update agent movement
+            // handle dash
+            // if the dash power here is too small, don't bother sending the message to the server to reduce spam
+            if (abs(movement.dash.x) >= EPSILON) {
+                // convert radians to degrees, then 0-360 degrees to -180 to +180 degrees
+                val dashDirDegrees = movement.dash.y.toDegrees()
+                val dashDir = if (dashDirDegrees > 180.0) dashDirDegrees - 360.0 else dashDirDegrees
+
+                if (movement.dash.y == 0.0) {
+                    // no angle in use
+                    pushBatch(DashMessage(movement.dash.x))
+                } else {
+                    // using angle
+                    pushBatch(DashMessage(movement.dash.x, dashDir))
+                }
+            }
+
+            // handle body turn
+            if (abs(movement.turn) >= EPSILON) {
+                // same angle conversion as above, and also don't transmit if turn angle is too small
+                val angleDeg = movement.turn.toDegrees()
+                val angle = if (angleDeg > 180.0) angleDeg - 360.0 else angleDeg
+                pushBatch(TurnMessage(angle))
+            }
+
+            // handle head (neck) turn
+            if (abs(head) >= EPSILON) {
+                val angleDeg = movement.turn.toDegrees()
+                val angle = if (angleDeg > 180.0) angleDeg - 360.0 else angleDeg
+                pushBatch(TurnNeckMessage(angle))
+            }
+
+            // check for failures and successes
+            if (result == BehaviourStatus.FAILURE){
+                Logger.warn("Current behaviour is reporting failure! Abandoning!")
+                currentBehaviour = null
+            } else if (result == BehaviourStatus.SUCCESS){
+                Logger.debug("Current behaviour has finished successfully")
+                currentBehaviour = null
             }
         }
 
-        if (abs(movement.turn) >= EPSILON){
-            // same angle conversion as above, and also don't transmit if turn angle is too small
-            val angleDeg = movement.turn.toDegrees()
-            val angle = if (angleDeg > 180.0) angleDeg - 360.0 else angleDeg
-            pushBatch(TurnMessage(angle))
-        }
-
-        if (abs(head) >= EPSILON){
-            val angleDeg = movement.turn.toDegrees()
-            val angle = if (angleDeg > 180.0) angleDeg - 360.0 else angleDeg
-            pushBatch(TurnNeckMessage(angle))
-        }
-
         // update agent communications
+        val comms = commsManager.tickCommunications(ctx)
         if (comms.isNotEmpty()){
 
         }
@@ -145,7 +160,6 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
         if (highModel.playMode == PlayMode.PLAY_ON && !eventState.hasKickedOff){
             Logger.debug("First PLAY_ON, starting kick off behaviours")
             eventState.hasKickedOff = true
-            movementManager.clear()
 
             // fun testing code!
             // move around in the centre using FollowPath
@@ -153,15 +167,19 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
                 Vector2(-7.0, -6.0), Vector2(-6.0, -6.0), Vector2(5.0, -7.0),
                     Vector2(7.0, 5.0), Vector2(-7.0, -6.0)
             )
+            val root = Sequence()
 //            val stamina = DoubleArray(coords.size) { 100.0 }
-            movementManager.queue.add(MoveToPointLooking(Vector2(0.0, 0.0), 100.0))
+            root.children.add(MoveToPointLooking(Vector2(0.0, 0.0), 100.0))
 //            movementManager.queue.add(FollowPath(coords, stamina, true))
-            movementManager.queue.add(TurnBodyTo(0.0))
+            root.children.add(TurnBodyTo(0.0))
 //            movementManager.queue.add(FollowPath(coords.reversedArray(), stamina, true))
 //            movementManager.queue.add(TurnBodyTo(0.0))
             val initialPos = startingFormation.getPosition(highModel.selfId)
-            movementManager.queue.add(MoveToPointLooking(initialPos, 100.0))
-            movementManager.queue.add(TurnBodyTo(0.0))
+            root.children.add(MoveToPointLooking(initialPos, 100.0))
+            root.children.add(TurnBodyTo(0.0))
+
+            currentBehaviour = root
+            currentBehaviour!!.onEnter(AgentContext(highModel, lowModel.time))
         }
     }
 
@@ -198,7 +216,9 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
         flushBatch()
 
         // grab some info on the world while we're waiting
-        movementManager.changeMovement(Spin(90.0), AgentContext(highModel, lowModel.time))
+        val ctx = AgentContext(highModel, lowModel.time)
+        currentBehaviour = Spin(90.0)
+        currentBehaviour!!.onEnter(ctx)
     }
 
     override fun handleSeeMessage(see: SeeMessage){
@@ -415,8 +435,9 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
 
     companion object {
         // similar to: https://stackoverflow.com/a/9748697/5007892
+        // TODO make this so it starts at zero!
         private val namedThreadFactory = BasicThreadFactory.Builder()
-            .namingPattern("Think-%d")
+            .namingPattern("Think %d")
             .daemon(true)
             .build()
     }

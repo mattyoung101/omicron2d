@@ -9,8 +9,7 @@
 
 package io.github.omicron2d.ai.behaviours.lowlevel
 
-import com.badlogic.gdx.math.Vector2
-import io.github.omicron2d.ai.behaviours.MovementBehaviour
+import io.github.omicron2d.ai.behaviours.Behaviour
 import io.github.omicron2d.utils.AgentContext
 import io.github.omicron2d.utils.BehaviourStatus
 import io.github.omicron2d.utils.toRadians
@@ -19,17 +18,11 @@ import io.github.omicron2d.utils.toRadians
  * Very basic behaviour to spin the robot on the spot for an unlimited time
  * @param degreesPerTick number of degrees to spin each tick
  */
-class Spin(val degreesPerTick: Double) : MovementBehaviour {
-    override fun reportStatus(ctx: AgentContext): BehaviourStatus {
+class Spin(val degreesPerTick: Double) : Behaviour() {
+
+    override fun onUpdate(ctx: AgentContext): BehaviourStatus {
+        ctx.moveResult.turn = degreesPerTick.toRadians()
         return BehaviourStatus.RUNNING
-    }
-
-    override fun calculateSteering(ctx: AgentContext): Vector2 {
-        return Vector2(0.0, 0.0)
-    }
-
-    override fun calculateTurn(ctx: AgentContext): Double {
-        return degreesPerTick.toRadians()
     }
 
     override fun toString(): String {

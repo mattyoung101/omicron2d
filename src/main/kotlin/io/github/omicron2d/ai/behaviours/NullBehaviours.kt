@@ -9,19 +9,16 @@
 
 package io.github.omicron2d.ai.behaviours
 
-import com.badlogic.gdx.math.Vector2
 import io.github.omicron2d.utils.AgentContext
 import io.github.omicron2d.utils.BehaviourStatus
 
 /**
- * Movement behaviour which does nothing.
+ * Behaviour which does nothing.
  */
-class NullMovement : MovementBehaviour {
-    override fun calculateSteering(ctx: AgentContext): Vector2 = Vector2(0.0, 0.0)
-
-    override fun calculateTurn(ctx: AgentContext): Double = 0.0
-
-    override fun reportStatus(ctx: AgentContext): BehaviourStatus = BehaviourStatus.RUNNING
+class NullBehaviour : Behaviour() {
+    override fun onUpdate(ctx: AgentContext): BehaviourStatus {
+        return BehaviourStatus.RUNNING
+    }
 
     override fun toString(): String {
         return "NullMovement()"
@@ -29,25 +26,14 @@ class NullMovement : MovementBehaviour {
 }
 
 /**
- * Head behaviour which does nothing.
- */
-class NullHead : HeadBehaviour {
-    override fun calculateHeadTurn(ctx: AgentContext): Double = 0.0
-
-    override fun reportStatus(ctx: AgentContext): BehaviourStatus = BehaviourStatus.RUNNING
-
-    override fun toString(): String {
-        return "NullHead()"
-    }
-}
-
-/**
  * Communication behaviour which does nothing.
  */
-class NullCommunication : CommunicationBehaviour {
+class NullCommunication : CommunicationBehaviour() {
     override fun getBytes(ctx: AgentContext): ByteArray = byteArrayOf()
 
-    override fun reportStatus(ctx: AgentContext): BehaviourStatus = BehaviourStatus.RUNNING
+    override fun onUpdate(ctx: AgentContext): BehaviourStatus {
+        return BehaviourStatus.RUNNING
+    }
 
     override fun toString(): String {
         return "NullCommunication()"

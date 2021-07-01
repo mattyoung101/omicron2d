@@ -7,30 +7,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package io.github.omicron2d.ai.behaviours.lowlevel
+package io.github.omicron2d.ai.behaviours.generic
 
 import io.github.omicron2d.ai.behaviours.Behaviour
 import io.github.omicron2d.utils.AgentContext
 import io.github.omicron2d.utils.BehaviourStatus
 
-/**
- * This behaviour makes the agent sit still for a certain number of milliseconds.
- * @param millis number of milliseconds to wait for
- */
-class Wait(private val millis: Int) : Behaviour() {
-    private var startTime = 0L
-
-    override fun onEnter(ctx: AgentContext) {
-        startTime = System.currentTimeMillis()
-    }
-
+class AlwaysSuccess : Behaviour() {
     override fun onUpdate(ctx: AgentContext): BehaviourStatus {
-        return if (System.currentTimeMillis() - startTime > millis) BehaviourStatus.SUCCESS else BehaviourStatus.RUNNING
+        return BehaviourStatus.SUCCESS
     }
 
     override fun toString(): String {
-        return "Wait(millis=$millis)"
+        return "AlwaysSuccess()"
     }
-
-
 }

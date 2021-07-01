@@ -1,45 +1,46 @@
 # AI implementation
-## Notes Jan 2021 (most up to date)
-Think I've come up with a (simple) potential solution:
 
-Planner -> High level actions (InterceptBall) -> Movement planner -> Low level actions (MoveToPoint) -> Soccer sim commands
+Hopefully this will be the final version of this document.
 
-## Notes 18 Dec 2020
-I'm thinking something like this:
+## Concept
+- Things the robot can do, of vary levels of complexity. From move to point to score a goal.
+- Organised into high level (score a goal), low level (move to point) and generic behaviours (sequence/selector).
+- Generic behaviours make up a behaviour tree, like "Sequence" and "Selector".
+- Agent loads appropriate behaviour tree for given play mode/communication setup. Communication is handled separately and
+can override the current behaviour tree.
+- Behaviour trees defined in YAML.
 
-1. Planner decides what actions/behaviours to do, to achieve our goal (i.e. score a goal, defend our goal)
-2. Planner assembles a list of tasks/skills that are hardcoded by us (e.g. MoveToPoint)
-3. We execute those skills
+## Implementation details
+**IMPORTANT**
 
-So basically we need the planner to be able to decompose tasks well. Maybe, we could dump all our tasks on it,
-and hope it's good enough to just "figure out" what it has to do. Thogh this might not be possible.
+- MOST IMPORTANT: WE ARE GOING to have to refactor ALL the behaviour stuff so that it returns its status and
+applies its updates to an object, rather than returning its updates and having a separate method for report status.
+This way, any behaviour is basically the same as any other behaviour. 
 
-Look into using the JSHOP2 HTN planner.
+- So we can get rid of MovementBehaviour and  MovementManager, since they are all really just behaviours that operate on 
+the agent ctx (which will then store movement data) in different ways. Also, FollowPath for example will literally
+just be a node, that has a sequence node, that has MoveToPointLooking in it. Much cleaner overall.
 
-## Old undated
-How we're going to implement agent behaviour.
+**END IMPORTANT**
 
-Our agent is made up of a bunch of facets, or strategies. The GOAP system decides **what** we want to do, and then
-(something else?) decides **how** to do it.
+- Rewrite Behaviour interface to be an abstract class that supports parent/child nodes (DONE)
+- We will also have to rewrite the behaviour subclasses so that they can work with generic nodes. The problem is that
+how do we actually get a steering output eventually out of something like Sequence?
+- Rewrite MovementManager/HeadManager
+- How to handle the 3 different types of behaviours generically and cleanly?
 
-We could also divide this into short and long term planning.
+## Extra notes
+- What about FollowPath and other behaviours that use a nested MovementManager?
+    - This is OK, they will simply be refactored to use a nested behaviour tree sequence instead
+    - Note that this requires the ability to programatically define trees as well as load them from YAML
+    
 
-config_behaviour.yml will contain tasks and their definitions, and that will load a class of the same name which has
-code on how to execute it on the inside. We could also just do it with inheritance which would be better and skip the 
-YAML.
+# V2 (dumb)
+- We have keep our FSM stuff for MovementManager (but remove the queue)
+- We have a SEPARATE node graph thing for all the BTree stuff. BTree nodes defines in YAML, they would be like
+GoToBall, which would then make ITS OWN MovementManager to make a FollowPath and get to the goal
 
-So for example, the GetBall task will choose a MovementStrategy and a HeadingStrategy. Where we want to go, and where
-we want to look. And maybe also a NetworkingStrategy for communication.
-
-## How do we model our robot?
-Since omni-directional dash has been added, let's model our robot as an omni-directional drive robot like in
-RoboCup.
-
-We can drive in any direction at any time. We can turn our head +-180 degrees from the angle we're currently facing.
-It might be sensible to model this as "we can turn to any angle", and have the code automatically calculate the most
-optimal body angle and worry about the head the most. We can't see all of the field at once, we must scan.
-
-## Final thoughts
-- Skills will execute actions on the field
-- Skill output is passed to a SkillExecutor which will actually generate the commands
-- Pluggable planning infrastructure: support HTN planners (JSHOP2), HFSM, behaviour tree and machine learning all in one.
+- OK, great, but then how the do we get the bloody OUTPUT OF the FollowPath BACK TO THE AGENT???
+  - We still need the thing where it applies directly to the agent in the ctx, not through return values
+    - May as well just do V1 then where we use the same system
+  - Otherwise we would have to pump it back via the output of the BTree nodes

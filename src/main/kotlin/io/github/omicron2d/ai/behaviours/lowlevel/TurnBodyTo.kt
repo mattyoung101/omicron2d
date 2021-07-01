@@ -9,8 +9,7 @@
 
 package io.github.omicron2d.ai.behaviours.lowlevel
 
-import com.badlogic.gdx.math.Vector2
-import io.github.omicron2d.ai.behaviours.MovementBehaviour
+import io.github.omicron2d.ai.behaviours.Behaviour
 import io.github.omicron2d.utils.*
 import org.tinylog.kotlin.Logger
 
@@ -18,34 +17,20 @@ import org.tinylog.kotlin.Logger
  * This behaviour turns the body to a specified angle (snaps directly to it using angle difference).
  * @param targetAngle body angle to be reached **in radians**
  */
-class TurnBodyTo(val targetAngle: Double) : MovementBehaviour {
+class TurnBodyTo(val targetAngle: Double) : Behaviour() {
     private val tolerance = CURRENT_CONFIG.get().turnBodyToleranceDeg.toRadians()
     private val smoothing = CURRENT_CONFIG.get().turnBodySmoothing
     /** tick when the self player was last observed */
     private var lastObservedTick = -1
-    private var status = BehaviourStatus.RUNNING
 
-    override fun reportStatus(ctx: AgentContext): BehaviourStatus {
-        // check for failure and fail instantly
-        if (status == BehaviourStatus.FAILURE) return BehaviourStatus.FAILURE
-
-        return if (angleUnsignedDistance(ctx.world.getSelfPlayer().transform.theta, targetAngle) <= tolerance){
-            BehaviourStatus.SUCCESS
-        } else {
-            status
-        }
-    }
-
-    override fun calculateTurn(ctx: AgentContext): Double {
+    override fun onUpdate(ctx: AgentContext): BehaviourStatus {
         if (!ctx.world.getSelfPlayer().isKnown || ctx.world.getSelfPlayer().transform.theta == -1.0) {
             Logger.warn("Cannot calculate orientation, self information unknown!")
-            status = BehaviourStatus.FAILURE
-            return 0.0
+            return BehaviourStatus.FAILURE
         } else if (ctx.world.playMode == PlayMode.BEFORE_KICK_OFF) {
             // don't support any behaviours where the clock is not ticking up
             Logger.warn("TurnBodyTo not supported in current play mode: ${ctx.world.playMode}")
-            status = BehaviourStatus.FAILURE
-            return 0.0
+            return BehaviourStatus.FAILURE
         }
 
         // our problem originally was that, because server vision runs at 250ms but thinking runs ever 100ms,
@@ -54,7 +39,8 @@ class TurnBodyTo(val targetAngle: Double) : MovementBehaviour {
         // what we do here is make sure we only update the behaviour when the tick changed, otherwise skip processing.
         if (ctx.world.getSelfPlayer().lastSeen == lastObservedTick) {
             // same vision tick, wait for next world model update
-            return 0.0
+            ctx.moveResult.turn = 0.0
+            return BehaviourStatus.RUNNING
         } else {
             // new vision data received, world model is updated, we can act now
             lastObservedTick = ctx.world.getSelfPlayer().lastSeen
@@ -62,11 +48,13 @@ class TurnBodyTo(val targetAngle: Double) : MovementBehaviour {
 
         // snap to the target angle, turn by the difference it between us now and the target
         val currentAngle = ctx.world.getSelfPlayer().transform.theta
-        return angleSignedDistance(currentAngle, targetAngle) * smoothing
-    }
+        ctx.moveResult.turn = angleSignedDistance(currentAngle, targetAngle) * smoothing
 
-    override fun calculateSteering(ctx: AgentContext): Vector2 {
-        return Vector2(0.0, 0.0)
+        return if (angleUnsignedDistance(ctx.world.getSelfPlayer().transform.theta, targetAngle) <= tolerance){
+            BehaviourStatus.SUCCESS
+        } else {
+            BehaviourStatus.RUNNING
+        }
     }
 
     override fun toString(): String {
