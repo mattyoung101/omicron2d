@@ -27,6 +27,7 @@ import io.github.omicron2d.utils.*
 import org.apache.commons.lang3.concurrent.BasicThreadFactory
 import org.tinylog.kotlin.Logger
 import java.net.InetAddress
+import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
@@ -170,10 +171,10 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
             val root = Sequence()
 //            val stamina = DoubleArray(coords.size) { 100.0 }
             root.children.add(MoveToPointLooking(Vector2(0.0, 0.0), 100.0))
-//            movementManager.queue.add(FollowPath(coords, stamina, true))
+//            root.children.add(FollowPath(coords, stamina, true))
             root.children.add(TurnBodyTo(0.0))
-//            movementManager.queue.add(FollowPath(coords.reversedArray(), stamina, true))
-//            movementManager.queue.add(TurnBodyTo(0.0))
+//            root.children.add(FollowPath(coords.reversedArray(), stamina, true))
+//            root.children.add(TurnBodyTo(0.0))
             val initialPos = startingFormation.getPosition(highModel.selfId)
             root.children.add(MoveToPointLooking(initialPos, 100.0))
             root.children.add(TurnBodyTo(0.0))
@@ -199,13 +200,16 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
         highModel.teamPlayers[highModel.selfId].isGoalie = isGoalie
         Logger.info("Init message received: $init (self ID: ${highModel.selfId})")
 
+        val role = startingFormation.getRole(highModel.selfId)
+        highModel.role = role
+
         // info: the server (for the move command) actually considers right-side
         // coordinates as exactly the same as left side coordinates. So, instead of moving to (20, 0) for example,
         // the ACTUAL position... we move to (-20, 0) - the same as the left side. This means that no coordinate
         // adjustment is actually required.
         // once we have our unum, load the specified formation and move to our position
         val pos = startingFormation.getPosition(highModel.selfId)
-        Logger.debug("Moving to initial position $pos for formation ${startingFormation.name}")
+        Logger.debug("Moving to initial position $pos for formation ${startingFormation.name} and role $role")
         pushBatch(MoveMessage(pos))
         // usually we won't listen to the opposition - can be changed in YAML config though
         pushBatch(EarMessage(status = CURRENT_CONFIG.get().listenToOpposition, us = false))
@@ -376,8 +380,8 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
                 // first check if the message is a play mode change
                 val playModes = PlayMode.values().map { it.toString() }
 
-                if (hear.message.toUpperCase() in playModes){
-                    val newPlayMode = PlayMode.valueOf(hear.message.toUpperCase())
+                if (hear.message.uppercase(Locale.getDefault()) in playModes){
+                    val newPlayMode = PlayMode.valueOf(hear.message.uppercase(Locale.getDefault()))
                     Logger.info("Referee changing play mode to: $newPlayMode")
                     onPlayModeChange(newPlayMode)
                 }

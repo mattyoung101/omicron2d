@@ -11,10 +11,7 @@
 
 package io.github.omicron2d.ai.world
 
-import io.github.omicron2d.utils.BallObject
-import io.github.omicron2d.utils.PlayMode
-import io.github.omicron2d.utils.PlayerObject
-import io.github.omicron2d.utils.Side
+import io.github.omicron2d.utils.*
 
 /**
  * The HighLevelWorldModel contains information processed from the low level world model into more refined and useful data,
@@ -27,6 +24,7 @@ import io.github.omicron2d.utils.Side
  * @param selfId The ID of ourselves. ID is the same as unum, but zero indexed (so just -1 on the unum)
  * @param selfSide Our side
  * @param playMode current play mode
+ * @param role the gameplay role this player has in formation, for example striker
  */
 data class HighLevelWorldModel(
     var ball: BallObject = BallObject(),
@@ -37,7 +35,8 @@ data class HighLevelWorldModel(
     val unknownPlayers: MutableList<PlayerObject> = mutableListOf(),
     var selfId: Int = -1,
     var selfSide: Side = Side.UNKNOWN,
-    var playMode: PlayMode = PlayMode.UNKNOWN
+    var playMode: PlayMode = PlayMode.UNKNOWN,
+    var role: SoccerRole = SoccerRole.UNKNOWN
 ) : WorldModel {
     /** @return the player representing the current agent */
     fun getSelfPlayer(): PlayerObject {

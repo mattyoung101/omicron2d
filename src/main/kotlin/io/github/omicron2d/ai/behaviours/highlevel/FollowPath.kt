@@ -24,10 +24,11 @@ import io.github.omicron2d.utils.BehaviourStatus
  * @param looking if true, uses [MoveToPointLooking] instead of [MoveToPoint]
  */
 class FollowPath(private val path: Array<Vector2>, private val stamina: DoubleArray, private val looking: Boolean) : Behaviour() {
-    private var isDone = false
-    private val sequence: Sequence = Sequence()
+    // internally for this behaviour we just dispatch it out to a sequence node
+    private val sequence = Sequence()
 
     init {
+        // TODO fail instead of throwing exception
         if (path.size != stamina.size){
             throw IllegalArgumentException("Path array and stamina array size mismatch")
         } else if (path.isEmpty() || stamina.isEmpty()){

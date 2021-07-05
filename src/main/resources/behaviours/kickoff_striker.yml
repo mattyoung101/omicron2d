@@ -1,0 +1,8 @@
+# This file is part of the Omicron2D RoboCup 2D Soccer Simulation team.
+# Contains behaviour for striker in kickoff
+
+- Sequence:
+    - AssertRole(SoccerRole.STRIKER) # check we're a striker first
+    - GoToBall # move to the ball
+    - HoldBall # pick it up so we are in posession of it
+    - PassBallToRole(SoccerRole.CENTRE_FORWARD) # usually unum 9, id 8

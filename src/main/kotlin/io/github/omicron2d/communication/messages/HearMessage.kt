@@ -57,7 +57,7 @@ data class HearMessage(var time: Int = 0, var sender: MessageSender? = null, var
                 message.direction = ctx.direction().text.toDouble()
             } else {
                 // sender was an online coach or something
-                message.sender = MessageSender.valueOf(ctx.MESSAGE_SENDER().text.toUpperCase())
+                message.sender = MessageSender.valueOf(ctx.MESSAGE_SENDER().text.uppercase())
             }
         }
 

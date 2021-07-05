@@ -14,6 +14,7 @@ import io.github.omicron2d.utils.Side
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.tree.ParseTreeWalker
+import java.util.*
 
 /**
  * Server to client init message
@@ -59,7 +60,7 @@ data class IncomingInitMessage(var side: Side = Side.LEFT, var unum: Int = 0,
         }
 
         override fun enterPlaymode(ctx: ServerMessageParser.PlaymodeContext) {
-            message.playMode = PlayMode.valueOf(ctx.PLAYMODE().text.toUpperCase())
+            message.playMode = PlayMode.valueOf(ctx.PLAYMODE().text.uppercase(Locale.getDefault()))
         }
     }
 }

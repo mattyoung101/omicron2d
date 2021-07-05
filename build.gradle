@@ -2,7 +2,8 @@ plugins {
     id 'java'
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.0.8'
-    id 'org.jetbrains.kotlin.jvm' version '1.4.30'
+    id 'org.jetbrains.kotlin.jvm' version '1.5.20'
+    id "org.graalvm.plugin.compiler" version "0.1.0-alpha2"
 }
 
 // Kotlin versions: https://kotlinlang.org/releases.html
@@ -27,18 +28,18 @@ idea {
 repositories {
     //mavenLocal()
     mavenCentral()
-    jcenter()
     google()
     maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
     maven { url "https://oss.sonatype.org/content/repositories/releases/" }
-    maven { url "https://dl.bintray.com/kyonifer/maven" }
+    // we had to remove jcenter, but if it blows up, we might have to add that back
 }
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: '1.5.20'
+
     implementation 'org.tinylog:tinylog-api-kotlin:2.0.0'
     implementation 'org.tinylog:tinylog-impl:2.0.0'
-    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: '1.4.30'
     implementation group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1' // note: watch for math4 release
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
     implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
@@ -47,9 +48,15 @@ dependencies {
     implementation group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.14'
     implementation group: 'net.objecthunter', name: 'exp4j', version: '0.4.8'
     implementation group: 'org.locationtech.jts', name: 'jts-core', version: '1.18.0'
-    implementation group: 'org.jfree', name: 'jfreechart', version: '1.5.0'
-    implementation group: 'org.jfree', name: 'jfreechart-fx', version: '1.0.1'
-    implementation 'com.github.fzakaria:ascii85:1.2'
+    implementation group: 'org.jfree', name: 'jfreechart', version: '1.5.0' // TODO REMOVE
+    implementation group: 'org.jfree', name: 'jfreechart-fx', version: '1.0.1' // TODO REMOVE
+    implementation 'com.github.fzakaria:ascii85:1.2' // TODO possibly remove
+    // our lovely friends at Oracle (/s) have deprecated Nashorn for some super annoying reason, so we drag in GraalJS
+    // as a replacement, for evaluating class instantiations in behaviour trees
+    implementation "org.graalvm.sdk:graal-sdk:20.2.0"
+    implementation "org.graalvm.js:js:20.2.0"
+    implementation "org.graalvm.js:js-scriptengine:20.2.0"
+    implementation "org.reflections:reflections:0.9.12"
 
     antlr "org.antlr:antlr4:4.9"
     implementation "org.antlr:antlr4-runtime:4.9"

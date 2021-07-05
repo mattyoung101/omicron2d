@@ -42,12 +42,13 @@ object MarkerManager {
     /** matrix of absolute marker coordinates, with 2 columns and the number of markers rows */
     val markerMatrix = MatrixUtils.createRealMatrix(55, 2)!!
     // note: if number of markers changes, please update number of rows above
+    private var markersLoaded = false
 
     /**
      * Refresh marker coordinates by loading the YAML config file and re-calculating all the expressions.
      * You should call this function if the values of any of the variables (like goal_half_l) are changed somehow
      */
-    fun refreshMarkers(){
+    fun reloadMarkers(){
         Logger.debug("Refreshing marker coordinates")
         val begin = System.currentTimeMillis().toDouble()
 
@@ -73,14 +74,12 @@ object MarkerManager {
         }
 
         Logger.debug("Marker refresh took ${System.currentTimeMillis().toDouble() - begin} ms (${markers.size} markers)")
+        markersLoaded = true
     }
 
     init {
-        refreshMarkers()
-    }
-
-    fun setVariable(name: String, value: Double){
-        variables[name] = value
+        // only load the markers once, shouldn't be too much of an issue
+        if (!markersLoaded) reloadMarkers()
     }
 
     /**

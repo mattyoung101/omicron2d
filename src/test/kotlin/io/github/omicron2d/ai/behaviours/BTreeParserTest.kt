@@ -11,19 +11,14 @@ package io.github.omicron2d.ai.behaviours
 
 import io.github.omicron2d.ai.world.HighLevelWorldModel
 import io.github.omicron2d.utils.AgentContext
+import org.junit.Test
 
-class BTreeTest {
+class BTreeParserTest {
     // junk context for testing
     private val ctx = AgentContext(HighLevelWorldModel(), 0)
 
-//    @Test
-//    fun testSimpleTree(){
-//        val root = Sequence(listOf(AlwaysSuccess(), AlwaysSuccess(), AlwaysSuccess()))
-//        val executor = BTreeExecutor<MovementBehaviour>(root)
-//
-//        for (i in 0 until 10){
-//            val result = executor.tickTree(ctx)
-//            println("Result node: $result")
-//        }
-//    }
+    @Test
+    fun testSimpleTree(){
+        BTreeParser.parseBehaviourTree("src/test/resources/bhv_test.yml")
+    }
 }

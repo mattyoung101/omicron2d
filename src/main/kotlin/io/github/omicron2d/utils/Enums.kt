@@ -30,6 +30,7 @@ enum class SoccerRole {
     CENTRE_FORWARD,
     LEFT_WING,
     GOALIE,
+    UNKNOWN
 }
 
 //enum class Roles433 {

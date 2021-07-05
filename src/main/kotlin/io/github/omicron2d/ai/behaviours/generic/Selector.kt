@@ -16,9 +16,9 @@ import org.tinylog.kotlin.Logger
 import java.util.*
 
 /**
- * Behaviour tree node that executes its children in order until one fails.
+ * Behaviour tree node that executes its children in order until one succeeds. It will only fail if all children fail.
  */
-class Sequence() : Behaviour() {
+class Selector() : Behaviour() {
     /** list of children to execute */
     val children = LinkedList<Behaviour>()
     /** current behaviour being executed, first acquired from the head of the queue */
@@ -39,16 +39,16 @@ class Sequence() : Behaviour() {
         }
 
         val status = currentChild!!.onUpdate(ctx)
-        if (status == BehaviourStatus.SUCCESS){
-            // current child has finished, get next node from queue
+        if (status == BehaviourStatus.FAILURE){
+            // current child has failed, that's ok because we're a selector, just get next node from queue
             currentChild?.onExit(ctx)
-            // if next child is null, sequence is finished
-            val nextChild = children.poll() ?: return BehaviourStatus.SUCCESS
+            // if next child is null, all children must have failed, so we have failed too
+            val nextChild = children.poll() ?: return BehaviourStatus.FAILURE
             currentChild = nextChild
             currentChild?.onEnter(ctx)
-        } else if (status == BehaviourStatus.FAILURE){
-            // found a failed node, escalate failure immediately
-            return BehaviourStatus.FAILURE
+        } else if (status == BehaviourStatus.SUCCESS){
+            // found a successful node, we can return immediately
+            return BehaviourStatus.SUCCESS
         }
 
         // otherwise, we continue on
@@ -56,8 +56,6 @@ class Sequence() : Behaviour() {
     }
 
     override fun toString(): String {
-        return "Sequence(currentChild=$currentChild, children=${children.size} items)"
+        return "Selector(currentChild=$currentChild, children=${children.size} items)"
     }
-
-
 }

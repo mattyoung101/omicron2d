@@ -84,6 +84,7 @@ fun Double.toRadians(): Double {
 
 /**
  * Wrapper around [ICPLocalisation.correctPolarObservation] for easier use in agents
+ * TODO move to PlayerAgent??
  * @param direction angle to the object, -180 to 180 (this is raw server format, NOT processed 0-360)
  * @param distance distance to the object
  * @param transform localised agent transform
@@ -102,7 +103,7 @@ fun calculateAbsolutePosition(direction: Int, distance: Double, transform: Trans
  * @param theta angle **in radians**, counter-clockwise (standard trig format). If exactly -1.0, it is not known.
  */
 data class Transform2D(val pos: Vector2 = Vector2(0.0, 0.0), val theta: Double = 0.0)
-// TODO move the above to SoccerAgents
+// TODO move the above to SoccerObjects?
 
 /**
  * Encapsulates the result of a MovementBehaviour. If both dash and turn are set, it is expected that [dash] contains

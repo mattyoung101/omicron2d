@@ -34,28 +34,28 @@ class MoveToPointLooking(val targetPoint: Vector2, val maxPower: Double, val sta
     override fun onUpdate(ctx: AgentContext): BehaviourStatus {
         val myPos = ctx.world.getSelfPlayer().transform.pos
         val distance = myPos.dst(targetPoint)
-        val correction = abs(pd.update(distance, 0.0))
-
-        // first step: calculate move (if applicable, this will do nothing if we are still turning)
-        if (reachedAngle) {
-            ctx.moveResult.dash = Vector2(correction, 0.0)
-            // always return from here so we don't calculate the angle
-            return if (myPos.dst(targetPoint) <= threshold) BehaviourStatus.SUCCESS else BehaviourStatus.RUNNING
-        }
-
-        // assuming we have not run the move code yet, we must need to calculate the angle to turn to
         val currentAngle = ctx.world.getSelfPlayer().transform.theta
         val angleToTarget = targetPoint.cpy().sub(myPos).angleRad()
 
         // sometimes, the agent gets repositioned by the server and this breaks the angle
+        // do this before moving so we don't accidentally skip it
         // detect if the distance between our current angle and the target angle is off by more than the threshold
         // plus a small buffer, and if so, realign ourselves
-        // TODO make this buffer a define
+        // TODO make this buffer (0.1 rad I think?) a define
         if (reachedAngle && angleUnsignedDistance(currentAngle, angleToTarget) > threshold + 0.1){
             Logger.warn("Angle disruption detected! Realigning to $angleToTarget rad")
             reachedAngle = false
         }
 
+        // calculate move (if applicable, this will do nothing if we should still be turning)
+        if (reachedAngle) {
+            val correction = abs(pd.update(distance, 0.0))
+            ctx.moveResult.dash = Vector2(correction, 0.0)
+            // always return from here so we don't calculate the angle
+            return if (myPos.dst(targetPoint) <= threshold) BehaviourStatus.SUCCESS else BehaviourStatus.RUNNING
+        }
+
+        // assuming we have not returned yet, we must need to calculate the angle to turn to
         // if we don't currently have a turn body to behaviour, make a new one
         if (turnBodyTo == null){
             Logger.debug("Creating new TurnBodyTo, angle = $angleToTarget rad")
@@ -68,6 +68,8 @@ class MoveToPointLooking(val targetPoint: Vector2, val maxPower: Double, val sta
                 Logger.debug("TurnBodyTo has completed, starting movement to $targetPoint")
                 turnBodyTo = null
                 reachedAngle = true
+                // start doing that on the next loop
+                return BehaviourStatus.RUNNING
             }
             BehaviourStatus.FAILURE -> {
                 Logger.warn("TurnBodyTo failed! Escalating failure")
@@ -78,9 +80,6 @@ class MoveToPointLooking(val targetPoint: Vector2, val maxPower: Double, val sta
                 return BehaviourStatus.RUNNING
             }
         }
-
-        // shouldn't happen
-        return BehaviourStatus.RUNNING
     }
 
     override fun toString(): String {
