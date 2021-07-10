@@ -19,17 +19,18 @@ import java.util.*
  * Behaviour tree node that executes its children in order until one fails.
  */
 class Sequence() : Behaviour() {
-    /** list of children to execute */
-    val children = LinkedList<Behaviour>()
+    /** copy of list of children to execute */
+    private var internalChildren = LinkedList<Behaviour>()
     /** current behaviour being executed, first acquired from the head of the queue */
     private var currentChild: Behaviour? = null
 
     constructor(newChildren: Collection<Behaviour>) : this() {
-        children.addAll(newChildren)
+        internalChildren.addAll(newChildren)
     }
 
     override fun onEnter(ctx: AgentContext) {
-        currentChild = children.remove()
+        internalChildren = children
+        currentChild = internalChildren.remove()
     }
 
     override fun onUpdate(ctx: AgentContext): BehaviourStatus {
@@ -43,7 +44,7 @@ class Sequence() : Behaviour() {
             // current child has finished, get next node from queue
             currentChild?.onExit(ctx)
             // if next child is null, sequence is finished
-            val nextChild = children.poll() ?: return BehaviourStatus.SUCCESS
+            val nextChild = internalChildren.poll() ?: return BehaviourStatus.SUCCESS
             currentChild = nextChild
             currentChild?.onEnter(ctx)
         } else if (status == BehaviourStatus.FAILURE){
@@ -56,7 +57,7 @@ class Sequence() : Behaviour() {
     }
 
     override fun toString(): String {
-        return "Sequence(currentChild=$currentChild, children=${children.size} items)"
+        return "Sequence(currentChild=$currentChild, children=${children})"
     }
 
 

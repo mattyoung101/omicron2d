@@ -2,7 +2,14 @@
 # Contains behaviour for striker in kickoff
 
 - Sequence:
-    - AssertRole(SoccerRole.STRIKER) # check we're a striker first
-    - GoToBall # move to the ball
-    - HoldBall # pick it up so we are in posession of it
-    - PassBallToRole(SoccerRole.CENTRE_FORWARD) # usually unum 9, id 8
+    - Sequence:
+        - AssertRole(SoccerRole.STRIKER) # check we're a striker first
+        - Wait(1) # move to the ball
+        - Wait(2) # pick it up so we are in posession of it
+        - Wait(3) # usually unum 9, id 8
+        - AlwaysSuccess
+        - Selector:
+              - AlwaysSuccess
+              - AlwaysFailure
+              - AssertRole(SoccerRole.GOALIE)
+    - AlwaysSuccess

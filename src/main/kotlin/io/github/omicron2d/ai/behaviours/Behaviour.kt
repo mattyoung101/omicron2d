@@ -11,6 +11,7 @@ package io.github.omicron2d.ai.behaviours
 
 import io.github.omicron2d.utils.AgentContext
 import io.github.omicron2d.utils.BehaviourStatus
+import java.util.*
 
 /**
  * Root class for all behaviours. A behaviour is essentially what the robot "does", and is also a node in a behaviour
@@ -20,7 +21,7 @@ import io.github.omicron2d.utils.BehaviourStatus
  *
  * The robot can execute one movement behaviour and one communication behaviour at a time.
  */
-abstract class Behaviour {
+abstract class Behaviour() {
     /** Called when the behaviour is started. Default method does nothing. */
     open fun onEnter(ctx: AgentContext){}
 
@@ -32,6 +33,14 @@ abstract class Behaviour {
 
     /** Called when the behaviour is exited. Default does nothing. */
     open fun onExit(ctx: AgentContext){}
+
+    /** List of children owned by this node */
+    val children = LinkedList<Behaviour>()
+
+    /** Constructor that adds the defined list of children */
+    constructor(newChildren: Collection<Behaviour>) : this() {
+        children.addAll(newChildren)
+    }
 }
 
 // probably deprecated, we'll see

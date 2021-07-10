@@ -19,17 +19,18 @@ import java.util.*
  * Behaviour tree node that executes its children in order until one succeeds. It will only fail if all children fail.
  */
 class Selector() : Behaviour() {
-    /** list of children to execute */
-    val children = LinkedList<Behaviour>()
+    /** copy of this node's children */
+    private var internalChildren = LinkedList<Behaviour>()
     /** current behaviour being executed, first acquired from the head of the queue */
     private var currentChild: Behaviour? = null
 
     constructor(newChildren: Collection<Behaviour>) : this() {
-        children.addAll(newChildren)
+        internalChildren.addAll(newChildren)
     }
 
     override fun onEnter(ctx: AgentContext) {
-        currentChild = children.remove()
+        internalChildren = children
+        currentChild = internalChildren.remove()
     }
 
     override fun onUpdate(ctx: AgentContext): BehaviourStatus {
@@ -43,7 +44,7 @@ class Selector() : Behaviour() {
             // current child has failed, that's ok because we're a selector, just get next node from queue
             currentChild?.onExit(ctx)
             // if next child is null, all children must have failed, so we have failed too
-            val nextChild = children.poll() ?: return BehaviourStatus.FAILURE
+            val nextChild = internalChildren.poll() ?: return BehaviourStatus.FAILURE
             currentChild = nextChild
             currentChild?.onEnter(ctx)
         } else if (status == BehaviourStatus.SUCCESS){
@@ -56,6 +57,6 @@ class Selector() : Behaviour() {
     }
 
     override fun toString(): String {
-        return "Selector(currentChild=$currentChild, children=${children.size} items)"
+        return "Selector(currentChild=$currentChild, children=${children})"
     }
 }

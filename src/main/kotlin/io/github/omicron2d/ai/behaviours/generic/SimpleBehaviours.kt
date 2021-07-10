@@ -13,7 +13,8 @@ import io.github.omicron2d.ai.behaviours.Behaviour
 import io.github.omicron2d.utils.AgentContext
 import io.github.omicron2d.utils.BehaviourStatus
 import io.github.omicron2d.utils.SoccerRole
-import org.tinylog.kotlin.Logger
+
+// Class for behaviours with trivial implementations
 
 class AlwaysSuccess : Behaviour() {
     override fun onUpdate(ctx: AgentContext): BehaviourStatus {
@@ -32,25 +33,6 @@ class AlwaysFailure : Behaviour() {
 
     override fun toString(): String {
         return "AlwaysFailure()"
-    }
-}
-
-class Inverter(private val child: Behaviour? = null) : Behaviour() {
-    override fun onUpdate(ctx: AgentContext): BehaviourStatus {
-        return when (child?.onUpdate(ctx)) {
-            BehaviourStatus.RUNNING -> BehaviourStatus.RUNNING
-            BehaviourStatus.SUCCESS -> BehaviourStatus.FAILURE
-            BehaviourStatus.FAILURE -> BehaviourStatus.SUCCESS
-            null -> {
-                Logger.error("Child node should not be null in update!")
-                // I feel like this is dumb, but it shouldn't happen anyway. Maybe we should throw an exception instead?
-                return BehaviourStatus.RUNNING
-            }
-        }
-    }
-
-    override fun toString(): String {
-        return "Inverter(child=$child)"
     }
 }
 
