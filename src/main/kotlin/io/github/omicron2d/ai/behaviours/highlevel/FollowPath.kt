@@ -44,6 +44,10 @@ class FollowPath(private val path: Array<Vector2>, private val stamina: DoubleAr
         }
     }
 
+    override fun onEnter(ctx: AgentContext) {
+        sequence.onEnter(ctx)
+    }
+
     override fun onUpdate(ctx: AgentContext): BehaviourStatus{
         return sequence.onUpdate(ctx)
     }

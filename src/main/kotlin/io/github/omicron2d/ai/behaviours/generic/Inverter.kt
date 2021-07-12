@@ -14,8 +14,9 @@ import io.github.omicron2d.utils.AgentContext
 import io.github.omicron2d.utils.BehaviourStatus
 import org.tinylog.kotlin.Logger
 
-class Inverter(private val child: Behaviour? = null) : Behaviour() {
+class Inverter : Behaviour() {
     override fun onUpdate(ctx: AgentContext): BehaviourStatus {
+        val child = children.firstOrNull()
         return when (child?.onUpdate(ctx)) {
             BehaviourStatus.RUNNING -> BehaviourStatus.RUNNING
             BehaviourStatus.SUCCESS -> BehaviourStatus.FAILURE
@@ -29,6 +30,6 @@ class Inverter(private val child: Behaviour? = null) : Behaviour() {
     }
 
     override fun toString(): String {
-        return "Inverter(child=$child)"
+        return "Inverter()"
     }
 }

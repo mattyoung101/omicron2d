@@ -15,7 +15,7 @@ import io.github.omicron2d.ai.Formation
 import io.github.omicron2d.ai.behaviours.Behaviour
 import io.github.omicron2d.ai.behaviours.CommsManager
 import io.github.omicron2d.ai.behaviours.generic.Sequence
-import io.github.omicron2d.ai.behaviours.lowlevel.MoveToPointLooking
+import io.github.omicron2d.ai.behaviours.highlevel.FollowPath
 import io.github.omicron2d.ai.behaviours.lowlevel.Spin
 import io.github.omicron2d.ai.behaviours.lowlevel.TurnBodyTo
 import io.github.omicron2d.ai.world.HighLevelWorldModel
@@ -50,7 +50,6 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
     // we use this instead of timer, see https://stackoverflow.com/a/409993/5007892
     private val thinkTimer = Executors.newSingleThreadScheduledExecutor(namedThreadFactory)
     private val eventState = EventStates()
-    private var tick = 0
 
     /**
      * This function is intermittently called every 99ms, to send data to the server, since our message receive rate
@@ -105,7 +104,7 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
 
             // check for failures and successes
             if (result == BehaviourStatus.FAILURE){
-                Logger.warn("Current behaviour is reporting failure! Abandoning!")
+                Logger.warn("Current behaviour $currentBehaviour is reporting failure! Abandoning!")
                 currentBehaviour = null
             } else if (result == BehaviourStatus.SUCCESS){
                 Logger.debug("Current behaviour has finished successfully")
@@ -169,14 +168,17 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
                     Vector2(7.0, 5.0), Vector2(-7.0, -6.0)
             )
             val root = Sequence()
-//            val stamina = DoubleArray(coords.size) { 100.0 }
-            root.children.add(MoveToPointLooking(Vector2(0.0, 0.0), 100.0))
-//            root.children.add(FollowPath(coords, stamina, true))
-            root.children.add(TurnBodyTo(0.0))
-//            root.children.add(FollowPath(coords.reversedArray(), stamina, true))
+
+            // go to the centre, then back to starting position
+//            root.children.add(MoveToPointLooking(Vector2(0.0, 0.0), 100.0))
 //            root.children.add(TurnBodyTo(0.0))
-            val initialPos = startingFormation.getPosition(highModel.selfId)
-            root.children.add(MoveToPointLooking(initialPos, 100.0))
+//            val initialPos = startingFormation.getPosition(highModel.selfId)
+//            root.children.add(MoveToPointLooking(initialPos, 100.0))
+//            root.children.add(TurnBodyTo(0.0))
+
+            val stamina = DoubleArray(coords.size) { 100.0 }
+            root.children.add(FollowPath(coords, stamina, true))
+            root.children.add(FollowPath(coords.reversedArray(), stamina, true))
             root.children.add(TurnBodyTo(0.0))
 
             currentBehaviour = root

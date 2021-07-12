@@ -67,6 +67,26 @@ data class DashMessage(var power: Double = 0.0, var direction: Double? = null): 
 }
 
 /**
+ * @param power  between -100 and 100
+ * @param direction between -180 and 180
+ */
+data class KickMessage(var power: Double = 0.0, var direction: Double = 0.0): OutgoingServerMessage {
+    override fun serialise(): String {
+        return "(kick ${fmt.format(power)} ${fmt.format(direction)})"
+    }
+}
+
+// TODO account for foul value?
+/**
+ * @param direction -180 to 180
+ */
+data class TackleMessage(var direction: Double = 0.0) : OutgoingServerMessage {
+    override fun serialise(): String {
+        return "(tackle ${fmt.format(direction)})"
+    }
+}
+
+/**
  * @param angle -180 to 180
  */
 data class TurnMessage(var angle: Double = 0.0): OutgoingServerMessage {

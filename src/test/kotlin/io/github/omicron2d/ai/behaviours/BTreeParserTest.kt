@@ -9,8 +9,12 @@
 
 package io.github.omicron2d.ai.behaviours
 
+import io.github.omicron2d.ai.behaviours.generic.AssertRole
+import io.github.omicron2d.ai.behaviours.generic.Sequence
 import io.github.omicron2d.ai.world.HighLevelWorldModel
 import io.github.omicron2d.utils.AgentContext
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class BTreeParserTest {
@@ -19,6 +23,10 @@ class BTreeParserTest {
 
     @Test
     fun testSimpleTree(){
-        BTreeParser.parseBehaviourTree("src/test/resources/bhv_test.yml")
+        val tree = BTreeParser.parseBehaviourTree("src/test/resources/bhv_test.yml")
+
+        assertTrue(tree is Sequence)
+        assertEquals(2, tree.children.size)
+        assertTrue(tree.children[0].children[0] is AssertRole)
     }
 }

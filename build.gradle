@@ -2,16 +2,19 @@ plugins {
     id 'java'
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.0.8'
+    // Kotlin versions: https://kotlinlang.org/releases.html
     id 'org.jetbrains.kotlin.jvm' version '1.5.20'
     id "org.graalvm.plugin.compiler" version "0.1.0-alpha2"
+    //id 'com.github.johnrengelman.shadow' version '7.0.0' // stupid PoS wants me to upgrade gradle
 }
 
-// Kotlin versions: https://kotlinlang.org/releases.html
+graal { version = "20.2.0" }
 
 group 'omicron'
 version '1.0-SNAPSHOT'
 
 apply plugin: 'antlr'
+//apply plugin: 'com.github.johnrengelman.shadow'
 
 sourceCompatibility = 1.8
 
@@ -36,14 +39,10 @@ repositories {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: '1.5.20'
-
     implementation 'org.tinylog:tinylog-api-kotlin:2.0.0'
     implementation 'org.tinylog:tinylog-impl:2.0.0'
     implementation group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1' // note: watch for math4 release
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
-    implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
-    implementation group: 'commons-io', name: 'commons-io', version: '2.6'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.14'
     implementation group: 'net.objecthunter', name: 'exp4j', version: '0.4.8'
@@ -51,17 +50,25 @@ dependencies {
     implementation group: 'org.jfree', name: 'jfreechart', version: '1.5.0' // TODO REMOVE
     implementation group: 'org.jfree', name: 'jfreechart-fx', version: '1.0.1' // TODO REMOVE
     implementation 'com.github.fzakaria:ascii85:1.2' // TODO possibly remove
-    // our lovely friends at Oracle (/s) have deprecated Nashorn for some super annoying reason, so we drag in GraalJS
-    // as a replacement, for evaluating class instantiations in behaviour trees
-    implementation "org.graalvm.sdk:graal-sdk:20.2.0"
+    // Oracle killed Nashorn (why??) so we have to use this Graal crap instead (it's super annoying)
+    implementation "org.graalvm.sdk:graal-sdk:20.2.0" // TODO do we need this?
     implementation "org.graalvm.js:js:20.2.0"
     implementation "org.graalvm.js:js-scriptengine:20.2.0"
     implementation "org.reflections:reflections:0.9.12"
+    // Jetty is used for the debug server, maybe can ignore it for dist
+    // See: https://github.com/jetty-project/embedded-jetty-websocket-examples/tree/10.0.x/javax.websocket-example
+    implementation "jakarta.websocket:jakarta.websocket-api:1.1.2"
+    implementation "org.eclipse.jetty.websocket:websocket-javax-server:10.0.2"
 
     antlr "org.antlr:antlr4:4.9"
     implementation "org.antlr:antlr4-runtime:4.9"
 
     testImplementation group: 'junit', name: 'junit', version: '4.12'
+
+    // graveyard
+    //implementation group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: '1.5.20'
+    //implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
+    //implementation group: 'commons-io', name: 'commons-io', version: '2.6'
 }
 
 test {

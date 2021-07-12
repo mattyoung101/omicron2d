@@ -40,7 +40,7 @@ moveLookingKd: 1.0
 
 # Turn Neck To behaviour
 # Number of degrees tolerance where we consider the head angle as being reached
-turnNeckToleranceDeg: 4.0
+turnNeckToleranceDeg: 3.0
 # Multiplier of final output to smooth out the behaviour a little
 turnNeckSmoothing: 0.9
 

@@ -18,24 +18,21 @@ import java.util.*
 /**
  * Behaviour tree node that executes its children in order until one fails.
  */
-class Sequence() : Behaviour() {
+class Sequence : Behaviour() {
     /** copy of list of children to execute */
     private var internalChildren = LinkedList<Behaviour>()
     /** current behaviour being executed, first acquired from the head of the queue */
     private var currentChild: Behaviour? = null
 
-    constructor(newChildren: Collection<Behaviour>) : this() {
-        internalChildren.addAll(newChildren)
-    }
-
     override fun onEnter(ctx: AgentContext) {
         internalChildren = children
         currentChild = internalChildren.remove()
+        currentChild!!.onEnter(ctx)
     }
 
     override fun onUpdate(ctx: AgentContext): BehaviourStatus {
         if (currentChild == null){
-            Logger.error("Current child should not be null in update!")
+            Logger.error("Internal child should not be null in update!")
             return BehaviourStatus.FAILURE
         }
 
