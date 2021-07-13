@@ -4,5 +4,6 @@
 - Sequence:
     - AssertRole(SoccerRole.STRIKER) # check we're a striker first
     - GoToBall # move to the ball
+    - AwaitPlayMode(PlayMode.PLAY_ON) # wait till playmode before kicking
     - HoldBall # pick it up so we are in posession of it
     - PassBallToRole(SoccerRole.CENTRE_FORWARD) # usually unum 9, id 8

@@ -6,10 +6,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-
-package io.github.omicron2d.debug;
-
-// note: this is in Java because it is literally impossible in the wretched language known as Kotlin to elegantly
-// implement a primary constructor that calls another a secondary constructor
-public class WebSocketLoggingProvider {
-}
+$(document).ready(() => {
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    
+    const agentId = urlParams.get("id");
+    $("#agentId").text(agentId);
+});

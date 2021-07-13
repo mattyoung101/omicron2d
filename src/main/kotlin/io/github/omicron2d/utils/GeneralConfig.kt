@@ -21,6 +21,8 @@ data class GeneralConfig(
     var coachPort: Int = 0,
     var timeout: Int = 0,
     var showDebugDisplay: Boolean = false,
+    var enableDebugServer: Boolean = false,
+    var debugServerPort: Int = 0,
     var initialFormation: String = "",
     var fieldLength: Double = 0.0,
     var fieldWidth: Double = 0.0,
@@ -34,4 +36,6 @@ data class GeneralConfig(
     var moveLookingKd: Double = 0.0,
     var turnNeckToleranceDeg: Double = 0.0,
     var turnNeckSmoothing: Double = 0.0,
+    var goToBallMissingTicks: Double = 0.0,
+    var goToBallTolerance: Double = 0.0,
 )

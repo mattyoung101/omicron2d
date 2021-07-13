@@ -12,6 +12,7 @@ package io.github.omicron2d.ai.behaviours.generic
 import io.github.omicron2d.ai.behaviours.Behaviour
 import io.github.omicron2d.utils.AgentContext
 import io.github.omicron2d.utils.BehaviourStatus
+import io.github.omicron2d.utils.PlayMode
 import io.github.omicron2d.utils.SoccerRole
 
 // Class for behaviours with trivial implementations
@@ -48,5 +49,16 @@ class AssertRole(private var role: SoccerRole = SoccerRole.UNKNOWN) : Behaviour(
 
     override fun toString(): String {
         return "AssertRole(role=$role)"
+    }
+}
+
+/** Waits for the world playmode to match the one provided */
+class AwaitPlayMode(private var playMode: PlayMode = PlayMode.UNKNOWN) : Behaviour(){
+    override fun onUpdate(ctx: AgentContext): BehaviourStatus {
+        return if (ctx.world.playMode == playMode) BehaviourStatus.SUCCESS else BehaviourStatus.FAILURE
+    }
+
+    override fun toString(): String {
+        return "AwaitPlayMode(playMode=$playMode)"
     }
 }

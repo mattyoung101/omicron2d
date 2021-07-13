@@ -9,25 +9,34 @@
 
 package io.github.omicron2d.debug
 
+import com.google.gson.GsonBuilder
+import io.github.omicron2d.utils.CURRENT_CONFIG
 import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.server.ServerConnector
 import org.eclipse.jetty.servlet.ServletContextHandler
 import org.eclipse.jetty.websocket.javax.server.config.JavaxWebSocketServletContainerInitializer
 import org.tinylog.kotlin.Logger
+import java.io.IOException
 import javax.servlet.ServletContext
+import javax.websocket.Session
 import javax.websocket.server.ServerContainer
 
-
-/** Debug WebSocket server */
+/** Debug WebSocket server using an embedded Jetty */
 object DebugServer {
     private val server = Server()
+    val clients = mutableListOf<Session>()
+    private val gson = GsonBuilder().serializeSpecialFloatingPointValues().create()
 
-    fun launchServer(){
+    /** Launches the debug server, unless it was already started */
+    fun maybeLaunchServer(){
+        if (server.isStarting || server.isStarted) return
+
         // source:
         // https://github.com/jetty-project/embedded-jetty-websocket-examples/blob/10.0.x/javax.websocket-example/src/main/java/org/eclipse/jetty/demo/EventServer.java
         val connector = ServerConnector(server)
-        connector.port = 8080 // TODO make a define for this!
+        connector.port = CURRENT_CONFIG.get().debugServerPort
         server.addConnector(connector)
+        Logger.info("Starting debug server on port ${connector.port}")
 
         // Setup the basic application "context" for this application at "/"
         // This is also known as the handler tree (in jetty speak)
@@ -46,19 +55,38 @@ object DebugServer {
                 wsContainer.defaultMaxTextMessageBufferSize = 65535
 
                 // Add WebSocket endpoint to javax.websocket layer
-                // TODO
-                //wsContainer.addEndpoint(EventSocket::class.java)
+                wsContainer.addEndpoint(DebugServerSocket::class.java)
             }
 
             server.start()
-            server.join()
         } catch (e: Exception) {
             Logger.warn("Exception in debug server:")
             Logger.warn(e)
         }
     }
 
+    /** Stops the server */
     fun stopServer(){
         server.stop()
+    }
+
+    /**
+     * Transmits the message with code [msgId] and payload [obj] to the server.
+     */
+    fun transmit(msgId: String, agentId: Int, obj: Any){
+        if (!CURRENT_CONFIG.get().enableDebugServer) return
+
+        val message = mapOf(Pair("msgId", msgId), Pair("agentId", agentId), Pair("payload", obj))
+        val serialised = gson.toJson(message)
+
+        for (client in clients){
+            try {
+                client.basicRemote.sendText(serialised)
+            } catch (e: IOException){
+                Logger.warn("Failed to transmit to client: $client, error: $e")
+                // TODO don't remove immediately?
+                clients.remove(client)
+            }
+        }
     }
 }

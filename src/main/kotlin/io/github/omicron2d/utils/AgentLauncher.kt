@@ -12,12 +12,11 @@ package io.github.omicron2d.utils
 import com.esotericsoftware.yamlbeans.YamlReader
 import io.github.omicron2d.ai.agents.PlayerAgent
 import io.github.omicron2d.communication.messages.OutgoingInitMessage
-import io.github.omicron2d.debug.DebugDisplay
+import io.github.omicron2d.debug.DebugServer
 import org.tinylog.kotlin.Logger
 import java.io.FileReader
 import java.net.InetAddress
 import java.nio.file.Files
-import javax.swing.SwingUtilities
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 
@@ -39,18 +38,22 @@ object AgentLauncher {
         Logger.trace(generalConfig)
 
         // show debug UI
-        if (generalConfig.showDebugDisplay && !teamLaunch){
-            Logger.debug("Starting debug UI")
-            SwingUtilities.invokeLater {
-                val app = DebugDisplay()
-                app.pack()
-                app.setLocationRelativeTo(null)
-                app.isVisible = true
-                DEBUG_DISPLAY = app
-            }
-        } else if (teamLaunch){
-            // otherwise there would be way too many windows everywhere
-            Logger.debug("Running the debug UI is not supported in team launch mode")
+//        if (generalConfig.showDebugDisplay && !teamLaunch){
+//            Logger.debug("Starting debug UI")
+//            SwingUtilities.invokeLater {
+//                val app = DebugDisplay()
+//                app.pack()
+//                app.setLocationRelativeTo(null)
+//                app.isVisible = true
+//                DEBUG_DISPLAY = app
+//            }
+//        } else if (teamLaunch){
+//            // otherwise there would be way too many windows everywhere
+//            Logger.debug("Running the debug UI is not supported in team launch mode")
+//        }
+        if (generalConfig.enableDebugServer){
+            // note: will not be launched twice if called twice (keeps track of itself)
+            DebugServer.maybeLaunchServer()
         }
 
         Logger.info("Connecting to ${generalConfig.serverHost}:${generalConfig.playerPort}")

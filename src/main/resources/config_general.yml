@@ -9,8 +9,10 @@ trainerPort: 6001
 coachPort: 6002
 timeout: 10000 # milliseconds
 
-# GUI config
+# Debug config
 showDebugDisplay: false
+enableDebugServer: true
+debugServerPort: 8081
 
 # Formations
 initialFormation: 433
@@ -43,6 +45,12 @@ moveLookingKd: 1.0
 turnNeckToleranceDeg: 3.0
 # Multiplier of final output to smooth out the behaviour a little
 turnNeckSmoothing: 0.9
+
+# Go To Ball behaviour
+# Number of ticks we haven't seen the ball to consider it missing
+goToBallMissingTicks: 8
+# Distance the ball has moved since we saw it last until we start moving to its new location
+goToBallTolerance: 3.0
 
 # Field definitions
 # Source: https://github.com/rcsoccersim/rcssserver/blob/master/src/serverparam.cpp#L130

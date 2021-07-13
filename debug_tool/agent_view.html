@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Field View | Omicron2D</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootswatch/4.5.2/darkly/bootstrap.min.css">
+</head>
+
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">Omicron2D</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="#">All Agents</a>
+            </li>
+            <li class="nav-item dropdown active">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    View Agent ID...
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="agent_view.html?id=0">0</a>
+                    <a class="dropdown-item" href="agent_view.html?id=1">1</a>
+                    <a class="dropdown-item" href="agent_view.html?id=2">2</a>
+                    <a class="dropdown-item" href="agent_view.html?id=3">3</a>
+                    <a class="dropdown-item" href="agent_view.html?id=4">4</a>
+                    <a class="dropdown-item" href="agent_view.html?id=5">5</a>
+                    <a class="dropdown-item" href="agent_view.html?id=6">6</a>
+                    <a class="dropdown-item" href="agent_view.html?id=7">7</a>
+                    <a class="dropdown-item" href="agent_view.html?id=8">8</a>
+                    <a class="dropdown-item" href="agent_view.html?id=9">9</a>
+                    <a class="dropdown-item" href="agent_view.html?id=10">10</a>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <span class="navbar-text">
+        Connection status: <span id="connStatus">OFFLINE</span>
+      </span>
+</nav>
+
+<div class="container-fluid">
+    <br>
+    <h3>Agent View for <span id="agentId"></span></h3>
+</div>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.6.0/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script src="js/socket.js"></script>
+<script src="js/agentview.js"></script>
+</body>
+</html>

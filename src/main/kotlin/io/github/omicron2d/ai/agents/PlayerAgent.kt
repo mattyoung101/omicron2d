@@ -15,7 +15,6 @@ import io.github.omicron2d.ai.Formation
 import io.github.omicron2d.ai.behaviours.Behaviour
 import io.github.omicron2d.ai.behaviours.CommsManager
 import io.github.omicron2d.ai.behaviours.generic.Sequence
-import io.github.omicron2d.ai.behaviours.highlevel.FollowPath
 import io.github.omicron2d.ai.behaviours.lowlevel.Spin
 import io.github.omicron2d.ai.behaviours.lowlevel.TurnBodyTo
 import io.github.omicron2d.ai.world.HighLevelWorldModel
@@ -23,6 +22,7 @@ import io.github.omicron2d.ai.world.ICPLocalisation
 import io.github.omicron2d.ai.world.LowLevelWorldModel
 import io.github.omicron2d.communication.AbstractSoccerAgent
 import io.github.omicron2d.communication.messages.*
+import io.github.omicron2d.debug.DebugServer
 import io.github.omicron2d.utils.*
 import org.apache.commons.lang3.concurrent.BasicThreadFactory
 import org.tinylog.kotlin.Logger
@@ -172,14 +172,22 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
             // go to the centre, then back to starting position
 //            root.children.add(MoveToPointLooking(Vector2(0.0, 0.0), 100.0))
 //            root.children.add(TurnBodyTo(0.0))
-//            val initialPos = startingFormation.getPosition(highModel.selfId)
+            val initialPos = startingFormation.getPosition(highModel.selfId)
 //            root.children.add(MoveToPointLooking(initialPos, 100.0))
 //            root.children.add(TurnBodyTo(0.0))
 
-            val stamina = DoubleArray(coords.size) { 100.0 }
-            root.children.add(FollowPath(coords, stamina, true))
-            root.children.add(FollowPath(coords.reversedArray(), stamina, true))
-            root.children.add(TurnBodyTo(0.0))
+//            val stamina = DoubleArray(coords.size) { 100.0 }
+//            root.children.add(FollowPath(coords, stamina, true))
+//            root.children.add(FollowPath(coords.reversedArray(), stamina, true))
+//            root.children.add(TurnBodyTo(0.0))
+
+//            root.children.add(GoToBall())
+//            root.children.add(MoveToPointLooking(initialPos, 100.0))
+
+            for (i in 0 until 360 step 10){
+                root.children.add(TurnBodyTo(i.toDouble().toRadians()))
+                root.children.add(TurnBodyTo(0.0))
+            }
 
             currentBehaviour = root
             currentBehaviour!!.onEnter(AgentContext(highModel, lowModel.time))
@@ -350,6 +358,8 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
             highModel.teamPlayers[self].transform = agentTransform
             highModel.teamPlayers[self].lastSeen = lowModel.time
             AGENT_STATS.get().successfulLocalisations++
+
+            DebugServer.transmit("selfModel", highModel.selfId, highModel)
         } else {
             // because we couldn't localise, this means that the positions of ALL of our localised objects are
             // now unknown. so go and update them here
@@ -365,8 +375,9 @@ class PlayerAgent(host: InetAddress = InetAddress.getLocalHost(), port: Int = DE
                 highModel.unknownPlayers[i].isKnown = false
             }
             highModel.ball.isKnown = false
-
             AGENT_STATS.get().failedLocalisations++
+
+            DebugServer.transmit("localisationFailed", highModel.selfId, highModel)
         }
 
         AGENT_STATS.get().goodFlagsRate.addValue(lowModel.goodFlags.size.toDouble() / lowModel.allFlags.size.toDouble())
