@@ -2,25 +2,22 @@
 
 Omicron2D aims to be a team competing in the [RoboCup Soccer 2D Simulation league](https://rcsoccersim.github.io/). It
 is currently in early stages of development. This project is written entirely from scratch in Kotlin, and runs on the
-JVM. Whereas most teams in RoboCup 2D are a fork of HELIOS' C++ source code (or use librcsc/agent2d in some form),
+JVM. Comparatively, while most teams in RoboCup 2D are a fork of HELIOS' base C++ source code (or use librcsc/agent2d in some form),
 Omicron2D aims to be completely original and written from the ground up.
 
-Omicron2D is currently an independent project consisting of only one developer: me, Matt Young (previously
-software engineer on the RoboCup Jr team). This means development will likely be very slow! However, any feedback
+Unfortunately, while most RoboCup 2D teams consist of multiple post-graduate researchers, Omicron2D currently consists
+of only one very busy undergraduate student (myself, Matt Young). This means development will likely be very slow! However, any feedback
 or assistance is welcomed (just open a GitHub issue).
 
 The project is licenced under the Mozilla Public License v2.0, see LICENSE.txt for info.
 
 ## Project status
 
-Updated: March 2020
+Updated: July 2021
 
-**Note:** As it turns out, university life is actually quite busy - so I can probably only work on Omicron2D on the 
-holidays and weekends if I'm free and motivated. This means that development will be a lot slower since I'm only a 
-one man team. Hopefully we'll have acceptable gameplay by the time I graduate (~3 years from now!!)
-
-Working on basic movement behaviours, then will do some higher level ones. Currently have MoveToPoint, MoveToPointLooking,
-TurnBodyTo and Wait behaviours implemented.
+**Status:** Still working on movement behaviours. Also working on debug webapp now (should help to fix some issues)
+and implemented a pretty cool behaviour tree framework. The behaviour trees are written in YAML, where each line in
+the YAML document is JavaScript that is evaluated using an embedded GraalJS instance.
 
 Previously finished:
 
@@ -35,9 +32,9 @@ If you want to know more about the agents, please check out some Markdown files 
 and/or read the code. In the future when I'm closer to the tournament, a team description paper (TDP) will be
 prepared.
 
-Novel features of Omicron2D plan to be:
+Novel features of Omicron2D plan to be (subject to a lot of redesigns and changes):
 
-- Behaviour planning using a simple STRIPS-inspired symbolic planning algorithm
+- Behaviour planning using a custom behaviour tree framework
 - Iterative Closest Point (ICP) for efficient and accurate localisation
 - Complex data exchange with fellow teammates using the `say` command with only 10 characters per message
 - Implemented from scratch using Kotlin, rather than librcsc/agent2d and C++ as is done normally

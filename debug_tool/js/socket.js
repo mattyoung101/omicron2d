@@ -20,6 +20,7 @@ function rescheduleTimeout(){
         console.log("Server is not responding!");
         $("#connStatus").text("OFFLINE");
         // TODO auto-retry
+        // TODO make text red to indicate server is offline
     }, 1000);
 }
 
@@ -31,13 +32,24 @@ socket.addEventListener("open", (event) => {
 socket.addEventListener("message", (event) => {
     //console.log("Received message from server!");
     let message = JSON.parse(event.data);
-    console.log(message);
 
     let msgId = message.msgId;
     let agentId = message.agentId;
     let msgContents = message.payload;
 
-    console.log(`[${agentId}] -> [${msgId}]: ${JSON.stringify(msgContents)}`);
+    console.log(`[${agentId}] -> [${msgId}]:`);
+    console.log(message.payload);
+
+    // refresh field display if we have one (players will then be drawn on top)
+    if (typeof refreshFieldDisplay === "function"){
+        refreshFieldDisplay();
+    }
+
+    // dispatch message to relevant handler (if it exists)
+    // note: bad code
+    if (typeof handleMessage === "function"){
+        handleMessage(msgId, agentId, msgContents);
+    }
 
     rescheduleTimeout();
 });

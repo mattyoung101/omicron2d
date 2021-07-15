@@ -13,3 +13,10 @@ $(document).ready(() => {
     const agentId = urlParams.get("id");
     $("#agentId").text(agentId);
 });
+
+function handleMessage(msgId, agentId, msgContents){
+    if (msgId == "selfModel"){
+        // draw ourselves to canvas
+        console.log("HAVE SELF MODEL MESSAGE");
+    }
+}
