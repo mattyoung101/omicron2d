@@ -5,26 +5,22 @@ is currently in early stages of development. This project is written entirely fr
 JVM. Comparatively, while most teams in RoboCup 2D are a fork of HELIOS' base C++ source code (or use librcsc/agent2d in some form),
 Omicron2D aims to be completely original and written from the ground up.
 
-Unfortunately, while most RoboCup 2D teams consist of multiple post-graduate researchers, Omicron2D currently consists
-of only one very busy undergraduate student (myself, Matt Young). This means development will likely be very slow! However, any feedback
-or assistance is welcomed (just open a GitHub issue).
+Development on this project has been cancelled (see below).
 
 The project is licenced under the Mozilla Public License v2.0, see LICENSE.txt for info.
 
 ## Project status
 
-Updated: July 2021
+Last updated: July 2021
 
-**Status:** Still working on movement behaviours. Also working on debug webapp now (should help to fix some issues)
-and implemented a pretty cool behaviour tree framework. The behaviour trees are written in YAML, where each line in
-the YAML document is JavaScript that is evaluated using an embedded GraalJS instance.
+**Status:** In case it's not already clear, the Omicron2D project has been canned. This is mostly because I lost interest in RoboCup 2D Sim League, and also got busy with other projects. However, all is not lost - although the agents don't really do much, there's a lot of useful stuff in here. I think this repo could reasonably used as a base if you are looking to start your own RoboCup Sim League team that doesn't use rcsoccersim. Main highlights are:
 
-Previously finished:
+- Agent networking with rcssserver
+- ANTLR-based parser for most server messages (with tests)
+- Fast Iterative Closest Point (ICP) localisation
+- Nice behaviour tree and world model system (in my opinion, of course)
 
-- STRIPS planner and custom plan definition DSL mostly implemented
-- Agent can localise its position with high accuracy
-- All team members can join and align themselves in formation
-- Basic stuff like parser, networking, all works
+Good luck. If there's any questions you have, feel free to open a ticket and I'll have a look.
 
 ## About the agents
 
@@ -60,8 +56,5 @@ TODO
 ## Licence
 This repo is licenced under the Mozilla Public License v2.0, see LICENSE.txt. For info on complying with the MPL 2.0
 see [this FAQ](https://www.mozilla.org/en-US/MPL/2.0/FAQ/).
-
-If you use any part of Omicron2D in competition or research, please reference it in a noteworthy place in your TDP. If
-you make any modifications to MPL 2.0 licenced files, those modifications must be released under the MPL 2.0 as well.
 
 See ATTRIBUTION.txt for libraries used in the project which require attribution in project documentation.
